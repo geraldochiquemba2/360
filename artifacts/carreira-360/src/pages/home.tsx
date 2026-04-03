@@ -80,12 +80,12 @@ export default function Home() {
             CARREIRA 360°
           </div>
           
-          <div className="hidden md:flex items-center gap-12 font-sans font-bold text-sm tracking-widest uppercase">
-            <button onClick={() => scrollTo("estatisticas")} className="hover:text-[#0EA5E9] transition-colors">O Problema</button>
-            <button onClick={() => scrollTo("pilares")} className="hover:text-[#0EA5E9] transition-colors">Pilares</button>
-            <button onClick={() => scrollTo("jornada")} className="hover:text-[#0EA5E9] transition-colors">Jornada</button>
-            <button onClick={() => scrollTo("inscricao")} className="hover:text-[#0EA5E9] transition-colors">Inscrever</button>
-            <a href="/auth/login" className="bg-[#0EA5E9] text-[#001F33] px-6 py-2 rounded-none font-bold hover:bg-[#F97316] transition-colors">Entrar</a>
+          <div className="hidden md:flex items-center gap-10 font-sans font-bold text-sm tracking-widest uppercase">
+            <button onClick={() => scrollTo("estatisticas")} className="text-white/80 hover:text-white transition-colors">O Problema</button>
+            <button onClick={() => scrollTo("pilares")} className="text-white/80 hover:text-white transition-colors">Pilares</button>
+            <button onClick={() => scrollTo("jornada")} className="text-white/80 hover:text-white transition-colors">Jornada</button>
+            <a href="/auth/login" className="text-white/80 hover:text-[#0EA5E9] transition-colors">Login</a>
+            <a href="/auth/register" className="bg-[#0EA5E9] text-white px-6 py-2 font-bold hover:bg-[#F97316] transition-colors">Cadastro</a>
           </div>
 
           <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -95,12 +95,12 @@ export default function Home() {
 
         {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden fixed inset-0 top-16 bg-black/95 backdrop-blur-xl p-6 flex flex-col gap-4 shadow-2xl z-[60] border-t border-white/10 overflow-y-auto">
+          <div className="md:hidden fixed inset-0 top-16 bg-[#001F33] backdrop-blur-xl p-6 flex flex-col gap-6 shadow-2xl z-[60] border-t border-white/10 overflow-y-auto">
             <motion.button 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               onClick={() => scrollTo("estatisticas")} 
-              className="text-left text-2xl font-display uppercase hover:text-[#0EA5E9] transition-colors"
+              className="text-left text-2xl font-display uppercase text-white hover:text-[#0EA5E9] transition-colors"
             >
               O Problema
             </motion.button>
@@ -109,7 +109,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
               onClick={() => scrollTo("pilares")} 
-              className="text-left text-2xl font-display uppercase hover:text-[#0EA5E9] transition-colors"
+              className="text-left text-2xl font-display uppercase text-white hover:text-[#0EA5E9] transition-colors"
             >
               Os Pilares
             </motion.button>
@@ -118,28 +118,30 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
               onClick={() => scrollTo("jornada")} 
-              className="text-left text-2xl font-display uppercase hover:text-[#0EA5E9] transition-colors"
+              className="text-left text-2xl font-display uppercase text-white hover:text-[#0EA5E9] transition-colors"
             >
               Jornada
             </motion.button>
-            <motion.button 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              onClick={() => scrollTo("publico")} 
-              className="text-left text-2xl font-display uppercase hover:text-[#0EA5E9] transition-colors"
-            >
-              Para Quem
-            </motion.button>
-            <motion.button 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              onClick={() => scrollTo("inscricao")} 
-              className="text-left text-2xl font-display text-[#0EA5E9] uppercase border-t border-white/10 pt-4"
-            >
-              Inscrever-me
-            </motion.button>
+            <div className="border-t border-white/20 pt-6 flex flex-col gap-4 mt-2">
+              <motion.a
+                href="/auth/login"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-center text-xl font-display uppercase text-white border border-white/30 py-3 hover:border-[#0EA5E9] hover:text-[#0EA5E9] transition-colors"
+              >
+                Login
+              </motion.a>
+              <motion.a
+                href="/auth/register"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="text-center text-xl font-display uppercase bg-[#0EA5E9] text-white py-3 font-bold hover:bg-[#F97316] transition-colors"
+              >
+                Cadastro
+              </motion.a>
+            </div>
           </div>
         )}
       </nav>
