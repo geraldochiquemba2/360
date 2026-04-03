@@ -80,7 +80,7 @@ export default function Home() {
             <img 
               src="/assets/logo.png" 
               alt="Carreira 360" 
-              className="h-16 w-auto object-contain rotate-90 hover:scale-105 transition-transform"
+              className="h-10 w-auto object-contain hover:scale-105 transition-transform"
               style={{ imageRendering: 'crisp-edges' }}
             />
           </div>
@@ -191,19 +191,6 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-
-      {/* 2. TICKER */}
-      <div className="bg-[#0EA5E9] py-2 md:py-3 overflow-hidden flex whitespace-nowrap border-y-4 border-[#F97316] rotate-[-1deg] scale-105 transform origin-center z-20 relative">
-        <motion.div 
-          className="flex whitespace-nowrap text-[#001F33] font-display text-2xl md:text-4xl uppercase tracking-widest"
-          animate={{ x: [0, -2000] }}
-          transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-        >
-          {Array(10).fill("• PROGRAMA DE 12 MESES • ANGOLA • EMPREGABILIDADE • ").map((text, i) => (
-            <span key={i} className="mx-4">{text}</span>
-          ))}
-        </motion.div>
-      </div>
 
       {/* 3. ESTATÍSTICAS */}
       <section id="estatisticas" className="py-16 md:py-24 px-6 bg-[#F5F0E8] text-[#001F33] relative z-10 -mt-8">

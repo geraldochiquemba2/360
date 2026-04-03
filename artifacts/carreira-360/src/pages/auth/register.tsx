@@ -113,7 +113,7 @@ export default function RegisterPage() {
             <img 
               src="/assets/logo.png" 
               alt="Carreira 360" 
-              className="h-24 w-auto object-contain mb-10 cursor-pointer hover:scale-105 transition-transform rotate-90"
+              className="h-20 w-auto object-contain mb-6 cursor-pointer hover:scale-105 transition-transform"
             />
           </Link>
           <div className="flex items-center gap-4 w-full">

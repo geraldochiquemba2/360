@@ -77,7 +77,7 @@ export default function LoginPage() {
             <img 
               src="/assets/logo.png" 
               alt="Carreira 360" 
-              className="h-32 w-auto object-contain mb-8 cursor-pointer hover:scale-105 transition-transform rotate-90"
+              className="h-24 w-auto object-contain mb-4 cursor-pointer hover:scale-105 transition-transform"
             />
           </Link>
           <p className="text-white/50 font-medium uppercase tracking-widest text-sm">Entra na tua conta</p>
