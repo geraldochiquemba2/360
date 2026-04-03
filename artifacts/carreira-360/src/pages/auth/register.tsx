@@ -90,11 +90,11 @@ export default function RegisterPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#001F33] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans pt-20">
+    <div className="min-h-screen bg-[#001F33] text-white flex flex-col justify-center items-center p-6 py-12 md:py-6 relative overflow-hidden font-sans">
       {/* Back Button */}
-      <div className="absolute top-8 left-8 z-20">
+      <div className="w-full max-w-2xl flex justify-start mb-6 z-20 relative">
         <Link href="/">
-          <Button variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10 uppercase font-bold tracking-widest text-xs flex items-center gap-2">
+          <Button variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10 uppercase font-bold tracking-widest text-xs flex items-center gap-2 px-2 -ml-2">
             ← Voltar para o Início
           </Button>
         </Link>
@@ -113,7 +113,7 @@ export default function RegisterPage() {
             <img 
               src="/assets/logo.png" 
               alt="Carreira 360" 
-              className="h-24 w-auto object-contain mb-10 cursor-pointer hover:scale-105 transition-transform rotate-90"
+              className="h-20 md:h-24 w-auto object-contain mb-10 cursor-pointer hover:scale-105 transition-transform"
             />
           </Link>
           <div className="flex items-center gap-4 w-full">

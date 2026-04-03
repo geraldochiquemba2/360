@@ -53,11 +53,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#001F33] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#001F33] text-white flex flex-col justify-center items-center p-6 py-12 md:py-6 relative overflow-hidden font-sans">
       {/* Back Button */}
-      <div className="absolute top-8 left-8 z-20">
+      <div className="w-full max-w-md flex justify-start mb-6 z-20 relative">
         <Link href="/">
-          <Button variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10 uppercase font-bold tracking-widest text-xs flex items-center gap-2">
+          <Button variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10 uppercase font-bold tracking-widest text-xs flex items-center gap-2 px-2 -ml-2">
             ← Voltar para o Início
           </Button>
         </Link>
@@ -77,7 +77,7 @@ export default function LoginPage() {
             <img 
               src="/assets/logo.png" 
               alt="Carreira 360" 
-              className="h-32 w-auto object-contain mb-8 cursor-pointer hover:scale-105 transition-transform rotate-90"
+              className="h-24 md:h-32 w-auto object-contain mb-8 cursor-pointer hover:scale-105 transition-transform"
             />
           </Link>
           <p className="text-white/50 font-medium uppercase tracking-widest text-sm">Entra na tua conta</p>
