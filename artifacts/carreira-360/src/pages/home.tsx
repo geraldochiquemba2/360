@@ -327,7 +327,7 @@ export default function Home() {
             <motion.img
               src="/assets/vagner.jpg"
               alt="Entrevista"
-              className="absolute inset-0 w-full h-full object-cover scale-105"
+              className="absolute inset-0 w-full h-full object-cover object-top scale-105"
               initial={{ filter: "grayscale(100%) brightness(0.7)" }}
               whileInView={{ filter: "grayscale(0%) brightness(1)" }}
               viewport={{ once: true, margin: "-80px" }}
