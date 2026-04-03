@@ -42,7 +42,7 @@ const frontendPath = path.resolve(__dirname, "../../carreira-360/dist/public");
 app.use(express.static(frontendPath));
 
 // Fallback for React Router / Wouter SPA navigation
-app.get("*", (req, res) => {
+app.get("(.*)", (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
 
