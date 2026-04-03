@@ -12,6 +12,10 @@ const JWT_SECRET = process.env["JWT_SECRET"] || "development-secret";
 
 authRouter.post("/register", async (req, res) => {
   try {
+    if (!db) {
+      return res.status(500).json({ error: "Banco de dados não configurado" });
+    }
+    
     const result = RegisterSchema.safeParse(req.body);
     if (!result.success) {
       return res.status(400).json({ error: "Dados inválidos", details: result.error.errors });
@@ -42,7 +46,7 @@ authRouter.post("/register", async (req, res) => {
 
     const token = jwt.sign({ id: newUser.id, role: newUser.role }, JWT_SECRET, { expiresIn: "7d" });
 
-    res.status(201).json({
+    return res.status(201).json({
       user: {
         id: newUser.id,
         name: newUser.name,
@@ -53,12 +57,16 @@ authRouter.post("/register", async (req, res) => {
     });
   } catch (err) {
     logger.error({ err }, "Erro no registo");
-    res.status(500).json({ error: "Erro interno do servidor" });
+    return res.status(500).json({ error: "Erro interno do servidor" });
   }
 });
 
 authRouter.post("/login", async (req, res) => {
   try {
+    if (!db) {
+      return res.status(500).json({ error: "Banco de dados não configurado" });
+    }
+
     const result = LoginSchema.safeParse(req.body);
     if (!result.success) {
       return res.status(400).json({ error: "E-mail ou senha inválidos" });
@@ -78,7 +86,7 @@ authRouter.post("/login", async (req, res) => {
 
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
 
-    res.json({
+    return res.json({
       user: {
         id: user.id,
         name: user.name,
@@ -89,7 +97,7 @@ authRouter.post("/login", async (req, res) => {
     });
   } catch (err) {
     logger.error({ err }, "Erro no login");
-    res.status(500).json({ error: "Erro interno do servidor" });
+    return res.status(500).json({ error: "Erro interno do servidor" });
   }
 });
 
