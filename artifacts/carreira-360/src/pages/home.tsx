@@ -1,20 +1,5 @@
 import { useRef, useState } from "react";
-import { motion, useScroll, AnimatePresence } from "framer-motion";
-import { 
-  ArrowRight, 
-  MapPin, 
-  Briefcase, 
-  Users, 
-  GraduationCap, 
-  CheckCircle2, 
-  ChevronRight,
-  Menu,
-  X,
-  Target,
-  FileText,
-  Network,
-  Clock
-} from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -43,6 +28,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
+import { Menu, X, ArrowRight } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
@@ -55,7 +41,7 @@ const formSchema = z.object({
 export default function Home() {
   const { toast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,706 +55,452 @@ export default function Home() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    setIsSubmitted(true);
-    toast({
-      title: "Inscrição submetida!",
-      description: "A tua viagem começa agora. Entraremos em contacto em breve.",
-    });
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      toast({
+        title: "Inscrição recebida!",
+        description: "A tua candidatura foi registada. Em breve entraremos em contacto.",
+      });
+      form.reset();
+    }, 1000);
   }
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
-
-  const fadeUpVariant = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15
-      }
-    }
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setIsMenuOpen(false);
   };
 
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground overflow-hidden selection:bg-primary/20 selection:text-primary" ref={containerRef}>
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+    <div className="min-h-screen bg-background font-sans text-foreground selection:bg-primary/20 selection:text-primary">
+      {/* 1. NAVBAR */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-secondary border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-display font-bold text-xl shadow-lg shadow-primary/20">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
+            <div className="w-8 h-8 rounded-none bg-primary flex items-center justify-center text-primary-foreground font-display font-black text-xl">
               C
             </div>
-            <span className="font-display font-bold text-xl tracking-tight">Carreira 360°</span>
+            <span className="font-display font-black text-2xl tracking-tight text-white uppercase">CARREIRA 360°</span>
           </div>
           
           <div className="hidden md:flex items-center gap-8">
-            <a href="#contexto" className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">O Problema</a>
-            <a href="#pilares" className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">O Programa</a>
-            <a href="#jornada" className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">A Jornada</a>
-            <a href="#publico" className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">Para Quem</a>
-            <Button onClick={() => document.getElementById("inscricao")?.scrollIntoView({ behavior: "smooth" })} className="rounded-full px-6 font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-0.5">
-              Inscreve-te Agora
+            <button onClick={() => scrollTo("estatisticas")} className="text-sm font-semibold text-white/70 hover:text-white transition-colors">O Problema</button>
+            <button onClick={() => scrollTo("pilares")} className="text-sm font-semibold text-white/70 hover:text-white transition-colors">Os Pilares</button>
+            <button onClick={() => scrollTo("jornada")} className="text-sm font-semibold text-white/70 hover:text-white transition-colors">Jornada</button>
+            <button onClick={() => scrollTo("publico")} className="text-sm font-semibold text-white/70 hover:text-white transition-colors">Para Quem</button>
+            <Button onClick={() => scrollTo("inscricao")} className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 font-bold text-sm uppercase tracking-wide">
+              Inscrever-me
             </Button>
           </div>
 
-          <button className="md:hidden text-foreground" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X /> : <Menu />}
+          <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
 
         {/* Mobile menu */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border"
-            >
-              <div className="flex flex-col p-6 gap-4">
-                <a href="#contexto" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold">O Problema</a>
-                <a href="#pilares" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold">O Programa</a>
-                <a href="#jornada" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold">A Jornada</a>
-                <a href="#publico" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold">Para Quem</a>
-                <Button onClick={() => { setIsMenuOpen(false); document.getElementById("inscricao")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-4 rounded-xl h-12 font-bold">
-                  Inscreve-te Agora
-                </Button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {isMenuOpen && (
+          <div className="md:hidden bg-secondary border-b border-white/10 absolute top-20 left-0 right-0 p-6 flex flex-col gap-6 shadow-2xl">
+            <button onClick={() => scrollTo("estatisticas")} className="text-left text-lg font-bold text-white uppercase">O Problema</button>
+            <button onClick={() => scrollTo("pilares")} className="text-left text-lg font-bold text-white uppercase">Os Pilares</button>
+            <button onClick={() => scrollTo("jornada")} className="text-left text-lg font-bold text-white uppercase">Jornada</button>
+            <button onClick={() => scrollTo("publico")} className="text-left text-lg font-bold text-white uppercase">Para Quem</button>
+            <Button onClick={() => scrollTo("inscricao")} className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 font-bold text-sm uppercase tracking-wide w-full">
+              Inscrever-me
+            </Button>
+          </div>
+        )}
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-6 overflow-hidden min-h-[90vh] flex items-center">
-        <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/cubes.png')" }}></div>
-        <div className="absolute top-0 -right-64 w-[800px] h-[800px] bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -bottom-64 -left-64 w-[600px] h-[600px] bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="max-w-7xl mx-auto relative z-10 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-            className="flex flex-col items-start"
-          >
-            <motion.div variants={fadeUpVariant} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 text-sm font-bold mb-8">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-              Luanda • Viana • Benguela • Lobito
-            </motion.div>
-            
-            <motion.h1 variants={fadeUpVariant} className="text-5xl md:text-7xl font-display font-extrabold leading-[1.05] tracking-tight mb-6">
-              O parceiro de carreira que <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">nunca tiveste.</span>
-            </motion.h1>
-            
-            <motion.p variants={fadeUpVariant} className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-lg leading-relaxed font-medium">
-              Não é mais um curso online. É uma bússola para quem tem talento mas não sabe por onde começar.
-            </motion.p>
-            
-            <motion.div variants={fadeUpVariant} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Button size="lg" onClick={() => document.getElementById("inscricao")?.scrollIntoView({ behavior: "smooth" })} className="rounded-full h-14 px-8 text-lg font-bold shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all hover:-translate-y-1">
-                Começar a Jornada
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => document.getElementById("contexto")?.scrollIntoView({ behavior: "smooth" })} className="rounded-full h-14 px-8 text-lg font-bold border-2 hover:bg-secondary/5">
-                O Nosso Método
-              </Button>
-            </motion.div>
-            
-            <motion.div variants={fadeUpVariant} className="mt-12 flex items-center gap-4 p-4 rounded-2xl bg-secondary/5 border border-secondary/10 backdrop-blur-sm">
-              <div className="flex -space-x-3">
-                {[1,2,3].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="w-12 h-12 rounded-full border-2 border-background bg-secondary/10 flex items-center justify-center overflow-hidden"
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{
-                      duration: 2.2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: (i - 1) * 0.35,
-                    }}
-                  >
-                    <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${i + 10}&backgroundColor=transparent`} alt="avatar" />
-                  </motion.div>
-                ))}
-              </div>
-              <div>
-                <p className="text-sm font-bold text-foreground">Programa de 12 meses</p>
-                <p className="text-sm text-muted-foreground">Transformação profunda</p>
-              </div>
-            </motion.div>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, rotate: -2 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 1, delay: 0.2, type: "spring" }}
-            className="relative lg:h-[650px] rounded-[2.5rem] overflow-hidden bg-secondary border border-border/10 shadow-2xl group"
-          >
-            <div className="absolute inset-0 bg-gradient-to-tr from-secondary/95 via-secondary/80 to-secondary/30 z-10 mix-blend-multiply transition-opacity duration-500 group-hover:opacity-90"></div>
-            <img 
-              src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" 
-              alt="Jovens a trabalhar num portátil" 
-              className="absolute inset-0 w-full h-full object-cover object-center grayscale-[30%] transition-transform duration-700 group-hover:scale-105"
+      {/* 2. HERO */}
+      <section className="relative pt-32 pb-24 md:pt-48 md:pb-32 bg-secondary text-white overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block opacity-40 mix-blend-luminosity">
+           <img 
+              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=80" 
+              alt="Jovens a trabalhar" 
+              className="w-full h-full object-cover"
             />
+            <div className="absolute inset-0 bg-gradient-to-r from-secondary to-transparent"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-widest mb-8">
+              <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+              Luanda • Viana • Benguela • Lobito
+            </div>
             
-            {/* Floating Badge */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-              className="absolute top-8 right-8 z-30 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center gap-4"
-            >
-              <div className="w-12 h-12 rounded-full bg-accent text-accent-foreground flex items-center justify-center">
-                <Briefcase className="w-6 h-6" />
-              </div>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-black leading-[0.95] tracking-tight mb-8">
+              O parceiro de carreira que <span className="text-primary">nunca tiveste.</span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-white/70 mb-12 max-w-xl leading-relaxed font-medium">
+              Programa imersivo de 12 meses para preparar jovens angolanos para o mercado de trabalho com estratégia, treino e foco implacável.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button onClick={() => scrollTo("inscricao")} className="rounded-none h-16 px-10 bg-primary text-primary-foreground hover:bg-primary/90 text-lg font-bold uppercase tracking-wider">
+                Garantir o meu lugar
+              </Button>
+              <Button onClick={() => scrollTo("pilares")} variant="outline" className="rounded-none h-16 px-10 bg-transparent border-white/20 text-white hover:bg-white hover:text-secondary text-lg font-bold uppercase tracking-wider">
+                Ver o Programa
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. TICKER/BANDA */}
+      <div className="bg-primary py-4 overflow-hidden flex whitespace-nowrap border-y-4 border-secondary">
+        <motion.div 
+          className="flex whitespace-nowrap text-secondary font-display font-black text-3xl uppercase tracking-widest"
+          animate={{ x: [0, -1000] }}
+          transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
+        >
+          {Array(10).fill("Luanda • Viana • Benguela • Lobito • 12 Meses • Empregabilidade • Angola • ").map((text, i) => (
+            <span key={i} className="mx-2">{text}</span>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* 4. ESTATÍSTICAS */}
+      <section id="estatisticas" className="py-24 md:py-32 px-6 bg-background">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-black leading-tight max-w-2xl text-secondary">
+              Os números que nos obrigam a agir.
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-12 md:gap-8">
+            <div className="flex gap-6">
+              <div className="w-2 bg-primary flex-shrink-0"></div>
               <div>
-                <p className="text-white font-bold">Foco Prático</p>
-                <p className="text-white/80 text-sm">Mercado real</p>
+                <p className="text-6xl md:text-7xl font-display font-black text-secondary mb-2">29,4%</p>
+                <p className="text-lg font-bold text-secondary mb-1">Taxa geral de desemprego</p>
+                <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">INE Angola</p>
               </div>
-            </motion.div>
+            </div>
+            
+            <div className="flex gap-6">
+              <div className="w-2 bg-secondary flex-shrink-0"></div>
+              <div>
+                <p className="text-6xl md:text-7xl font-display font-black text-secondary mb-2">+80%</p>
+                <p className="text-lg font-bold text-secondary mb-1">Dos desempregados têm menos de 35 anos</p>
+                <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Desafio Jovem</p>
+              </div>
+            </div>
 
-            <div className="absolute inset-0 z-20 p-8 flex flex-col justify-end">
-              <div className="bg-background/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl transform transition-transform duration-500 hover:-translate-y-2">
-                <p className="text-white font-display text-3xl md:text-4xl font-bold leading-tight mb-6">
-                  "O problema não é falta de talento nos jovens angolanos — é falta de orientação estruturada."
+            <div className="flex gap-6">
+              <div className="w-2 bg-muted-foreground flex-shrink-0"></div>
+              <div>
+                <p className="text-6xl md:text-7xl font-display font-black text-secondary mb-2">50%+</p>
+                <p className="text-lg font-bold text-secondary mb-1">Desemprego entre 15-24 anos</p>
+                <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Oportunidade Perdida</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. OS 3 PILARES */}
+      <section id="pilares" className="py-24 md:py-32 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-5xl md:text-6xl font-display font-black text-secondary mb-24 uppercase tracking-tight">O Programa</h2>
+          
+          <div className="space-y-32">
+            {/* Pilar 01 */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="order-2 lg:order-1 pr-0 lg:pr-12">
+                <span className="text-primary font-display font-black text-6xl md:text-8xl opacity-20 block mb-4">01</span>
+                <h3 className="text-3xl md:text-4xl font-display font-black text-secondary mb-6">Formação & Orientação</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed mb-6 font-medium">
+                  Não deixamos o teu talento escondido. Estruturamos a tua marca profissional desde a base: construção de um currículo de alto impacto, optimização do teu perfil no LinkedIn e ensino de como te posicionares estrategicamente no mercado.
                 </p>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl shadow-lg">VF</div>
-                  <div>
-                    <p className="text-white font-bold text-lg">Vagner Fernandes</p>
-                    <p className="text-white/70 font-medium">Promotor do Programa</p>
-                  </div>
-                </div>
+                <ul className="space-y-3 font-bold text-secondary">
+                  <li className="flex items-center gap-3"><div className="w-2 h-2 bg-primary rounded-full"></div> Construção de CV</li>
+                  <li className="flex items-center gap-3"><div className="w-2 h-2 bg-primary rounded-full"></div> Posicionamento Profissional</li>
+                  <li className="flex items-center gap-3"><div className="w-2 h-2 bg-primary rounded-full"></div> Análise de Mercado</li>
+                </ul>
+              </div>
+              <div className="order-1 lg:order-2">
+                <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=80" alt="Formação" className="w-full aspect-[4/3] object-cover grayscale hover:grayscale-0 transition-all duration-500" />
               </div>
             </div>
-          </motion.div>
-        </div>
-      </section>
 
-      {/* The Context Section */}
-      <section id="contexto" className="py-24 px-6 bg-background border-y border-border overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-
-          {/* Top: label + headline */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
-          >
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-primary mb-3 block">O Contexto Angolano</span>
-              <h2 className="text-4xl md:text-5xl font-display font-extrabold leading-tight max-w-xl">
-                Os números que nos motivam a agir.
-              </h2>
-            </div>
-            <p className="text-muted-foreground text-lg max-w-sm leading-relaxed">
-              Angola tem talento de sobra. O que falta é orientação estruturada para o ligar ao mercado.
-            </p>
-          </motion.div>
-
-          {/* Stats strip */}
-          <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border border border-border rounded-3xl overflow-hidden">
-            {[
-              {
-                stat: "29,4%",
-                label: "Taxa geral de desemprego em Angola",
-                note: "INE, 1.º trimestre 2025",
-                accent: "bg-primary",
-              },
-              {
-                stat: "+80%",
-                label: "Dos desempregados têm menos de 35 anos",
-                note: "Jovens são os mais afectados",
-                accent: "bg-accent",
-              },
-              {
-                stat: "50%+",
-                label: "Desemprego entre jovens dos 15 aos 24 anos",
-                note: "Um dos maiores desafios estruturais",
-                accent: "bg-secondary",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12, duration: 0.5 }}
-                className="relative p-10 bg-card group hover:bg-muted/40 transition-colors"
-              >
-                <div className={`w-1 h-12 ${item.accent} rounded-full mb-8 group-hover:h-16 transition-all duration-300`} />
-                <p className="text-6xl md:text-7xl font-display font-extrabold tracking-tight mb-4 text-foreground">
-                  {item.stat}
+            {/* Pilar 02 */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="order-1">
+                <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1000&q=80" alt="Networking" className="w-full aspect-[4/3] object-cover grayscale hover:grayscale-0 transition-all duration-500" />
+              </div>
+              <div className="order-2 pl-0 lg:pl-12">
+                <span className="text-secondary font-display font-black text-6xl md:text-8xl opacity-20 block mb-4">02</span>
+                <h3 className="text-3xl md:text-4xl font-display font-black text-secondary mb-6">Assistência Técnica</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed mb-6 font-medium">
+                  Networking real e conexões que importam. Auxiliamos na revisão rigorosa do teu perfil para vagas específicas e mapeamos o mercado oculto de oportunidades. Não atiramos no escuro.
                 </p>
-                <p className="text-base font-semibold text-foreground/80 mb-3 leading-snug">{item.label}</p>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{item.note}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Bottom message */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="mt-10 flex items-center gap-3 text-muted-foreground text-sm"
-          >
-            <div className="w-8 h-px bg-primary" />
-            <span>Jovens competentes perdem oportunidades — não por falta de talento, mas por falta de preparação.</span>
-          </motion.div>
-
-        </div>
-      </section>
-
-      {/* Pillars Section */}
-      <section id="pilares" className="py-32 px-6 relative bg-background">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-24">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/5 text-secondary font-bold mb-6">
-              A Nossa Solução
-            </div>
-            <h2 className="text-4xl md:text-6xl font-display font-extrabold mb-6 leading-tight">Como funciona a bússola.</h2>
-            <p className="text-xl md:text-2xl text-muted-foreground font-medium">
-              Um programa intensivo e prático estruturado em três pilares fundamentais para a tua inserção no mercado.
-            </p>
-          </div>
-
-          <div className="space-y-24">
-            {[
-              {
-                title: "Formação & Orientação",
-                desc: "Desenhamos a tua marca profissional do zero. Desde a construção de um CV que passa nos filtros de recrutamento até ao posicionamento estratégico no mercado de trabalho angolano.",
-                tags: ["Construção de CV", "Posicionamento", "Análise de Mercado"],
-                icon: GraduationCap,
-                color: "bg-primary/10 text-primary border-primary/20",
-                img: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-              },
-              {
-                title: "Assistência Técnica",
-                desc: "Não ficas sozinho a enviar currículos para o vazio. Revimos o teu perfil, abrimos portas para networking estratégico e conectamos-te a vagas reais que fazem sentido para o teu percurso.",
-                tags: ["Revisão de Perfil", "Networking", "Mapeamento de Vagas"],
-                icon: Network,
-                color: "bg-accent/10 text-accent-foreground border-accent/20",
-                img: "https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-              },
-              {
-                title: "Simulação de Entrevistas",
-                desc: "Treinamos-te para o momento da verdade. Realizamos simulações práticas e intensivas com feedback estruturado sobre a tua postura, comunicação e níveis de confiança.",
-                tags: ["Treino Prático", "Feedback Estruturado", "Postura e Confiança"],
-                icon: FileText,
-                color: "bg-secondary/10 text-secondary border-secondary/20",
-                img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-              }
-            ].map((pillar, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                className={`grid md:grid-cols-2 gap-12 lg:gap-20 items-center ${i % 2 !== 0 ? 'md:grid-flow-col-dense' : ''}`}
-              >
-                <div className={`order-2 ${i % 2 !== 0 ? 'md:order-1' : 'md:order-1'}`}>
-                  <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-8 border-2 shadow-lg ${pillar.color}`}>
-                    <pillar.icon className="w-10 h-10" />
-                  </div>
-                  <h3 className="text-4xl font-display font-extrabold mb-6 leading-tight">{pillar.title}</h3>
-                  <p className="text-xl text-muted-foreground mb-8 leading-relaxed">{pillar.desc}</p>
-                  <div className="flex flex-wrap gap-3">
-                    {pillar.tags.map((tag, j) => (
-                      <span key={j} className="px-5 py-2.5 bg-muted text-foreground font-bold rounded-xl text-sm border border-border/50 shadow-sm">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className={`order-1 ${i % 2 !== 0 ? 'md:order-2' : 'md:order-2'} relative h-[400px] md:h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl group`}>
-                  <img src={pillar.img} alt={pillar.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-secondary/10 mix-blend-multiply transition-opacity duration-500 group-hover:opacity-0"></div>
-                  <div className="absolute inset-0 ring-1 ring-inset ring-black/10 rounded-[2.5rem]"></div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline Section */}
-      <section id="jornada" className="py-32 px-6 bg-muted/30 border-y border-border/50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-display font-extrabold mb-6">A tua jornada de 12 meses.</h2>
-            <p className="text-xl text-muted-foreground font-medium">Um plano estruturado para passar da incerteza à acção.</p>
-          </div>
-
-          <div className="relative border-l-4 border-primary/20 ml-6 md:ml-12 space-y-16">
-            {[
-              {
-                month: "Meses 1-3",
-                title: "Diagnóstico e Reestruturação",
-                desc: "Analisamos o teu perfil actual, identificamos lacunas e reconstruímos as tuas ferramentas principais (CV, LinkedIn, Portfólio).",
-                icon: FileText
-              },
-              {
-                month: "Meses 4-6",
-                title: "Posicionamento e Marca Pessoal",
-                desc: "Definimos o teu nicho. Ensinamos-te a comunicar o teu valor e a criar uma presença digital que atrai recrutadores.",
-                icon: Target
-              },
-              {
-                month: "Meses 7-9",
-                title: "Networking e Mercado Oculto",
-                desc: "Acesso a oportunidades não publicadas. Simulação de entrevistas intensivas e mapeamento de empresas alvo.",
-                icon: Users
-              },
-              {
-                month: "Meses 10-12",
-                title: "Inserção e Acompanhamento",
-                desc: "Candidaturas estratégicas, apoio na negociação de propostas e mentoria contínua durante a fase de integração.",
-                icon: GraduationCap
-              }
-            ].map((step, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="relative pl-10 md:pl-16"
-              >
-                <div className="absolute -left-[2.85rem] top-0 w-16 h-16 rounded-2xl bg-background border-4 border-primary flex items-center justify-center shadow-xl">
-                  <step.icon className="w-7 h-7 text-primary" />
-                </div>
-                <div className="bg-card border border-border p-8 rounded-3xl shadow-lg">
-                  <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary font-bold text-sm mb-4">
-                    {step.month}
-                  </span>
-                  <h3 className="text-2xl font-display font-bold mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground text-lg">{step.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Target Audience Section */}
-      <section id="publico" className="py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent-foreground font-bold mb-6 border border-accent/20">
-                O Perfil
+                <ul className="space-y-3 font-bold text-secondary">
+                  <li className="flex items-center gap-3"><div className="w-2 h-2 bg-secondary rounded-full"></div> Revisão de Perfil</li>
+                  <li className="flex items-center gap-3"><div className="w-2 h-2 bg-secondary rounded-full"></div> Networking Estratégico</li>
+                  <li className="flex items-center gap-3"><div className="w-2 h-2 bg-secondary rounded-full"></div> Mapeamento de Vagas</li>
+                </ul>
               </div>
-              <h2 className="text-4xl md:text-5xl font-display font-extrabold mb-6 leading-tight">Para quem foi feito?</h2>
-              <p className="text-xl text-muted-foreground mb-10 font-medium leading-relaxed">
-                Se tens entre 18 e 35 anos e sentes que precisas de direcção, o Carreira 360° é o teu próximo passo.
+            </div>
+
+            {/* Pilar 03 */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="order-2 lg:order-1 pr-0 lg:pr-12">
+                <span className="text-primary font-display font-black text-6xl md:text-8xl opacity-20 block mb-4">03</span>
+                <h3 className="text-3xl md:text-4xl font-display font-black text-secondary mb-6">Simulação de Entrevistas</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed mb-6 font-medium">
+                  A prática leva à perfeição. Realizamos sessões de simulação reais com feedback duro e construtivo. Preparação para perguntas difíceis, postura corporal e confiança inabalável.
+                </p>
+                <ul className="space-y-3 font-bold text-secondary">
+                  <li className="flex items-center gap-3"><div className="w-2 h-2 bg-primary rounded-full"></div> Treino Prático Intensivo</li>
+                  <li className="flex items-center gap-3"><div className="w-2 h-2 bg-primary rounded-full"></div> Feedback Estruturado</li>
+                  <li className="flex items-center gap-3"><div className="w-2 h-2 bg-primary rounded-full"></div> Postura e Confiança</li>
+                </ul>
+              </div>
+              <div className="order-1 lg:order-2">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1000&q=80" alt="Entrevista" className="w-full aspect-[4/3] object-cover grayscale hover:grayscale-0 transition-all duration-500" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. CITAÇÃO / MANIFESTO */}
+      <section className="py-32 bg-secondary px-6 border-y border-white/10">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="font-display font-black text-3xl md:text-5xl text-white leading-tight mb-12">
+            "O problema não é falta de talento nos jovens angolanos — é falta de orientação estruturada para o mercado."
+          </p>
+          <div className="inline-block text-left">
+            <p className="text-primary font-bold text-xl uppercase tracking-widest">Vagner Fernandes</p>
+            <p className="text-white/60 font-medium uppercase tracking-wider text-sm mt-1">Promotor do Programa</p>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. JORNADA */}
+      <section id="jornada" className="py-24 md:py-32 bg-background px-6">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-5xl md:text-6xl font-display font-black text-secondary mb-20 text-center uppercase tracking-tight">12 Meses. Sem Atalhos.</h2>
+          
+          <div className="grid md:grid-cols-4 gap-8">
+            {[
+              { num: "Fase 1", title: "Diagnóstico", desc: "Análise profunda do teu perfil actual. Onde estás e o que precisas para chegar onde queres.", bg: "bg-muted" },
+              { num: "Fase 2", title: "Reestruturação", desc: "Construção de ferramentas: CV, LinkedIn e carta de apresentação que geram entrevistas.", bg: "bg-secondary", text: "text-white" },
+              { num: "Fase 3", title: "Treino Prático", desc: "Simulações intensivas. Como falar, como negociar, como vender o teu valor.", bg: "bg-primary", text: "text-white" },
+              { num: "Fase 4", title: "Ataque ao Mercado", desc: "Candidaturas cirúrgicas, networking activo e acompanhamento até à inserção.", bg: "bg-muted" },
+            ].map((fase, i) => (
+              <div key={i} className={`${fase.bg} ${fase.text || 'text-secondary'} p-8 h-full border border-border`}>
+                <p className="text-sm font-bold uppercase tracking-widest mb-8 opacity-70">{fase.num}</p>
+                <h4 className="text-2xl font-display font-black mb-4">{fase.title}</h4>
+                <p className={`font-medium ${fase.text ? 'text-white/80' : 'text-muted-foreground'}`}>{fase.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 8. PARA QUEM */}
+      <section id="publico" className="py-24 md:py-32 bg-muted/30 px-6 border-y border-border">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-3 gap-16">
+            <div className="lg:col-span-1">
+              <h2 className="text-4xl md:text-5xl font-display font-black text-secondary mb-6">Para quem é isto?</h2>
+              <p className="text-lg text-muted-foreground font-medium">
+                Este programa não é para todos. Exige compromisso, vontade de aprender e ambição. Jovens angolanos dos 18 aos 35 anos.
               </p>
-              
-              <ul className="space-y-6">
-                {[
-                  "Licenciados desempregados à procura da primeira oportunidade",
-                  "Finalistas universitários a prepararem-se para o salto",
-                  "Técnicos profissionais que querem destacar-se no mercado",
-                  "Jovens em reconversão de carreira que precisam de novo foco"
-                ].map((item, i) => (
-                  <motion.li 
-                    key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex items-start gap-5 p-4 rounded-2xl hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="mt-1 w-8 h-8 rounded-full bg-primary/20 flex flex-shrink-0 items-center justify-center">
-                      <CheckCircle2 className="w-5 h-5 text-primary" />
-                    </div>
-                    <span className="text-lg font-bold text-foreground/90">{item}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="bg-card p-10 md:p-12 rounded-[2.5rem] shadow-2xl border border-border relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
-              
-              <div className="mb-10 relative z-10">
-                <h3 className="text-3xl font-display font-bold mb-3">O compromisso</h3>
-                <p className="text-muted-foreground text-lg">Detalhes operacionais do programa.</p>
-              </div>
-
-              <div className="space-y-6 relative z-10">
-                <div className="flex items-center gap-5 p-6 rounded-2xl bg-muted border border-border/50">
-                  <div className="w-14 h-14 rounded-xl bg-background border shadow-sm flex items-center justify-center flex-shrink-0">
-                    <MapPin className="text-primary w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-lg mb-1">Localizações</p>
-                    <p className="text-muted-foreground">Luanda, Viana, Benguela, Lobito</p>
-                  </div>
+            </div>
+            <div className="lg:col-span-2 grid sm:grid-cols-2 gap-8">
+              {[
+                { title: "Recém-Licenciados", desc: "Acabaste a faculdade e não sabes por onde começar a procurar o teu primeiro emprego." },
+                { title: "Profissionais Estagnados", desc: "Estás num trabalho que não valoriza o teu potencial e queres dar o salto." },
+                { title: "Jovens em Transição", desc: "Queres mudar de área mas não tens a rede de contactos necessária." },
+                { title: "Procuradores Activos", desc: "Envias dezenas de CVs e nunca és chamado para entrevistas. O erro está na estratégia." }
+              ].map((item, i) => (
+                <div key={i} className="border-l-4 border-primary pl-6 py-2">
+                  <h4 className="text-xl font-display font-black text-secondary mb-2 uppercase">{item.title}</h4>
+                  <p className="text-muted-foreground font-medium">{item.desc}</p>
                 </div>
-
-                <div className="flex items-center gap-5 p-6 rounded-2xl bg-muted border border-border/50">
-                  <div className="w-14 h-14 rounded-xl bg-background border shadow-sm flex items-center justify-center flex-shrink-0">
-                    <Clock className="text-primary w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-lg mb-1">Duração</p>
-                    <p className="text-muted-foreground">12 meses de acompanhamento</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-5 p-6 rounded-2xl bg-muted border border-border/50">
-                  <div className="w-14 h-14 rounded-xl bg-background border shadow-sm flex items-center justify-center flex-shrink-0">
-                    <Users className="text-primary w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-lg mb-1">Idade</p>
-                    <p className="text-muted-foreground">Jovens dos 18 aos 35 anos</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-32 px-6 bg-muted/30 border-t border-border/50">
+      {/* 9. FAQ */}
+      <section className="py-24 md:py-32 bg-background px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-display font-extrabold mb-6">Perguntas Frequentes.</h2>
-            <p className="text-xl text-muted-foreground font-medium">Tudo o que precisas de saber antes de dar o passo.</p>
-          </div>
-
-          <Accordion type="single" collapsible className="space-y-4 w-full">
-            {[
-              {
-                q: "O programa tem algum custo?",
-                a: "O valor da inscrição e mensalidades será partilhado após a análise do teu perfil. Acreditamos num modelo acessível, focado no retorno do teu investimento através da inserção no mercado."
-              },
-              {
-                q: "Não tenho licenciatura, posso participar?",
-                a: "Sim. O programa também é desenhado para técnicos profissionais e jovens em reconversão de carreira. O que procuramos é atitude e vontade de aprender."
-              },
-              {
-                q: "As sessões são presenciais ou online?",
-                a: "O Carreira 360° funciona num modelo híbrido. A componente online permite flexibilidade, enquanto as simulações e eventos de networking acontecem presencialmente em Luanda, Viana, Benguela e Lobito."
-              },
-              {
-                q: "Garantem emprego no final dos 12 meses?",
-                a: "Nenhum programa sério garante emprego, pois a decisão final é sempre da empresa. O que garantimos é que estarás no top 5% dos candidatos mais bem preparados do país, o que aumenta exponencialmente as tuas hipóteses."
-              }
-            ].map((faq, i) => (
-              <AccordionItem key={i} value={`item-${i}`} className="bg-card border rounded-2xl px-6 py-2 shadow-sm data-[state=open]:border-primary/50 transition-colors">
-                <AccordionTrigger className="text-lg font-bold hover:no-underline hover:text-primary transition-colors py-4">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-base leading-relaxed pb-6">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
+          <h2 className="text-4xl md:text-5xl font-display font-black text-secondary mb-16 text-center uppercase">Perguntas Frequentes</h2>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1" className="border-b-2 border-border py-4">
+              <AccordionTrigger className="text-xl font-display font-bold text-secondary hover:text-primary hover:no-underline">O programa garante emprego?</AccordionTrigger>
+              <AccordionContent className="text-lg text-muted-foreground font-medium pt-4">
+                Nenhum programa sério pode garantir emprego, pois a decisão final é sempre do empregador. O que garantimos é que estarás no top 5% dos candidatos mais bem preparados do mercado angolano.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-2" className="border-b-2 border-border py-4">
+              <AccordionTrigger className="text-xl font-display font-bold text-secondary hover:text-primary hover:no-underline">As formações são presenciais ou online?</AccordionTrigger>
+              <AccordionContent className="text-lg text-muted-foreground font-medium pt-4">
+                O programa funciona num modelo híbrido, com sessões teóricas online e momentos práticos (simulações e networking) presenciais nas províncias de actuação.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-3" className="border-b-2 border-border py-4">
+              <AccordionTrigger className="text-xl font-display font-bold text-secondary hover:text-primary hover:no-underline">Tem algum custo?</AccordionTrigger>
+              <AccordionContent className="text-lg text-muted-foreground font-medium pt-4">
+                Por favor, preenche o formulário de candidatura para receberes o dossier completo do programa, incluindo opções de financiamento e bolsas disponíveis.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-4" className="border-b-2 border-border py-4">
+              <AccordionTrigger className="text-xl font-display font-bold text-secondary hover:text-primary hover:no-underline">Preciso de ter experiência prévia?</AccordionTrigger>
+              <AccordionContent className="text-lg text-muted-foreground font-medium pt-4">
+                Não. Ajudamos quer pessoas sem qualquer experiência (primeiro emprego), quer profissionais com experiência que procuram recolocação ou progressão na carreira.
+              </AccordionContent>
+            </AccordionItem>
           </Accordion>
         </div>
       </section>
 
-      {/* CTA / Form Section */}
-      <section id="inscricao" className="py-32 px-6 relative overflow-hidden bg-secondary text-white">
-        <div className="absolute -top-64 -right-64 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute -bottom-64 -left-64 w-[600px] h-[600px] bg-accent/20 rounded-full blur-[100px] pointer-events-none"></div>
-        
-        <div className="max-w-4xl mx-auto relative z-10">
+      {/* 10. FORMULÁRIO DE INSCRIÇÃO */}
+      <section id="inscricao" className="py-24 md:py-32 bg-secondary text-white px-6">
+        <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-display font-extrabold mb-6 leading-tight">Dá o primeiro passo.</h2>
-            <p className="text-xl md:text-2xl text-white/70 font-medium">
-              A orientação que precisas está à distância de uma inscrição.
+            <h2 className="text-5xl md:text-6xl font-display font-black text-white mb-6 uppercase tracking-tight">O momento é agora.</h2>
+            <p className="text-xl text-white/70 font-medium">
+              Apenas candidatos com perfil ajustado serão contactados. Preenche com rigor.
             </p>
           </div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-card text-foreground border border-border shadow-2xl rounded-[2.5rem] p-8 md:p-12 relative"
-          >
-            {isSubmitted ? (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-16"
-              >
-                <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-                  <CheckCircle2 className="w-12 h-12" />
-                </div>
-                <h3 className="text-4xl font-display font-extrabold mb-4">Inscrição Recebida!</h3>
-                <p className="text-xl text-muted-foreground mb-10 max-w-lg mx-auto">
-                  Verifica o teu e-mail nos próximos dias. A tua jornada para uma carreira estruturada começou.
-                </p>
-                <Button onClick={() => setIsSubmitted(false)} variant="outline" size="lg" className="rounded-full h-14 px-8 font-bold border-2">
-                  Fazer nova inscrição
-                </Button>
-              </motion.div>
-            ) : (
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-bold">Nome Completo</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Ex: João Silva" className="h-14 px-4 rounded-xl bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary focus:bg-background transition-all text-base" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-bold">E-mail</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Ex: joao@exemplo.com" className="h-14 px-4 rounded-xl bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary focus:bg-background transition-all text-base" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-bold">Cidade</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="h-14 px-4 rounded-xl bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary focus:bg-background transition-all text-base">
-                                <SelectValue placeholder="Onde vives?" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="rounded-xl">
-                              <SelectItem value="luanda">Luanda</SelectItem>
-                              <SelectItem value="viana">Viana</SelectItem>
-                              <SelectItem value="benguela">Benguela</SelectItem>
-                              <SelectItem value="lobito">Lobito</SelectItem>
-                              <SelectItem value="outra">Outra</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="profile"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-bold">Perfil Actual</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="h-14 px-4 rounded-xl bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary focus:bg-background transition-all text-base">
-                                <SelectValue placeholder="Qual é a tua situação?" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="rounded-xl">
-                              <SelectItem value="licenciado">Licenciado Desempregado</SelectItem>
-                              <SelectItem value="finalista">Finalista Universitário</SelectItem>
-                              <SelectItem value="tecnico">Técnico Profissional</SelectItem>
-                              <SelectItem value="reconversao">Em reconversão de carreira</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
+          <div className="bg-background/5 p-8 md:p-12 border border-white/10 shadow-2xl">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <div className="grid md:grid-cols-2 gap-8">
                   <FormField
                     control={form.control}
-                    name="message"
+                    name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-bold">A tua história (Opcional)</FormLabel>
+                        <FormLabel className="text-white uppercase tracking-widest text-xs font-bold">Nome Completo</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="Fala-nos um pouco sobre os teus maiores desafios actuais..." 
-                            className="min-h-[150px] p-4 rounded-xl bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary focus:bg-background transition-all resize-none text-base" 
-                            {...field} 
-                          />
+                          <Input placeholder="O teu nome" {...field} className="bg-transparent border-white/20 text-white rounded-none h-14 focus-visible:border-primary focus-visible:ring-0" />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-primary" />
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-white uppercase tracking-widest text-xs font-bold">E-mail</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="O teu melhor e-mail" {...field} className="bg-transparent border-white/20 text-white rounded-none h-14 focus-visible:border-primary focus-visible:ring-0" />
+                        </FormControl>
+                        <FormMessage className="text-primary" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                  <Button type="submit" size="lg" className="w-full h-16 rounded-xl text-xl font-bold shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 transition-all">
-                    Submeter Inscrição
-                    <ChevronRight className="ml-2 w-6 h-6" />
-                  </Button>
-                </form>
-              </Form>
-            )}
-          </motion.div>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-white uppercase tracking-widest text-xs font-bold">Província/Cidade</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-transparent border-white/20 text-white rounded-none h-14 focus:ring-0 focus:border-primary">
+                              <SelectValue placeholder="Onde resides?" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-secondary border-white/20 text-white rounded-none">
+                            <SelectItem value="luanda">Luanda</SelectItem>
+                            <SelectItem value="viana">Viana</SelectItem>
+                            <SelectItem value="benguela">Benguela</SelectItem>
+                            <SelectItem value="lobito">Lobito</SelectItem>
+                            <SelectItem value="outra">Outra província</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage className="text-primary" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="profile"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-white uppercase tracking-widest text-xs font-bold">Perfil Actual</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-transparent border-white/20 text-white rounded-none h-14 focus:ring-0 focus:border-primary">
+                              <SelectValue placeholder="Qual é a tua situação?" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-secondary border-white/20 text-white rounded-none">
+                            <SelectItem value="estudante">Estudante Universitário</SelectItem>
+                            <SelectItem value="recem_formado">Recém-Licenciado</SelectItem>
+                            <SelectItem value="desempregado">Procura de Emprego</SelectItem>
+                            <SelectItem value="empregado">Empregado (Procura de Transição)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage className="text-primary" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white uppercase tracking-widest text-xs font-bold">Porque mereces uma vaga? (Opcional)</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Conta-nos um pouco sobre a tua ambição..." 
+                          className="resize-none bg-transparent border-white/20 text-white rounded-none h-32 focus-visible:border-primary focus-visible:ring-0"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage className="text-primary" />
+                    </FormItem>
+                  )}
+                />
+
+                <Button type="submit" disabled={isSubmitting} className="w-full rounded-none h-16 bg-primary text-primary-foreground hover:bg-primary/90 text-lg font-bold uppercase tracking-wider disabled:opacity-50">
+                  {isSubmitting ? "A Submeter..." : "Inscrever-me no Programa"}
+                  {!isSubmitting && <ArrowRight className="ml-2 w-5 h-5" />}
+                </Button>
+              </form>
+            </Form>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#0a0f1a] text-white py-16 px-6">
+      {/* 11. RODAPÉ */}
+      <footer className="bg-secondary text-white py-12 px-6 border-t border-white/10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-col items-center md:items-start gap-4">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-display font-bold text-2xl">
-                C
-              </div>
-              <span className="font-display font-bold text-2xl tracking-tight">Carreira 360°</span>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-none bg-primary flex items-center justify-center text-primary-foreground font-display font-black text-xl">
+              C
             </div>
-            <p className="text-white/50 text-sm max-w-xs text-center md:text-left font-medium">
-              A bússola para jovens angolanos que procuram uma orientação estruturada para o mercado.
-            </p>
+            <span className="font-display font-black text-xl tracking-tight uppercase">CARREIRA 360°</span>
           </div>
           
-          <div className="flex flex-col items-center md:items-end gap-4">
-            <div className="flex gap-6">
-              <a href="#" className="text-white/60 hover:text-white transition-colors text-sm font-bold">LinkedIn</a>
-              <a href="#" className="text-white/60 hover:text-white transition-colors text-sm font-bold">Instagram</a>
-              <a href="#" className="text-white/60 hover:text-white transition-colors text-sm font-bold">WhatsApp</a>
-            </div>
-            <p className="text-white/40 text-sm font-medium">
-              © {new Date().getFullYear()} Carreira 360°. Promovido por Vagner Fernandes.
-            </p>
+          <div className="text-white/50 text-sm font-medium text-center md:text-left">
+            <p>Operações em Luanda, Viana, Benguela e Lobito.</p>
+            <p className="mt-1">Contacto: programa@carreira360.ao</p>
+          </div>
+          
+          <div className="text-white/50 text-sm font-bold uppercase tracking-widest">
+            &copy; {new Date().getFullYear()} CARREIRA 360°
           </div>
         </div>
       </footer>
