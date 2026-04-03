@@ -76,8 +76,13 @@ export default function Home() {
       {/* NAVBAR */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isMenuOpen ? 'bg-[#001F33] backdrop-blur-xl' : 'bg-[#001F33]/80 backdrop-blur-md border-b border-white/10'}`}>
         <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="font-display text-3xl cursor-pointer hover:text-[#0EA5E9] transition-colors" onClick={() => window.scrollTo(0,0)}>
-            CARREIRA 360°
+          <div className="cursor-pointer" onClick={() => window.scrollTo(0,0)}>
+            <img 
+              src="/assets/logo.png" 
+              alt="Carreira 360" 
+              className="h-12 w-auto object-contain"
+              style={{ imageRendering: 'crisp-edges' }}
+            />
           </div>
           
           <div className="hidden md:flex items-center gap-10 font-sans font-bold text-sm tracking-widest uppercase">
@@ -152,7 +157,7 @@ export default function Home() {
             <img 
                src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=80" 
                alt="Arquitetura Corporativa" 
-               className="w-full h-full object-cover opacity-60 mix-blend-luminosity scale-105"
+               className="w-full h-full object-cover opacity-60 scale-105"
              />
             <div className="absolute inset-0 bg-gradient-to-t from-[#001F33] via-[#001F33]/40 to-transparent"></div>
         </div>
@@ -173,7 +178,7 @@ export default function Home() {
               QUE NUNCA TIVESTE.
             </p>
             <p className="font-sans text-base md:text-lg text-white/70 leading-relaxed mt-6 max-w-xl">
-              A plataforma que liga jovens angolanos ao mercado de trabalho. CV, mentoria, simulações de entrevistas e conexões reais — tudo num só lugar.
+              A plataforma que liga jovens angolanos ao mercado de trabalho. Mentoria, entrevistas e conexões reais — tudo num só lugar.
             </p>
             <div className="flex flex-wrap gap-4 mt-8">
               <a href="/auth/register" className="bg-[#0EA5E9] text-white font-bold px-8 py-4 uppercase tracking-widest text-sm hover:bg-[#F97316] transition-colors">
