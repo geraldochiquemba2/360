@@ -1,4 +1,4 @@
-import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar } from "lucide-react";
+import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar, Film, Layers } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Dialog, 
@@ -27,11 +27,20 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({ totalJovens: 0, totalMentores: 0, oportunidades: 0, simulacoes: 0 });
   const [candidates, setCandidates] = useState<any[]>([]);
   const [opportunities, setOpportunities] = useState<any[]>([]);
+  const [tracks, setTracks] = useState<any[]>([]);
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingCandidates, setLoadingCandidates] = useState(false);
   const [loadingOpportunities, setLoadingOpportunities] = useState(false);
+  const [loadingTracks, setLoadingTracks] = useState(false);
   const [isAddingOpportunity, setIsAddingOpportunity] = useState(false);
+  const [isAddingTrack, setIsAddingTrack] = useState(false);
   const { toast } = useToast();
+
+  const [newTrack, setNewTrack] = useState({
+    title: "",
+    description: "",
+    imageUrl: ""
+  });
 
   const [newOpportunity, setNewOpportunity] = useState({
     title: "",
@@ -108,8 +117,50 @@ export default function AdminDashboard() {
       fetchCandidates();
     } else if (currentTab === "jobs") {
       fetchOpportunities();
+    } else if (currentTab === "content") {
+      fetchTracks();
     }
   }, [currentTab]);
+
+  const fetchTracks = async () => {
+    setLoadingTracks(true);
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/admin/tracks", {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTracks(data);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar trilhas", err);
+    } finally {
+      setLoadingTracks(false);
+    }
+  };
+
+  const handleAddTrack = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/admin/tracks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(newTrack)
+      });
+      if (response.ok) {
+        toast({ title: "Sucesso", description: "Trilha criada com sucesso!" });
+        setIsAddingTrack(false);
+        setNewTrack({ title: "", description: "", imageUrl: "" });
+        fetchTracks();
+      }
+    } catch (err) {
+      toast({ title: "Erro", description: "Falha ao criar trilha", variant: "destructive" });
+    }
+  };
 
   const fetchOpportunities = async () => {
     setLoadingOpportunities(true);
@@ -253,6 +304,7 @@ export default function AdminDashboard() {
           )}
           {currentTab === 'jobs' && (
             <Dialog open={isAddingOpportunity} onOpenChange={setIsAddingOpportunity}>
+              {/* ... existing dialog trigger and content ... */}
               <DialogTrigger asChild>
                 <Button className="bg-[#0EA5E9] hover:bg-[#F97316] text-white uppercase font-bold text-xs tracking-widest h-10 px-6">
                   <Plus className="mr-2 h-4 w-4" /> Nova Vaga
@@ -304,6 +356,38 @@ export default function AdminDashboard() {
                 <DialogFooter>
                   <Button variant="ghost" onClick={() => setIsAddingOpportunity(false)} className="uppercase font-bold text-xs">Cancelar</Button>
                   <Button onClick={handleAddOpportunity} className="bg-[#001F33] hover:bg-[#0EA5E9] text-white uppercase font-bold text-xs tracking-widest px-8">Salvar Vaga</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+          {currentTab === 'content' && (
+            <Dialog open={isAddingTrack} onOpenChange={setIsAddingTrack}>
+              <DialogTrigger asChild>
+                <Button className="bg-[#0EA5E9] hover:bg-[#F97316] text-white uppercase font-bold text-xs tracking-widest h-10 px-6">
+                  <Plus className="mr-2 h-4 w-4" /> Nova Trilha
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-xl bg-white border-2 border-[#001F33]/10">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-display uppercase text-[#001F33]">Criar Trilha Profissional</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4 font-sans">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-[#001F33]/50">Título da Trilha</label>
+                    <Input placeholder="Ex: Mestre das Entrevistas" value={newTrack.title} onChange={(e) => setNewTrack({...newTrack, title: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-[#001F33]/50">Descrição Breve</label>
+                    <Textarea placeholder="Explica o que o jovem vai aprender..." value={newTrack.description} onChange={(e) => setNewTrack({...newTrack, description: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-[#001F33]/50">URL da Imagem de Capa</label>
+                    <Input placeholder="Link de uma imagem apelativa" value={newTrack.imageUrl} onChange={(e) => setNewTrack({...newTrack, imageUrl: e.target.value})} />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="ghost" onClick={() => setIsAddingTrack(false)} className="uppercase font-bold text-xs">Cancelar</Button>
+                  <Button onClick={handleAddTrack} className="bg-[#001F33] hover:bg-[#0EA5E9] text-white uppercase font-bold text-xs tracking-widest px-8">Criar Trilha</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -487,6 +571,61 @@ export default function AdminDashboard() {
                       </tbody>
                     </table>
                   </div>
+                </div>
+              )}
+            </motion.div>
+          ) : currentTab === 'content' ? (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-8"
+            >
+              {loadingTracks ? (
+                <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full"></div></div>
+              ) : tracks.length === 0 ? (
+                <div className="bg-white rounded-xl p-16 text-center shadow-sm border border-[#001F33]/5">
+                  <Film size={64} className="mx-auto text-[#001F33]/10 mb-4" />
+                  <h3 className="text-xl font-display uppercase text-[#001F33]/40">Nenhuma trilha criada</h3>
+                  <p className="text-sm text-[#001F33]/60 mt-2 max-w-xs mx-auto">Cria o teu primeiro roteiro de aprendizagem para os jovens.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {tracks.map((track) => (
+                    <motion.div 
+                      key={track.id}
+                      whileHover={{ y: -5 }}
+                      className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#001F33]/5 group"
+                    >
+                      <div className="h-40 bg-[#001F33] relative">
+                        {track.imageUrl ? (
+                          <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover opacity-60" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center opacity-20">
+                            <Film size={48} className="text-white" />
+                          </div>
+                        )}
+                        <div className="absolute top-4 right-4">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${track.isActive ? 'bg-[#0EA5E9] text-white' : 'bg-gray-500 text-white'}`}>
+                            {track.isActive ? 'Ativa' : 'Inativa'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-6">
+                        <h3 className="text-xl font-display uppercase text-[#001F33] mb-2">{track.title}</h3>
+                        <p className="text-sm text-[#001F33]/60 line-clamp-2 h-10 mb-6">{track.description}</p>
+                        <div className="flex justify-between items-center pt-4 border-t border-[#001F33]/5">
+                          <div className="flex gap-2">
+                             <Button variant="ghost" size="sm" className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 uppercase font-bold text-[10px]">
+                               <Layers className="mr-1.5 h-3.5 w-3.5" /> Módulos
+                             </Button>
+                          </div>
+                          <Button variant="ghost" size="icon" className="text-[#001F33]/30 hover:text-[#F97316]">
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               )}
             </motion.div>

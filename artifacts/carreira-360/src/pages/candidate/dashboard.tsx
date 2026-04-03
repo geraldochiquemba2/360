@@ -21,10 +21,41 @@ export default function CandidateDashboard() {
     }
     setUser(parsedUser);
     fetchOpportunities();
+    fetchTracks();
+    fetchStats();
   }, [setLocation]);
 
   const [opportunities, setOpportunities] = useState<any[]>([]);
+  const [tracks, setTracks] = useState<any[]>([]);
+  const [stats, setStats] = useState({ xp: 0, level: 1 });
   const [loading, setLoading] = useState(true);
+
+  const fetchStats = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/tracks/my-stats", {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar stats", err);
+    }
+  };
+
+  const fetchTracks = async () => {
+    try {
+      const response = await fetch("/api/tracks");
+      if (response.ok) {
+        const data = await response.json();
+        setTracks(data);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar trilhas", err);
+    }
+  };
 
   const fetchOpportunities = async () => {
     try {
@@ -74,10 +105,28 @@ export default function CandidateDashboard() {
 
       {/* Content */}
       <main className="flex-1 ml-64 p-8">
-        <header className="mb-8 flex justify-between items-end">
+        <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
             <h1 className="text-4xl font-display uppercase tracking-tight">Painel do Candidato</h1>
             <p className="text-[#001F33]/50 font-medium mt-1">Bem-vindo, {user.name}! Estas são as oportunidades para o teu perfil.</p>
+          </div>
+          
+          {/* Gamification Badge */}
+          <div className="bg-white px-6 py-4 rounded-2xl shadow-sm border border-[#001F33]/5 flex items-center gap-4">
+            <div className="h-12 w-12 bg-[#0EA5E9] rounded-xl flex items-center justify-center text-white font-display text-2xl shadow-lg shadow-[#0EA5E9]/30">
+              {stats.level}
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-widest leading-none mb-1">Nível de Carreira</p>
+              <div className="w-32 h-2 bg-[#001F33]/5 rounded-full overflow-hidden mb-1">
+                <motion.div 
+                   initial={{ width: 0 }}
+                   animate={{ width: `${(stats.xp % 500) / 5}%` }}
+                   className="h-full bg-[#0EA5E9]" 
+                />
+              </div>
+              <p className="text-[10px] font-bold text-[#0EA5E9]">{stats.xp} XP / {500 * stats.level} XP</p>
+            </div>
           </div>
         </header>
 
@@ -127,6 +176,44 @@ export default function CandidateDashboard() {
                 ))}
               </div>
             )}
+
+            {/* Career Tracks Section */}
+            <div className="pt-8">
+              <h2 className="text-xl font-display uppercase text-[#F97316] tracking-widest mb-6">Trilhas de Aprendizagem</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {tracks.length === 0 ? (
+                  <div className="col-span-2 bg-[#001F33]/5 p-8 rounded-2xl border border-dashed border-[#001F33]/20 text-center">
+                    <p className="text-[#001F33]/30 font-bold uppercase text-xs">Novas trilhas em breve</p>
+                  </div>
+                ) : (
+                  tracks.map((track) => (
+                    <motion.div 
+                      key={track.id}
+                      whileHover={{ scale: 1.02 }}
+                      className="bg-[#001F33] rounded-2xl overflow-hidden shadow-xl group border border-white/5"
+                    >
+                      <div className="h-32 bg-gray-800 relative">
+                        {track.imageUrl ? (
+                          <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center opacity-20">
+                             <GraduationCap size={48} className="text-white" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#001F33] to-transparent" />
+                      </div>
+                      <div className="p-6">
+                        <h3 className="text-lg font-display uppercase text-white mb-2">{track.title}</h3>
+                        <p className="text-sm text-white/50 line-clamp-2 h-10 mb-4">{track.description}</p>
+                        <Button className="w-full bg-[#0EA5E9] hover:bg-white hover:text-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-10">
+                          Começar Agora
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Right Column: AI Pulse */}
