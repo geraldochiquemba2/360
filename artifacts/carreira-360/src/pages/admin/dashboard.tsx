@@ -1,5 +1,8 @@
+import { useState, useEffect } from "react";
+import { useLocation, Link } from "wouter";
 import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar, Film, Layers } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import { 
   Dialog, 
   DialogContent, 
@@ -40,6 +43,22 @@ export default function AdminDashboard() {
     title: "",
     description: "",
     imageUrl: ""
+  });
+
+  const [selectedTrack, setSelectedTrack] = useState<any>(null);
+  const [modules, setModules] = useState<any[]>([]);
+  const [videos, setVideos] = useState<any[]>([]);
+  const [isAddingModule, setIsAddingModule] = useState(false);
+  const [isAddingVideo, setIsAddingVideo] = useState(false);
+  const [currentModule, setCurrentModule] = useState<any>(null);
+
+  const [newModule, setNewModule] = useState({ title: "", order: 0 });
+  const [newVideo, setNewVideo] = useState({ 
+    title: "", 
+    url: "", 
+    description: "", 
+    xpPoints: 100,
+    order: 0 
   });
 
   const [newOpportunity, setNewOpportunity] = useState({
@@ -159,6 +178,69 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       toast({ title: "Erro", description: "Falha ao criar trilha", variant: "destructive" });
+    }
+  };
+
+  const fetchModules = async (trackId: number) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`/api/admin/tracks/${trackId}/modules`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setModules(data);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar módulos");
+    }
+  };
+
+  const handleAddModule = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/admin/modules", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ ...newModule, trackId: selectedTrack.id })
+      });
+      if (response.ok) {
+        toast({ title: "Sucesso", description: "Módulo adicionado!" });
+        setIsAddingModule(false);
+        setNewModule({ title: "", order: 0 });
+        fetchModules(selectedTrack.id);
+      }
+    } catch (err) {
+      toast({ title: "Erro", description: "Falha ao criar módulo", variant: "destructive" });
+    }
+  };
+
+  const handleAddVideo = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/admin/videos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          ...newVideo, 
+          moduleId: currentModule.id, 
+          trackId: selectedTrack.id 
+        })
+      });
+      if (response.ok) {
+        toast({ title: "Vídeo Adicionado", description: `Vídeo cadastrado com ${newVideo.xpPoints} XP.` });
+        setIsAddingVideo(false);
+        setNewVideo({ title: "", url: "", description: "", xpPoints: 100, order: 0 });
+        // Recarregar módulos (que podem conter vídeos no futuro ou apenas mensagem de sucesso)
+      }
+    } catch (err) {
+      toast({ title: "Erro", description: "Falha ao criar vídeo" });
     }
   };
 
@@ -580,54 +662,136 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-8"
             >
-              {loadingTracks ? (
-                <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full"></div></div>
-              ) : tracks.length === 0 ? (
-                <div className="bg-white rounded-xl p-16 text-center shadow-sm border border-[#001F33]/5">
-                  <Film size={64} className="mx-auto text-[#001F33]/10 mb-4" />
-                  <h3 className="text-xl font-display uppercase text-[#001F33]/40">Nenhuma trilha criada</h3>
-                  <p className="text-sm text-[#001F33]/60 mt-2 max-w-xs mx-auto">Cria o teu primeiro roteiro de aprendizagem para os jovens.</p>
+              {selectedTrack ? (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <Button variant="ghost" onClick={() => setSelectedTrack(null)} className="text-[#0EA5E9] font-bold uppercase text-xs">← Voltar</Button>
+                    <h2 className="text-2xl font-display uppercase">{selectedTrack.title}</h2>
+                  </div>
+                  
+                  <div className="bg-white rounded-xl p-8 border border-[#001F33]/5 shadow-sm">
+                    <div className="flex justify-between items-center mb-8">
+                       <h3 className="text-lg font-display uppercase text-[#0EA5E9]">Módulos e Etapas</h3>
+                       <Button onClick={() => setIsAddingModule(true)} className="bg-[#001F33] text-white uppercase text-[10px] font-bold tracking-widest px-6 h-10">
+                         <Plus className="mr-2 h-4 w-4" /> Novo Módulo
+                       </Button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {modules.length === 0 ? (
+                        <div className="text-center py-10 text-[#001F33]/30 font-bold uppercase text-xs">Nenhum módulo criado nesta trilha.</div>
+                      ) : (
+                        modules.map((mod) => (
+                          <div key={mod.id} className="border border-[#001F33]/5 rounded-xl p-6 hover:bg-[#F5F0E8]/50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <h4 className="font-display uppercase text-[#001F33]">{mod.title}</h4>
+                              <Button onClick={() => { setCurrentModule(mod); setIsAddingVideo(true); }} variant="outline" size="sm" className="border-[#0EA5E9] text-[#0EA5E9] hover:bg-[#0EA5E9] hover:text-white uppercase font-bold text-[10px]">
+                                <Plus className="mr-2 h-4 w-4" /> Adicionar Vídeo
+                              </Button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {tracks.map((track) => (
-                    <motion.div 
-                      key={track.id}
-                      whileHover={{ y: -5 }}
-                      className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#001F33]/5 group"
-                    >
-                      <div className="h-40 bg-[#001F33] relative">
-                        {track.imageUrl ? (
-                          <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover opacity-60" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center opacity-20">
-                            <Film size={48} className="text-white" />
+                <>
+                  {loadingTracks ? (
+                    <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full"></div></div>
+                  ) : tracks.length === 0 ? (
+                    <div className="bg-white rounded-xl p-16 text-center shadow-sm border border-[#001F33]/5">
+                      <Film size={64} className="mx-auto text-[#001F33]/10 mb-4" />
+                      <h3 className="text-xl font-display uppercase text-[#001F33]/40">Nenhuma trilha criada</h3>
+                      <p className="text-sm text-[#001F33]/60 mt-2 max-w-xs mx-auto">Cria o teu primeiro roteiro de aprendizagem para os jovens.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {tracks.map((track) => (
+                        <motion.div 
+                          key={track.id}
+                          whileHover={{ y: -5 }}
+                          className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#001F33]/5 group"
+                        >
+                          <div className="h-40 bg-[#001F33] relative">
+                            {track.imageUrl ? (
+                              <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover opacity-60" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center opacity-20">
+                                <Film size={48} className="text-white" />
+                              </div>
+                            )}
+                            <div className="absolute top-4 right-4">
+                              <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${track.isActive ? 'bg-[#0EA5E9] text-white' : 'bg-gray-500 text-white'}`}>
+                                {track.isActive ? 'Ativa' : 'Inativa'}
+                              </span>
+                            </div>
                           </div>
-                        )}
-                        <div className="absolute top-4 right-4">
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${track.isActive ? 'bg-[#0EA5E9] text-white' : 'bg-gray-500 text-white'}`}>
-                            {track.isActive ? 'Ativa' : 'Inativa'}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="p-6">
-                        <h3 className="text-xl font-display uppercase text-[#001F33] mb-2">{track.title}</h3>
-                        <p className="text-sm text-[#001F33]/60 line-clamp-2 h-10 mb-6">{track.description}</p>
-                        <div className="flex justify-between items-center pt-4 border-t border-[#001F33]/5">
-                          <div className="flex gap-2">
-                             <Button variant="ghost" size="sm" className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 uppercase font-bold text-[10px]">
-                               <Layers className="mr-1.5 h-3.5 w-3.5" /> Módulos
-                             </Button>
+                          <div className="p-6">
+                            <h3 className="text-xl font-display uppercase text-[#001F33] mb-2">{track.title}</h3>
+                            <p className="text-sm text-[#001F33]/60 line-clamp-2 h-10 mb-6">{track.description}</p>
+                            <div className="flex justify-between items-center pt-4 border-t border-[#001F33]/5">
+                              <div className="flex gap-2">
+                                 <Button onClick={() => { setSelectedTrack(track); fetchModules(track.id); }} variant="ghost" size="sm" className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 uppercase font-bold text-[10px]">
+                                   <Layers className="mr-1.5 h-3.5 w-3.5" /> Módulos
+                                 </Button>
+                              </div>
+                              <Button variant="ghost" size="icon" className="text-[#001F33]/30 hover:text-[#F97316]">
+                                <Trash2 size={16} />
+                              </Button>
+                            </div>
                           </div>
-                          <Button variant="ghost" size="icon" className="text-[#001F33]/30 hover:text-[#F97316]">
-                            <Trash2 size={16} />
-                          </Button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
+
+              {/* Modais de Módulos e Vídeos */}
+              <Dialog open={isAddingModule} onOpenChange={setIsAddingModule}>
+                <DialogContent className="max-w-md bg-white border-2 border-[#001F33]/10">
+                  <DialogHeader><DialogTitle className="text-xl font-display uppercase">Novo Módulo</DialogTitle></DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <Input placeholder="Título do Módulo (ex: Fase 1)" value={newModule.title} onChange={(e) => setNewModule({...newModule, title: e.target.value})} />
+                  </div>
+                  <DialogFooter>
+                    <Button variant="ghost" onClick={() => setIsAddingModule(false)} className="text-xs font-bold uppercase">Cancelar</Button>
+                    <Button onClick={handleAddModule} className="bg-[#0EA5E9] text-white text-xs font-bold uppercase px-8">Criar</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog open={isAddingVideo} onOpenChange={setIsAddingVideo}>
+                <DialogContent className="max-w-xl bg-white border-2 border-[#001F33]/10">
+                  <DialogHeader><DialogTitle className="text-xl font-display uppercase">Nova Etapa (Vídeo)</DialogTitle></DialogHeader>
+                  <div className="space-y-4 py-4 font-sans">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase text-[#001F33]/50">Título do Vídeo</label>
+                      <Input placeholder="Ex: Como se apresentar" value={newVideo.title} onChange={(e) => setNewVideo({...newVideo, title: e.target.value})} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase text-[#0EA5E9]">Pontos de XP</label>
+                        <Input type="number" value={newVideo.xpPoints} onChange={(e) => setNewVideo({...newVideo, xpPoints: parseInt(e.target.value)})} />
+                        <p className="text-[10px] text-[#001F33]/50">Quanto vale esta etapa?</p>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase text-[#001F33]/50">URL do Vídeo</label>
+                        <Input placeholder="Link Youtube/Vimeo" value={newVideo.url} onChange={(e) => setNewVideo({...newVideo, url: e.target.value})} />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase text-[#001F33]/50">Descrição Breve</label>
+                      <Textarea placeholder="Opcional..." value={newVideo.description} onChange={(e) => setNewVideo({...newVideo, description: e.target.value})} />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="ghost" onClick={() => setIsAddingVideo(false)} className="text-xs font-bold uppercase">Cancelar</Button>
+                    <Button onClick={handleAddVideo} className="bg-[#001F33] text-white text-xs font-bold uppercase px-8">Salvar Etapa</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </motion.div>
           ) : (
             <div className="bg-white rounded-xl p-8 shadow-sm border border-[#001F33]/5 text-center py-20">

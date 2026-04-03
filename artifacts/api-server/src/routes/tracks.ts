@@ -53,12 +53,13 @@ tracksRouter.post("/video-complete", requireAuth, async (req, res) => {
     // 2. Registar progresso
     await db.insert(userProgressTable).values({ userId, videoId, trackId });
 
-    // 3. Atualizar XP e Nível (100 XP por vídeo, Level up a cada 500 XP)
-    const XP_PER_VIDEO = 100;
+    // 3. Obter os pontos de XP reais deste vídeo
+    const [video] = await db.select().from(videosTable).where(eq(videosTable.id, videoId));
+    const XP_GAINED = video?.xpPoints || 100;
     const XP_PER_LEVEL = 500;
 
     const [stats] = await db.select().from(userStatsTable).where(eq(userStatsTable.userId, userId));
-    const currentXp = (stats?.xp || 0) + XP_PER_VIDEO;
+    const currentXp = (stats?.xp || 0) + XP_GAINED;
     const currentLevel = Math.floor(currentXp / XP_PER_LEVEL) + 1;
 
     await db.insert(userStatsTable).values({ 
@@ -74,7 +75,7 @@ tracksRouter.post("/video-complete", requireAuth, async (req, res) => {
 
     return res.json({ 
       success: true, 
-      xpGained: XP_PER_VIDEO, 
+      xpGained: XP_GAINED, 
       newXp: currentXp, 
       newLevel: currentLevel,
       levelUp: currentLevel > (stats?.level || 1)

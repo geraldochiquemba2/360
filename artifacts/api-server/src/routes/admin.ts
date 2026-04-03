@@ -160,6 +160,7 @@ adminRouter.post("/videos", async (req, res) => {
       url: req.body.url,
       description: req.body.description,
       duration: req.body.duration,
+      xpPoints: req.body.xpPoints || 100,
       order: req.body.order || 0
     }).returning();
     return res.status(201).json(newVideo);

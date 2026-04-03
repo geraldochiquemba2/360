@@ -29,6 +29,7 @@ export const videosTable = pgTable("videos", {
   url: text("url").notNull(), // YouTube/Vimeo
   description: text("description"),
   duration: integer("duration"), // em segundos
+  xpPoints: integer("xp_points").notNull().default(100),
   order: integer("order").notNull().default(0),
 });
 
