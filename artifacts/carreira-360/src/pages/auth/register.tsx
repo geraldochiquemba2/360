@@ -67,12 +67,15 @@ export default function RegisterPage() {
     }
   }
 
-  const nextStep = () => {
+  const nextStep = (): void => {
     if (step === 1) {
       // Basic validation for step 1
       const fields = ["name", "email", "phone", "password"];
       const isValid = fields.every(f => form.getValues(f as any));
-      if (!isValid) return toast({ title: "Campos em falta", description: "Preencha todos os campos básicos." });
+      if (!isValid) {
+        toast({ title: "Campos em falta", description: "Preencha todos os campos básicos." });
+        return;
+      }
     }
     setStep(s => s + 1);
   };
