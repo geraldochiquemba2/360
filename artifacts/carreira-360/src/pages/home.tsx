@@ -94,12 +94,12 @@ export default function Home() {
 
         {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden fixed inset-0 top-20 bg-black/90 backdrop-blur-xl p-8 flex flex-col gap-8 shadow-2xl z-[60] border-t border-white/10 overflow-y-auto">
+          <div className="md:hidden fixed inset-0 top-16 bg-black/95 backdrop-blur-xl p-6 flex flex-col gap-4 shadow-2xl z-[60] border-t border-white/10 overflow-y-auto">
             <motion.button 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               onClick={() => scrollTo("estatisticas")} 
-              className="text-left text-4xl font-display uppercase hover:text-[#FACC15] transition-colors"
+              className="text-left text-2xl font-display uppercase hover:text-[#FACC15] transition-colors"
             >
               O Problema
             </motion.button>
@@ -108,7 +108,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
               onClick={() => scrollTo("pilares")} 
-              className="text-left text-4xl font-display uppercase hover:text-[#FACC15] transition-colors"
+              className="text-left text-2xl font-display uppercase hover:text-[#FACC15] transition-colors"
             >
               Os Pilares
             </motion.button>
@@ -117,7 +117,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
               onClick={() => scrollTo("jornada")} 
-              className="text-left text-4xl font-display uppercase hover:text-[#FACC15] transition-colors"
+              className="text-left text-2xl font-display uppercase hover:text-[#FACC15] transition-colors"
             >
               Jornada
             </motion.button>
@@ -126,7 +126,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
               onClick={() => scrollTo("publico")} 
-              className="text-left text-4xl font-display uppercase hover:text-[#FACC15] transition-colors"
+              className="text-left text-2xl font-display uppercase hover:text-[#FACC15] transition-colors"
             >
               Para Quem
             </motion.button>
@@ -135,7 +135,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
               onClick={() => scrollTo("inscricao")} 
-              className="text-left text-4xl font-display text-[#FACC15] uppercase border-t border-white/10 pt-4"
+              className="text-left text-2xl font-display text-[#FACC15] uppercase border-t border-white/10 pt-4"
             >
               Inscrever-me
             </motion.button>
