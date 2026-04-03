@@ -8,6 +8,8 @@ export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [stats, setStats] = useState({ totalJovens: 0, totalMentores: 0, oportunidades: 0, simulacoes: 0 });
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
     // Basic auth check
@@ -25,6 +27,27 @@ export default function AdminDashboard() {
       return;
     }
     setUser(parsedUser);
+
+    // Fetch stats
+    const fetchStats = async () => {
+      try {
+        const response = await fetch("/api/admin/stats", {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar estatísticas", err);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchStats();
   }, [setLocation]);
 
   const handleLogout = () => {
@@ -105,10 +128,10 @@ export default function AdminDashboard() {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
             {[
-              { title: "Total Jovens", value: "0", sub: "Candidatos registados", icon: Users, color: "text-[#0EA5E9]" },
-              { title: "Mentores", value: "0", sub: "A aguardar aprovação: 0", icon: Users, color: "text-[#F97316]" },
-              { title: "Oportunidades", value: "0", sub: "Vagas e Bolsas Ativas", icon: Briefcase, color: "text-[#0EA5E9]" },
-              { title: "Simulações", value: "0", sub: "Entrevistas realizadas", icon: BookOpen, color: "text-[#F97316]" },
+              { title: "Total Jovens", value: loadingStats ? "..." : stats.totalJovens.toString(), sub: "Candidatos registados", icon: Users, color: "text-[#0EA5E9]" },
+              { title: "Mentores", value: loadingStats ? "..." : stats.totalMentores.toString(), sub: "A aguardar aprovação: 0", icon: Users, color: "text-[#F97316]" },
+              { title: "Oportunidades", value: stats.oportunidades.toString(), sub: "Vagas e Bolsas Ativas", icon: Briefcase, color: "text-[#0EA5E9]" },
+              { title: "Simulações", value: stats.simulacoes.toString(), sub: "Entrevistas realizadas", icon: BookOpen, color: "text-[#F97316]" },
             ].map((stat, i) => (
               <motion.div 
                 key={i}
