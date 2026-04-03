@@ -172,6 +172,17 @@ export default function Home() {
             <p className="font-display text-[5vw] md:text-[2.5rem] text-white/50 uppercase leading-none mt-2">
               QUE NUNCA TIVESTE.
             </p>
+            <p className="font-sans text-base md:text-lg text-white/70 leading-relaxed mt-6 max-w-xl">
+              A plataforma que liga jovens angolanos ao mercado de trabalho. CV, mentoria, simulações de entrevistas e conexões reais — tudo num só lugar.
+            </p>
+            <div className="flex flex-wrap gap-4 mt-8">
+              <a href="/auth/register" className="bg-[#0EA5E9] text-white font-bold px-8 py-4 uppercase tracking-widest text-sm hover:bg-[#F97316] transition-colors">
+                Começar Agora →
+              </a>
+              <a href="/auth/login" className="border border-white/40 text-white font-bold px-8 py-4 uppercase tracking-widest text-sm hover:border-[#0EA5E9] hover:text-[#0EA5E9] transition-colors">
+                Já tenho conta
+              </a>
+            </div>
           </motion.div>
         </div>
       </section>
