@@ -298,11 +298,19 @@ export default function Home() {
             <div className="relative z-10">
               <h3 className="text-4xl md:text-5xl font-display text-white mb-4 uppercase tracking-tight">Assistência Técnica</h3>
               <p className="text-lg md:text-xl font-sans text-white/70 leading-relaxed mb-8 max-w-xl">
-                Networking real e conexões que importam. Auxiliamos na revisão rigorosa do teu perfil para vagas específicas e mapeamos o mercado oculto.
+                O teu CV é a tua primeira impressão. Ajudamos a criá-lo, aperfeiçoá-lo e adaptá-lo para que cada candidatura seja a melhor versão de ti.
               </p>
-              <div className="flex flex-wrap gap-4">
-                {['Revisão de Perfil', 'Networking', 'Mercado Oculto'].map(tag => (
-                  <span key={tag} className="border border-[#F97316] text-[#F97316] px-6 py-2 uppercase font-bold text-sm tracking-widest rounded-full">{tag}</span>
+              <div className="flex flex-col gap-3">
+                {[
+                  { num: '01', label: 'Criação e Melhoria de CV' },
+                  { num: '02', label: 'Sugestões Automáticas de Melhoria' },
+                  { num: '03', label: 'Carta de Motivação' },
+                  { num: '04', label: 'Adaptação para Vagas Específicas' },
+                ].map(item => (
+                  <div key={item.num} className="flex items-center gap-4 border-b border-white/10 pb-3">
+                    <span className="text-[#F97316] font-display text-lg font-black w-8 shrink-0">{item.num}</span>
+                    <span className="text-white/80 font-sans text-sm uppercase tracking-widest font-bold">{item.label}</span>
+                  </div>
                 ))}
               </div>
             </div>
