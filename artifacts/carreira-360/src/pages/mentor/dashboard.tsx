@@ -11,7 +11,9 @@ import {
   CheckCircle2, 
   XCircle, 
   ExternalLink,
-  ClipboardList
+  ClipboardList,
+  Menu,
+  X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -21,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function MentorDashboard() {
   const [location, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [sessions, setSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<any>(null);
@@ -95,10 +98,31 @@ export default function MentorDashboard() {
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] flex font-sans text-[#001F33]">
+    <div className="min-h-screen bg-[#F5F0E8] flex font-sans text-[#001F33] relative overflow-x-hidden">
+      {/* Overlay para mobile */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar Mentor */}
-      <aside className="w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 border-r border-[#F97316]/20">
-        <div className="p-8 border-b border-white/10 flex flex-col items-center">
+      <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 border-r border-[#F97316]/20 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="p-8 border-b border-white/10 flex flex-col items-center relative">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsSidebarOpen(false)}
+            className="absolute right-4 top-4 text-white/50 hover:text-white md:hidden"
+          >
+            <X size={24} />
+          </Button>
           <img src="/assets/logo.png" className="h-14 w-auto object-contain mb-4" alt="Logo" />
           <span className="px-3 py-1 bg-[#F97316]/20 text-[#F97316] rounded-full text-[10px] font-bold uppercase tracking-widest">Painel do Mentor</span>
         </div>
@@ -125,24 +149,40 @@ export default function MentorDashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-72 p-10">
-        <header className="mb-12 flex justify-between items-end">
-          <div>
-            <h1 className="text-4xl font-display uppercase tracking-tight mb-2">Pedidos de Mentoria</h1>
-            <p className="text-[#001F33]/50 font-medium">Analisa e gere as solicitações dos jovens que procuram a tua orientação.</p>
+      <main className="flex-1 md:ml-72 min-h-screen">
+        <header className="p-6 md:p-10 bg-white/50 md:bg-transparent border-b md:border-none border-[#001F33]/5 sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-[#001F33]"
+            >
+              <Menu size={24} />
+            </Button>
+            <div>
+              <h1 className="text-2xl md:text-4xl font-display uppercase tracking-tight mb-1 md:mb-2 text-[#001F33]">Pedidos de Mentoria</h1>
+              <p className="text-[#001F33]/50 font-medium text-xs md:text-sm hidden md:block">Analisa e gere as solicitações dos jovens que procuram a tua orientação.</p>
+            </div>
           </div>
-          <div className="flex gap-4">
-             <div className="bg-white p-4 rounded-2xl shadow-sm border border-[#001F33]/5 flex items-center gap-3">
-                <div className="h-10 w-10 bg-[#0EA5E9]/10 rounded-xl flex items-center justify-center text-[#0EA5E9]">
-                   <Users size={20} />
+
+          <div className="flex gap-4 md:absolute md:right-10 md:top-10">
+             <div className="bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-[#001F33]/5 flex items-center gap-3">
+                <div className="h-8 w-8 md:h-10 md:w-10 bg-[#0EA5E9]/10 rounded-xl flex items-center justify-center text-[#0EA5E9]">
+                   <Users size={18} />
                 </div>
                 <div>
-                   <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-widest leading-none">Total Sessões</p>
-                   <p className="text-xl font-bold">{sessions.length}</p>
+                   <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-widest leading-none">Sessões</p>
+                   <p className="text-lg md:text-xl font-bold">{sessions.length}</p>
                 </div>
              </div>
           </div>
         </header>
+
+        <div className="p-6 md:p-10">
+          <div className="md:hidden mb-8">
+            <p className="text-[#001F33]/50 font-medium text-sm">Analisa e gere as solicitações dos jovens.</p>
+          </div>
 
         {loading ? (
           <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#F97316] border-t-transparent rounded-full"></div></div>
@@ -209,6 +249,7 @@ export default function MentorDashboard() {
             ))}
           </div>
         )}
+        </div>
       </main>
 
       {/* Approval Modal */}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
-import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar, Film, Layers, UserCheck, Pencil, MessageSquare, MessageCircle } from "lucide-react";
+import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar, Film, Layers, UserCheck, Pencil, MessageSquare, MessageCircle, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
@@ -343,8 +343,29 @@ export default function AdminDashboard() {
         cancelText="Voltar"
       />
 
+      {/* Overlay para mobile */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       <aside className={`fixed inset-y-0 left-0 bg-[#001F33] text-white w-72 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 z-40 flex flex-col shadow-2xl`}>
-        <div className="p-6 border-b border-white/10 flex flex-col items-center">
+        <div className="p-6 border-b border-white/10 flex flex-col items-center relative">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsSidebarOpen(false)}
+            className="absolute right-4 top-4 text-white/50 hover:text-white md:hidden"
+          >
+            <X size={24} />
+          </Button>
           <img src="/assets/logo.png" alt="Carreira 360" className="h-16 w-auto object-contain mb-4" />
           <p className="text-white/50 text-[10px] uppercase tracking-widest font-black">Centro Administrativo</p>
         </div>
@@ -360,7 +381,10 @@ export default function AdminDashboard() {
             <Button 
               key={item.id}
               variant="ghost" 
-              onClick={() => setCurrentTab(item.id as any)} 
+              onClick={() => {
+                setCurrentTab(item.id as any);
+                setIsSidebarOpen(false);
+              }} 
               className={`w-full justify-start ${currentTab === item.id ? 'bg-[#0EA5E9]' : 'hover:bg-white/5'} text-white uppercase font-black text-xs h-12 rounded-xl transition-all shadow-sm ${currentTab === item.id ? 'shadow-lg shadow-[#0EA5E9]/30' : ''}`}
             >
               <item.icon className="mr-3 h-5 w-5" /> {item.label}
@@ -374,15 +398,25 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      <main className="flex-1 md:ml-72 min-h-screen flex flex-col">
-        <header className="h-20 bg-white border-b border-[#001F33]/5 flex items-center px-10 shadow-sm justify-between">
-          <h1 className="text-2xl font-display uppercase text-[#001F33] tracking-tight">
+      <main className="flex-1 md:ml-72 min-h-screen flex flex-col w-full">
+        <header className="h-20 bg-white border-b border-[#001F33]/5 flex items-center px-6 md:px-10 shadow-sm justify-between sticky top-0 z-20">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-[#001F33]"
+            >
+              <Menu size={24} />
+            </Button>
+            <h1 className="text-xl md:text-2xl font-display uppercase text-[#001F33] tracking-tight truncate">
             {currentTab === 'overview' && 'Visão Geral'}
             {currentTab === 'users' && 'Lista de Utilizadores'}
             {currentTab === 'jobs' && 'Gestão de Oportunidades'}
             {currentTab === 'content' && 'Produção de Trilhas'}
             {currentTab === 'mentors' && 'Moderação de Mentores'}
-          </h1>
+            </h1>
+          </div>
           {currentTab === 'jobs' && (
             <Button onClick={() => { setEditingOpportunity(null); setIsAddingOpportunity(true); }} className="bg-[#0EA5E9] text-white uppercase font-black text-xs px-6 h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
               <Plus className="mr-2 h-4 w-4" /> Nova Vaga
