@@ -1,0 +1,12 @@
+version: "1"
+services:
+  - type: web
+    name: app-360
+    env: node
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build
+    startCommand: cd artifacts/api-server && pnpm run start
+    envVars:
+      - key: DATABASE_URL
+        sync: false # User will provide this manually in the dashboard
+      - key: PORT
+        value: 10000
