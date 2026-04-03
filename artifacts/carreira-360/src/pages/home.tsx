@@ -75,12 +75,12 @@ export default function Home() {
     <div className="min-h-[100dvh] bg-[#001F33] font-sans text-white overflow-x-hidden selection:bg-[#0EA5E9] selection:text-[#001F33]">
       {/* NAVBAR */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isMenuOpen ? 'bg-[#001F33] backdrop-blur-xl' : 'bg-[#001F33]/80 backdrop-blur-md border-b border-white/10'}`}>
-        <div className="max-w-[1400px] mx-auto px-6 h-24 md:h-28 flex flex-wrap items-center justify-between">
+        <div className="max-w-[1400px] mx-auto px-6 h-16 md:h-20 flex flex-wrap items-center justify-between">
           <div className="cursor-pointer flex items-center" onClick={() => window.scrollTo(0,0)}>
             <img 
               src="/assets/logo.png" 
               alt="Carreira 360" 
-              className="h-20 md:h-24 w-auto object-contain hover:scale-[1.15] scale-[1.1] transition-transform origin-left"
+              className="h-10 md:h-12 w-auto object-contain hover:scale-[1.1] transition-transform origin-left"
               style={{ imageRendering: 'crisp-edges' }}
             />
           </div>

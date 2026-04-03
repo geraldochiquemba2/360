@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { usersTable, opportunitiesTable, tracksTable, modulesTable, videosTable, mentorsTable } from "@workspace/db";
+import { usersTable, opportunitiesTable, tracksTable, modulesTable, videosTable, mentorsTable, forumTopicsTable } from "@workspace/db";
 import { count, eq, desc, asc } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "../middlewares/auth";
 
@@ -86,6 +86,29 @@ adminRouter.post("/opportunities", async (req, res) => {
   }
 });
 
+adminRouter.patch("/opportunities/:id", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const id = parseInt(req.params.id);
+    const data = req.body;
+    
+    await db.update(opportunitiesTable).set({
+      title: data.title,
+      company: data.company,
+      location: data.location,
+      type: data.type,
+      description: data.description,
+      requirements: data.requirements,
+      link: data.link,
+      deadline: data.deadline ? new Date(data.deadline) : null,
+    }).where(eq(opportunitiesTable.id, id));
+    
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to update opportunity" });
+  }
+});
+
 adminRouter.delete("/opportunities/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
@@ -122,6 +145,37 @@ adminRouter.post("/tracks", async (req, res) => {
   }
 });
 
+adminRouter.patch("/tracks/:id", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const id = parseInt(req.params.id);
+    const { title, description, imageUrl, isActive } = req.body;
+    
+    await db.update(tracksTable).set({
+      title,
+      description,
+      imageUrl,
+      isActive: isActive !== undefined ? isActive : undefined
+    }).where(eq(tracksTable.id, id));
+    
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to update track" });
+  }
+});
+
+adminRouter.delete("/tracks/:id", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const id = parseInt(req.params.id);
+    // Delete modules first if needed (cascade depends on DB setup, but safe to do here)
+    await db.delete(tracksTable).where(eq(tracksTable.id, id));
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to delete track" });
+  }
+});
+
 // GESTÃO DE MÓDULOS
 adminRouter.get("/tracks/:trackId/modules", async (req, res) => {
   try {
@@ -149,6 +203,30 @@ adminRouter.post("/modules", async (req, res) => {
   }
 });
 
+adminRouter.patch("/modules/:id", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const id = parseInt(req.params.id);
+    const { title, order } = req.body;
+    await db.update(modulesTable).set({ title, order }).where(eq(modulesTable.id, id));
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to update module" });
+  }
+});
+
+adminRouter.get("/modules/:moduleId/videos", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const list = await db.select().from(videosTable)
+      .where(eq(videosTable.moduleId, parseInt(req.params.moduleId)))
+      .orderBy(asc(videosTable.order));
+    return res.json(list);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch videos" });
+  }
+});
+
 // GESTÃO DE VÍDEOS
 adminRouter.post("/videos", async (req, res) => {
   try {
@@ -166,6 +244,29 @@ adminRouter.post("/videos", async (req, res) => {
     return res.status(201).json(newVideo);
   } catch (err) {
     return res.status(500).json({ error: "Failed to create video" });
+  }
+});
+
+adminRouter.patch("/videos/:id", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const id = parseInt(req.params.id);
+    const { title, url, description, xpPoints, order } = req.body;
+    await db.update(videosTable).set({ title, url, description, xpPoints, order }).where(eq(videosTable.id, id));
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to update video" });
+  }
+});
+
+adminRouter.delete("/videos/:id", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const id = parseInt(req.params.id);
+    await db.delete(videosTable).where(eq(videosTable.id, id));
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to delete video" });
   }
 });
 
@@ -203,6 +304,18 @@ adminRouter.patch("/mentors/:id", async (req, res) => {
     return res.json({ success: true });
   } catch (err) {
     return res.status(500).json({ error: "Failed to update mentor status" });
+  }
+});
+
+// 5. MODERAÇÃO DE FÓRUM
+adminRouter.delete("/forum/topics/:id", requireAuth, async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const id = parseInt(req.params.id);
+    await db.delete(forumTopicsTable).where(eq(forumTopicsTable.id, id));
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to delete topic" });
   }
 });
 

@@ -104,12 +104,11 @@ export default function MentorshipPage() {
           <Button variant="ghost" className="w-full justify-start text-white bg-[#0EA5E9]/20 uppercase tracking-widest font-bold text-xs h-12">
             <Users className="mr-3 h-5 w-5" /> Mentoria
           </Button>
-          <div className="pt-8 opacity-20 pointer-events-none">
-             <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 pl-4">Comunidade</p>
-             <Button variant="ghost" className="w-full justify-start text-white/50 uppercase tracking-widest font-bold text-xs h-12">
-                <MessageSquare className="mr-3 h-5 w-5" /> Fórum
-             </Button>
-          </div>
+          <Link href="/forum">
+            <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
+              <MessageSquare className="mr-3 h-5 w-5" /> Comunidade
+            </Button>
+          </Link>
         </nav>
         <div className="p-6 border-t border-white/10">
           <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase tracking-widest font-bold text-xs">
@@ -274,7 +273,7 @@ export default function MentorshipPage() {
                   placeholder="Ex: Queria rever o meu CV para vagas de Design..." 
                   value={bookingNotes}
                   onChange={(e) => setBookingNotes(e.target.value)}
-                  className="min-h-[100px] bg-white border border-[#001F33]/10 rounded-xl focus:ring-2 focus:ring-[#0EA5E9]"
+                  className="min-h-[100px] bg-white border border-[#001F33]/20 rounded-xl focus:ring-2 focus:ring-[#0EA5E9] text-[#001F33] font-medium"
                 />
              </div>
           </div>

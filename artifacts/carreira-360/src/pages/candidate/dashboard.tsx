@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Briefcase, MapPin, Building2, Calendar, ExternalLink, GraduationCap, Award, LayoutDashboard, LogOut, Users } from "lucide-react";
+import { Briefcase, MapPin, Building2, Calendar, ExternalLink, GraduationCap, Award, LayoutDashboard, LogOut, Users, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function CandidateDashboard() {
@@ -91,6 +91,11 @@ export default function CandidateDashboard() {
               <LayoutDashboard className="mr-3 h-5 w-5" /> Início
             </Button>
           </Link>
+          <Link href="/forum">
+            <Button variant="ghost" className={`w-full justify-start ${location === '/forum' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-xs h-12`}>
+              <MessageSquare className="mr-3 h-5 w-5" /> Comunidade
+            </Button>
+          </Link>
           <Link href="/mentorship">
             <Button variant="ghost" className={`w-full justify-start ${location === '/mentorship' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-xs h-12`}>
               <Users className="mr-3 h-5 w-5" /> Mentoria
@@ -115,7 +120,7 @@ export default function CandidateDashboard() {
         <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
             <h1 className="text-4xl font-display uppercase tracking-tight">Painel do Candidato</h1>
-            <p className="text-[#001F33]/50 font-medium mt-1">Bem-vindo, {user.name}! Estas são as oportunidades para o teu perfil.</p>
+            <p className="text-[#001F33] font-bold mt-1">Bem-vindo, {user.name}! Estas são as oportunidades para o teu perfil.</p>
           </div>
           
           {/* Gamification Badge */}
@@ -124,7 +129,7 @@ export default function CandidateDashboard() {
               {stats.level}
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-widest leading-none mb-1">Nível de Carreira</p>
+              <p className="text-[10px] font-black uppercase text-[#001F33] tracking-widest leading-none mb-1">Nível de Carreira</p>
               <div className="w-32 h-2 bg-[#001F33]/5 rounded-full overflow-hidden mb-1">
                 <motion.div 
                    initial={{ width: 0 }}
@@ -168,8 +173,8 @@ export default function CandidateDashboard() {
                       </div>
                       <h3 className="text-xl font-display uppercase text-[#001F33] group-hover:text-[#0EA5E9] transition-colors">{op.title}</h3>
                       <div className="flex flex-wrap gap-4 mt-2">
-                        <span className="flex items-center text-sm font-sans text-[#001F33]/60"><Building2 size={14} className="mr-1.5 opacity-40" /> {op.company}</span>
-                        <span className="flex items-center text-sm font-sans text-[#001F33]/60"><MapPin size={14} className="mr-1.5 opacity-40" /> {op.location}</span>
+                        <span className="flex items-center text-sm font-sans text-[#001F33] font-medium"><Building2 size={14} className="mr-1.5 text-[#0EA5E9]" /> {op.company}</span>
+                        <span className="flex items-center text-sm font-sans text-[#001F33] font-medium"><MapPin size={14} className="mr-1.5 text-[#0EA5E9]" /> {op.location}</span>
                       </div>
                     </div>
                     <div className="flex gap-3 w-full md:w-auto">
