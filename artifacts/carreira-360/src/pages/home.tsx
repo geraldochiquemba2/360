@@ -75,8 +75,8 @@ export default function Home() {
     <div className="min-h-[100dvh] bg-[#0A0A0A] font-sans text-white overflow-x-hidden selection:bg-[#FACC15] selection:text-[#0A0A0A]">
       {/* NAVBAR */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${isMenuOpen ? 'bg-black/90 backdrop-blur-xl' : 'mix-blend-difference text-white'}`}>
-        <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="font-display text-4xl cursor-pointer hover:text-[#FACC15] transition-colors" onClick={() => window.scrollTo(0,0)}>
+        <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="font-display text-3xl cursor-pointer hover:text-[#FACC15] transition-colors" onClick={() => window.scrollTo(0,0)}>
             CARREIRA 360°
           </div>
           
@@ -166,9 +166,9 @@ export default function Home() {
               Luanda • Viana • Benguela • Lobito
             </div>
             
-            <h1 className="text-[10vw] md:text-[7rem] lg:text-[11rem] font-display leading-[0.8] tracking-tight uppercase max-w-[1200px] text-white mix-blend-difference">
+            <h1 className="text-[10vw] md:text-[5rem] lg:text-[7rem] font-display leading-[0.8] tracking-tight uppercase max-w-[1200px] text-white mix-blend-difference">
               O PARCEIRO <br />
-              <span className="text-[#FACC15] mix-blend-normal block -mt-4 md:-mt-6">DE CARREIRA</span>
+              <span className="text-[#FACC15] mix-blend-normal block -mt-2 md:-mt-4">DE CARREIRA</span>
             </h1>
             <p className="font-display text-[5vw] md:text-[2.5rem] text-white/50 uppercase leading-none mt-2">
               QUE NUNCA TIVESTE.
@@ -178,9 +178,9 @@ export default function Home() {
       </section>
 
       {/* 2. TICKER */}
-      <div className="bg-[#FACC15] py-4 md:py-6 overflow-hidden flex whitespace-nowrap border-y-8 border-[#F97316] rotate-[-1deg] scale-105 transform origin-center z-20 relative">
+      <div className="bg-[#FACC15] py-2 md:py-3 overflow-hidden flex whitespace-nowrap border-y-4 border-[#F97316] rotate-[-1deg] scale-105 transform origin-center z-20 relative">
         <motion.div 
-          className="flex whitespace-nowrap text-[#0A0A0A] font-display text-4xl md:text-6xl uppercase tracking-widest"
+          className="flex whitespace-nowrap text-[#0A0A0A] font-display text-2xl md:text-4xl uppercase tracking-widest"
           animate={{ x: [0, -2000] }}
           transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
         >
@@ -191,15 +191,15 @@ export default function Home() {
       </div>
 
       {/* 3. ESTATÍSTICAS */}
-      <section id="estatisticas" className="py-24 md:py-32 px-6 bg-[#F5F0E8] text-[#0A0A0A] relative z-10 -mt-10">
+      <section id="estatisticas" className="py-16 md:py-24 px-6 bg-[#F5F0E8] text-[#0A0A0A] relative z-10 -mt-8">
         <div className="max-w-[1400px] mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            className="mb-20 md:mb-32"
+            className="mb-12 md:mb-20"
           >
-            <h2 className="text-5xl md:text-7xl lg:text-[7rem] font-display leading-[0.85] max-w-4xl uppercase">
+            <h2 className="text-4xl md:text-5xl lg:text-[5rem] font-display leading-[0.85] max-w-4xl uppercase">
               OS NÚMEROS<br />QUE NOS OBRIGAM<br />
               <span className="text-[#F97316]">A AGIR.</span>
             </h2>
@@ -210,11 +210,11 @@ export default function Home() {
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="md:col-span-12 lg:col-span-5 md:pr-12 md:pb-12"
+              className="md:col-span-12 lg:col-span-5 md:pr-12 md:pb-6"
             >
-              <p className="text-[8rem] md:text-[11rem] font-display text-[#0A0A0A] leading-[0.8] -ml-2 tracking-tighter">29,4%</p>
-              <p className="text-2xl font-bold uppercase tracking-widest text-[#F97316] mt-4 mb-2">Taxa geral de desemprego</p>
-              <p className="text-lg font-medium opacity-50">INE Angola</p>
+              <p className="text-[6rem] md:text-[8rem] font-display text-[#0A0A0A] leading-[0.8] -ml-2 tracking-tighter">29,4%</p>
+              <p className="text-xl font-bold uppercase tracking-widest text-[#F97316] mt-4 mb-2">Taxa geral de desemprego</p>
+              <p className="text-base font-medium opacity-50">INE Angola</p>
             </motion.div>
             
             <motion.div 
@@ -222,11 +222,11 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="md:col-span-6 lg:col-span-4 md:px-8 border-t-8 md:border-t-0 md:border-l-8 border-[#FACC15] pt-12 md:pt-0"
+              className="md:col-span-6 lg:col-span-4 md:px-8 border-t-4 md:border-t-0 md:border-l-4 border-[#FACC15] pt-8 md:pt-0"
             >
-              <p className="text-[6rem] md:text-[8rem] font-display text-[#0A0A0A] leading-[0.8] tracking-tighter">+80%</p>
-              <p className="text-xl font-bold uppercase tracking-widest mt-4 mb-2">Desempregados têm -35 anos</p>
-              <p className="text-lg font-medium opacity-50">Desafio Jovem</p>
+              <p className="text-[4rem] md:text-[6rem] font-display text-[#0A0A0A] leading-[0.8] tracking-tighter">+80%</p>
+              <p className="text-lg font-bold uppercase tracking-widest mt-4 mb-2">Desempregados têm -35 anos</p>
+              <p className="text-base font-medium opacity-50">Desafio Jovem</p>
             </motion.div>
  
             <motion.div 
@@ -234,31 +234,31 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
-              className="md:col-span-6 lg:col-span-3 md:pl-12 md:pb-12 border-t-8 md:border-t-0 md:border-l-8 border-[#0A0A0A] pt-12 md:pt-0"
+              className="md:col-span-6 lg:col-span-3 md:pl-12 md:pb-6 border-t-4 md:border-t-0 md:border-l-4 border-[#0A0A0A] pt-8 md:pt-0"
             >
-              <p className="text-[5rem] md:text-[6rem] font-display text-[#F97316] leading-[0.8] tracking-tighter">50%+</p>
-              <p className="text-xl font-bold uppercase tracking-widest mt-4 mb-2">Desemprego 15-24 anos</p>
-              <p className="text-lg font-medium opacity-50">Oportunidade Perdida</p>
+              <p className="text-[3rem] md:text-[5rem] font-display text-[#F97316] leading-[0.8] tracking-tighter">50%+</p>
+              <p className="text-lg font-bold uppercase tracking-widest mt-4 mb-2">Desemprego 15-24 anos</p>
+              <p className="text-base font-medium opacity-50">Oportunidade Perdida</p>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* 4. OS 3 PILARES */}
-      <section id="pilares" className="bg-[#0A0A0A] pb-24 pt-20">
-        <div className="max-w-[1400px] mx-auto px-6 mb-24">
-          <h2 className="text-[7vw] md:text-[9rem] font-display text-white leading-[0.8] uppercase tracking-tighter mix-blend-exclusion">
+      <section id="pilares" className="bg-[#0A0A0A] pb-12 pt-16">
+        <div className="max-w-[1400px] mx-auto px-6 mb-16">
+          <h2 className="text-[7vw] md:text-[6rem] font-display text-white leading-[0.8] uppercase tracking-tighter mix-blend-exclusion">
             COMO VAMOS <br/><span className="text-[#FACC15] inline-block -rotate-2">VENCER ISTO</span>
           </h2>
         </div>
 
         {/* Pilar 01 */}
-        <div className="w-full flex flex-col lg:flex-row min-h-[70vh] border-y border-white/20 hover:bg-white/5 transition-colors group">
-          <div className="lg:w-1/2 p-6 md:p-20 flex flex-col justify-center relative overflow-hidden">
-            <span className="absolute -top-10 -left-10 text-[12rem] md:text-[18rem] font-display font-black text-white/5 z-0 group-hover:text-[#FACC15]/10 transition-colors">01</span>
+        <div className="w-full flex flex-col lg:flex-row min-h-[50vh] border-y border-white/20 hover:bg-white/5 transition-colors group">
+          <div className="lg:w-1/2 p-6 md:p-12 flex flex-col justify-center relative overflow-hidden">
+            <span className="absolute -top-10 -left-10 text-[10rem] md:text-[14rem] font-display font-black text-white/5 z-0 group-hover:text-[#FACC15]/10 transition-colors">01</span>
             <div className="relative z-10">
-              <h3 className="text-5xl md:text-7xl font-display text-white mb-6 uppercase tracking-tight">Formação & Orientação</h3>
-              <p className="text-xl md:text-2xl font-sans text-white/70 leading-relaxed mb-12 max-w-xl">
+              <h3 className="text-4xl md:text-5xl font-display text-white mb-4 uppercase tracking-tight">Formação & Orientação</h3>
+              <p className="text-lg md:text-xl font-sans text-white/70 leading-relaxed mb-8 max-w-xl">
                 Não deixamos o teu talento escondido. Construção de um currículo de alto impacto, optimização de LinkedIn e posicionamento estratégico.
               </p>
               <div className="flex flex-wrap gap-4">
@@ -282,12 +282,12 @@ export default function Home() {
         </div>
 
         {/* Pilar 02 */}
-        <div className="w-full flex flex-col lg:flex-row-reverse min-h-[70vh] border-b border-white/20 hover:bg-white/5 transition-colors group">
-          <div className="lg:w-1/2 p-6 md:p-20 flex flex-col justify-center relative overflow-hidden">
-            <span className="absolute -bottom-20 -right-10 text-[12rem] md:text-[18rem] font-display font-black text-white/5 z-0 group-hover:text-[#F97316]/10 transition-colors">02</span>
+        <div className="w-full flex flex-col lg:flex-row-reverse min-h-[50vh] border-b border-white/20 hover:bg-white/5 transition-colors group">
+          <div className="lg:w-1/2 p-6 md:p-12 flex flex-col justify-center relative overflow-hidden">
+            <span className="absolute -bottom-20 -right-10 text-[10rem] md:text-[14rem] font-display font-black text-white/5 z-0 group-hover:text-[#F97316]/10 transition-colors">02</span>
             <div className="relative z-10">
-              <h3 className="text-5xl md:text-7xl font-display text-white mb-6 uppercase tracking-tight">Assistência Técnica</h3>
-              <p className="text-xl md:text-2xl font-sans text-white/70 leading-relaxed mb-12 max-w-xl">
+              <h3 className="text-4xl md:text-5xl font-display text-white mb-4 uppercase tracking-tight">Assistência Técnica</h3>
+              <p className="text-lg md:text-xl font-sans text-white/70 leading-relaxed mb-8 max-w-xl">
                 Networking real e conexões que importam. Auxiliamos na revisão rigorosa do teu perfil para vagas específicas e mapeamos o mercado oculto.
               </p>
               <div className="flex flex-wrap gap-4">
@@ -311,12 +311,12 @@ export default function Home() {
         </div>
 
         {/* Pilar 03 */}
-        <div className="w-full flex flex-col lg:flex-row min-h-[70vh] border-b border-white/20 hover:bg-white/5 transition-colors group">
-          <div className="lg:w-1/2 p-6 md:p-20 flex flex-col justify-center relative overflow-hidden">
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[12rem] md:text-[18rem] font-display font-black text-white/5 z-0 group-hover:text-[#FACC15]/10 transition-colors">03</span>
+        <div className="w-full flex flex-col lg:flex-row min-h-[50vh] border-b border-white/20 hover:bg-white/5 transition-colors group">
+          <div className="lg:w-1/2 p-6 md:p-12 flex flex-col justify-center relative overflow-hidden">
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] md:text-[14rem] font-display font-black text-white/5 z-0 group-hover:text-[#FACC15]/10 transition-colors">03</span>
             <div className="relative z-10">
-              <h3 className="text-5xl md:text-7xl font-display text-white mb-6 uppercase tracking-tight">Simulação de Entrevistas</h3>
-              <p className="text-xl md:text-2xl font-sans text-white/70 leading-relaxed mb-12 max-w-xl">
+              <h3 className="text-4xl md:text-5xl font-display text-white mb-4 uppercase tracking-tight">Simulação de Entrevistas</h3>
+              <p className="text-lg md:text-xl font-sans text-white/70 leading-relaxed mb-8 max-w-xl">
                 A prática leva à perfeição. Sessões de simulação reais com feedback duro e construtivo. Preparação para perguntas difíceis e confiança inabalável.
               </p>
               <div className="flex flex-wrap gap-4">
@@ -341,7 +341,7 @@ export default function Home() {
       </section>
 
       {/* 5. CITAÇÃO */}
-      <section className="py-40 bg-[#FACC15] px-6 flex items-center justify-center relative overflow-hidden">
+      <section className="py-24 bg-[#FACC15] px-6 flex items-center justify-center relative overflow-hidden">
         <motion.div 
           initial={{ rotate: -5, scale: 0.9, opacity: 0 }}
           whileInView={{ rotate: 0, scale: 1, opacity: 1 }}
@@ -349,7 +349,7 @@ export default function Home() {
           transition={{ type: "spring", damping: 12 }}
           className="max-w-[1200px] mx-auto text-center relative z-10"
         >
-          <h2 className="font-display text-[8vw] md:text-[6.5rem] text-[#0A0A0A] leading-[0.85] tracking-tighter uppercase">
+          <h2 className="font-display text-[8vw] md:text-[4.5rem] text-[#0A0A0A] leading-[0.85] tracking-tighter uppercase">
             "O problema não é falta de talento — <br/>
             é falta de <span className="text-white mix-blend-difference block mt-4">orientação estruturada.</span>"
           </h2>
@@ -361,14 +361,14 @@ export default function Home() {
       </section>
 
       {/* 6. JORNADA */}
-      <section id="jornada" className="py-24 md:py-32 bg-[#F5F0E8] px-6 text-[#0A0A0A]">
+      <section id="jornada" className="py-16 md:py-24 bg-[#F5F0E8] px-6 text-[#0A0A0A]">
         <div className="max-w-[1400px] mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="text-6xl md:text-[8rem] font-display text-[#0A0A0A] mb-20 uppercase tracking-tighter leading-[0.8]"
+            className="text-5xl md:text-[5rem] font-display text-[#0A0A0A] mb-12 uppercase tracking-tighter leading-[0.8]"
           >
             12 Meses.<br/>
             <span className="text-transparent" style={{ WebkitTextStroke: "2px #0A0A0A" }}>Sem Atalhos.</span>
@@ -403,7 +403,7 @@ export default function Home() {
                 </div>
                 <div className="pr-8">
                   <motion.p
-                    className="text-[6rem] font-display leading-none mb-4"
+                    className="text-[4rem] font-display leading-none mb-2"
                     style={{ color: fase.color }}
                     initial={{ opacity: 0.15 }}
                     whileInView={{ opacity: 1 }}
@@ -412,8 +412,8 @@ export default function Home() {
                   >
                     {fase.num}
                   </motion.p>
-                  <h4 className="text-4xl font-display uppercase mb-4 text-[#0A0A0A]">{fase.title}</h4>
-                  <p className="font-sans text-lg font-medium text-[#0A0A0A]/70">{fase.desc}</p>
+                  <h4 className="text-2xl font-display uppercase mb-2 text-[#0A0A0A]">{fase.title}</h4>
+                  <p className="font-sans text-base font-medium text-[#0A0A0A]/70">{fase.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -463,12 +463,12 @@ export default function Home() {
       </section>
 
       {/* 7. PARA QUEM */}
-      <section id="publico" className="py-24 md:py-32 bg-[#0A0A0A] px-6 text-white border-y border-white/10">
+      <section id="publico" className="py-16 md:py-24 bg-[#0A0A0A] px-6 text-white border-y border-white/10">
         <div className="max-w-[1400px] mx-auto">
-          <div className="grid lg:grid-cols-12 gap-16 md:gap-24">
+          <div className="grid lg:grid-cols-12 gap-12 md:gap-16">
             <div className="lg:col-span-5">
-              <h2 className="text-6xl md:text-[7.5rem] font-display leading-[0.8] mb-8 uppercase">Para <br/><span className="text-[#FACC15]">quem?</span></h2>
-              <p className="text-2xl font-sans text-white/60 font-medium max-w-md">
+              <h2 className="text-5xl md:text-[5rem] font-display leading-[0.8] mb-6 uppercase">Para <br/><span className="text-[#FACC15]">quem?</span></h2>
+              <p className="text-xl font-sans text-white/60 font-medium max-w-md">
                 Não é para todos. Exige compromisso, vontade de aprender e ambição. Jovens angolanos dos 18 aos 35 anos.
               </p>
             </div>
@@ -498,9 +498,9 @@ export default function Home() {
       </section>
 
       {/* 8. FAQ */}
-      <section className="py-24 bg-[#F5F0E8] px-6 text-[#0A0A0A]">
+      <section className="py-16 bg-[#F5F0E8] px-6 text-[#0A0A0A]">
         <div className="max-w-[1000px] mx-auto">
-          <h2 className="text-6xl md:text-[6.5rem] font-display mb-12 text-center uppercase tracking-tighter">Perguntas Frequentes</h2>
+          <h2 className="text-4xl md:text-[4rem] font-display mb-8 text-center uppercase tracking-tighter">Perguntas Frequentes</h2>
           <Accordion type="single" collapsible className="w-full space-y-4">
             <AccordionItem value="item-1" className="border-b-4 border-[#0A0A0A] py-6">
               <AccordionTrigger className="text-2xl md:text-4xl font-display uppercase hover:text-[#F97316] hover:no-underline text-left">O programa garante emprego?</AccordionTrigger>
@@ -531,14 +531,14 @@ export default function Home() {
       </section>
 
       {/* 9. FORMULÁRIO */}
-      <section id="inscricao" className="py-32 md:py-48 bg-[#0A0A0A] px-6 text-white relative">
+      <section id="inscricao" className="py-20 md:py-24 bg-[#0A0A0A] px-6 text-white relative">
         <div className="absolute inset-0 bg-[#FACC15]/5 mix-blend-overlay pointer-events-none"></div>
-        <div className="max-w-[1400px] mx-auto grid lg:grid-cols-2 gap-16 md:gap-32 relative z-10">
+        <div className="max-w-[1400px] mx-auto grid lg:grid-cols-2 gap-12 md:gap-24 relative z-10">
           <div>
-            <h2 className="text-[10vw] md:text-[9rem] font-display uppercase leading-[0.8] mb-8 tracking-tighter">
+            <h2 className="text-[10vw] md:text-[6rem] font-display uppercase leading-[0.8] mb-6 tracking-tighter">
               O MOMENTO <br/><span className="text-[#FACC15]">É AGORA.</span>
             </h2>
-            <p className="text-2xl font-sans text-white/60 mb-12">
+            <p className="text-xl font-sans text-white/60 mb-8">
               Apenas candidatos com perfil ajustado serão contactados. Preenche com rigor.
             </p>
           </div>
@@ -621,7 +621,7 @@ export default function Home() {
                 <Button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="w-full h-24 bg-[#FACC15] hover:bg-[#F97316] text-[#0A0A0A] text-3xl font-display uppercase rounded-none transition-colors border-0"
+                  className="w-full h-16 bg-[#FACC15] hover:bg-[#F97316] text-[#0A0A0A] text-xl font-display uppercase rounded-none transition-colors border-0"
                 >
                   {isSubmitting ? "A Enviar..." : "Submeter Candidatura"}
                 </Button>
