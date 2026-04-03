@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { usersTable, opportunitiesTable, tracksTable, modulesTable, videosTable } from "@workspace/db";
+import { usersTable, opportunitiesTable, tracksTable, modulesTable, videosTable, mentorsTable } from "@workspace/db";
 import { count, eq, desc, asc } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "../middlewares/auth";
 
@@ -166,6 +166,43 @@ adminRouter.post("/videos", async (req, res) => {
     return res.status(201).json(newVideo);
   } catch (err) {
     return res.status(500).json({ error: "Failed to create video" });
+  }
+});
+
+// GESTÃO DE MENTORES
+adminRouter.get("/mentors", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    
+    const list = await db.select({
+      id: mentorsTable.id,
+      userId: mentorsTable.userId,
+      name: usersTable.name,
+      email: usersTable.email,
+      specialties: mentorsTable.specialties,
+      status: mentorsTable.status,
+      createdAt: mentorsTable.createdAt
+    })
+    .from(mentorsTable)
+    .innerJoin(usersTable, eq(mentorsTable.userId, usersTable.id))
+    .orderBy(desc(mentorsTable.createdAt));
+
+    return res.json(list);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch mentors" });
+  }
+});
+
+adminRouter.patch("/mentors/:id", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const { status } = req.body; // 'ativo' ou 'inativo'
+    const id = parseInt(req.params.id);
+
+    await db.update(mentorsTable).set({ status }).where(eq(mentorsTable.id, id));
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to update mentor status" });
   }
 });
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
-import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar, Film, Layers } from "lucide-react";
+import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar, Film, Layers, UserCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
@@ -26,15 +26,17 @@ export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [currentTab, setCurrentTab] = useState<"overview" | "users" | "jobs" | "content">("overview");
+  const [currentTab, setCurrentTab] = useState<"overview" | "users" | "jobs" | "content" | "mentors">("overview");
   const [stats, setStats] = useState({ totalJovens: 0, totalMentores: 0, oportunidades: 0, simulacoes: 0 });
   const [candidates, setCandidates] = useState<any[]>([]);
   const [opportunities, setOpportunities] = useState<any[]>([]);
   const [tracks, setTracks] = useState<any[]>([]);
+  const [mentors, setMentors] = useState<any[]>([]);
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingCandidates, setLoadingCandidates] = useState(false);
   const [loadingOpportunities, setLoadingOpportunities] = useState(false);
   const [loadingTracks, setLoadingTracks] = useState(false);
+  const [loadingMentors, setLoadingMentors] = useState(false);
   const [isAddingOpportunity, setIsAddingOpportunity] = useState(false);
   const [isAddingTrack, setIsAddingTrack] = useState(false);
   const { toast } = useToast();
@@ -138,8 +140,48 @@ export default function AdminDashboard() {
       fetchOpportunities();
     } else if (currentTab === "content") {
       fetchTracks();
+    } else if (currentTab === "mentors") {
+      fetchMentors();
     }
   }, [currentTab]);
+
+  const fetchMentors = async () => {
+    setLoadingMentors(true);
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/admin/mentors", {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setMentors(data);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar mentores", err);
+    } finally {
+      setLoadingMentors(false);
+    }
+  };
+
+  const updateMentorStatus = async (id: number, status: string) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`/api/admin/mentors/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+      });
+      if (response.ok) {
+        toast({ title: "Sucesso", description: `Mentor atualizado para ${status}.` });
+        fetchMentors();
+      }
+    } catch (err) {
+      toast({ title: "Erro", description: "Falha ao atualizar mentor" });
+    }
+  };
 
   const fetchTracks = async () => {
     setLoadingTracks(true);
@@ -357,6 +399,13 @@ export default function AdminDashboard() {
           >
             <BookOpen className="mr-3 h-5 w-5" /> Trilhas & Conteúdo
           </Button>
+          <Button 
+            variant="ghost" 
+            className={`w-full justify-start ${currentTab === 'mentors' ? 'bg-[#0EA5E9] text-white' : 'text-white/80 hover:text-white hover:bg-[#0EA5E9]/20'} uppercase tracking-widest font-bold text-sm h-12`}
+            onClick={() => setCurrentTab('mentors')}
+          >
+            <UserCheck className="mr-3 h-5 w-5" /> Mentoria
+          </Button>
         </div>
 
         <div className="p-4 border-t border-white/10 flex flex-col gap-2">
@@ -378,6 +427,7 @@ export default function AdminDashboard() {
             {currentTab === 'users' && 'Lista de Utilizadores'}
             {currentTab === 'jobs' && 'Oportunidades'}
             {currentTab === 'content' && 'Trilhas & Conteúdo'}
+            {currentTab === 'mentors' && 'Gestão de Mentores'}
           </h1>
           {currentTab === 'users' && (
             <Button variant="outline" size="sm" onClick={fetchCandidates} disabled={loadingCandidates} className="border-[#0EA5E9] text-[#0EA5E9] hover:bg-[#0EA5E9] hover:text-white uppercase font-bold text-xs">
@@ -792,6 +842,63 @@ export default function AdminDashboard() {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+            </motion.div>
+          ) : currentTab === 'mentors' ? (
+            <motion.div 
+               initial={{ opacity: 0, x: 20 }}
+               animate={{ opacity: 1, x: 0 }}
+               className="bg-white rounded-xl shadow-sm border border-[#001F33]/5 overflow-hidden font-sans"
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#001F33] text-white uppercase text-xs tracking-widest font-bold">
+                      <th className="px-6 py-4">Mentor / E-mail</th>
+                      <th className="px-6 py-4">Especialidade / Bio</th>
+                      <th className="px-6 py-4">Estado</th>
+                      <th className="px-6 py-4 text-right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#001F33]/5">
+                    {loadingMentors ? (
+                      [1, 2, 3].map(i => <tr key={i} className="animate-pulse"><td colSpan={4} className="h-16 px-6 py-4 bg-[#001F33]/5">&nbsp;</td></tr>)
+                    ) : mentors.length === 0 ? (
+                      <tr><td colSpan={4} className="px-6 py-20 text-center text-[#001F33]/30 font-bold uppercase tracking-widest">Nenhuma solicitação de mentoria.</td></tr>
+                    ) : (
+                      mentors.map((m) => (
+                        <tr key={m.id} className="hover:bg-[#0EA5E9]/5 transition-colors">
+                          <td className="px-6 py-4">
+                            <span className="block font-bold text-[#001F33] uppercase leading-tight">{m.name}</span>
+                            <span className="text-xs text-[#001F33]/50">{m.email}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="block text-xs font-bold text-[#0EA5E9] uppercase">{m.specialties}</span>
+                            <span className="text-[10px] text-[#001F33]/50 line-clamp-1">{m.bio || 'Sem bio...'}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                              m.status === 'ativo' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9]' : 'bg-[#F97316]/10 text-[#F97316]'
+                            }`}>
+                              {m.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            {m.status === 'pendente' ? (
+                              <Button onClick={() => updateMentorStatus(m.id, 'ativo')} className="bg-[#0EA5E9] text-white text-[10px] font-bold uppercase px-4 h-9">
+                                Aprovar
+                              </Button>
+                            ) : (
+                              <Button onClick={() => updateMentorStatus(m.id, m.status === 'ativo' ? 'inativo' : 'ativo')} variant="ghost" className="text-xs text-[#001F33]/30 font-bold uppercase">
+                                {m.status === 'ativo' ? 'Desativar' : 'Reativar'}
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </motion.div>
           ) : (
             <div className="bg-white rounded-xl p-8 shadow-sm border border-[#001F33]/5 text-center py-20">

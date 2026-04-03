@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Briefcase, MapPin, Building2, Calendar, ExternalLink, GraduationCap, Award, LayoutDashboard, LogOut } from "lucide-react";
+import { Briefcase, MapPin, Building2, Calendar, ExternalLink, GraduationCap, Award, LayoutDashboard, LogOut, Users } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function CandidateDashboard() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -86,9 +86,16 @@ export default function CandidateDashboard() {
           <img src="/assets/logo.png" className="h-12 w-auto object-contain" alt="Logo" />
         </div>
         <nav className="flex-1 p-6 space-y-4">
-          <Button variant="ghost" className="w-full justify-start text-white bg-[#0EA5E9]/20 uppercase tracking-widest font-bold text-xs h-12">
-            <LayoutDashboard className="mr-3 h-5 w-5" /> Início
-          </Button>
+          <Link href="/dashboard">
+            <Button variant="ghost" className={`w-full justify-start ${location === '/dashboard' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-xs h-12`}>
+              <LayoutDashboard className="mr-3 h-5 w-5" /> Início
+            </Button>
+          </Link>
+          <Link href="/mentorship">
+            <Button variant="ghost" className={`w-full justify-start ${location === '/mentorship' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-xs h-12`}>
+              <Users className="mr-3 h-5 w-5" /> Mentoria
+            </Button>
+          </Link>
           <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
             <Briefcase className="mr-3 h-5 w-5" /> Minhas Vagas
           </Button>

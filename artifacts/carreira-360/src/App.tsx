@@ -8,6 +8,7 @@ import LoginPage from "@/pages/auth/login";
 import RegisterPage from "@/pages/auth/register";
 import AdminDashboard from "@/pages/admin/dashboard";
 import CandidateDashboard from "@/pages/candidate/dashboard";
+import MentorshipPage from "@/pages/candidate/mentorship";
 import MentorDashboard from "@/pages/mentor/dashboard";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/auth/register" component={RegisterPage} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/dashboard" component={CandidateDashboard} />
+      <Route path="/mentorship" component={MentorshipPage} />
       <Route path="/mentor" component={MentorDashboard} />
       <Route component={NotFound} />
     </Switch>
