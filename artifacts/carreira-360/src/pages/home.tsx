@@ -251,7 +251,6 @@ export default function Home() {
 
       {/* The Context Section */}
       <section id="contexto" className="py-32 px-6 bg-secondary text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)", backgroundSize: "40px 40px" }}></div>
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
             initial="hidden"
@@ -557,7 +556,6 @@ export default function Home() {
 
       {/* CTA / Form Section */}
       <section id="inscricao" className="py-32 px-6 relative overflow-hidden bg-secondary text-white">
-        <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)", backgroundSize: "40px 40px" }}></div>
         <div className="absolute -top-64 -right-64 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute -bottom-64 -left-64 w-[600px] h-[600px] bg-accent/20 rounded-full blur-[100px] pointer-events-none"></div>
         
