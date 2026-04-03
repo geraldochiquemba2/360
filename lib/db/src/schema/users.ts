@@ -30,5 +30,5 @@ export const selectUserSchema = createSelectSchema(usersTable).omit({
 });
 
 export type User = typeof usersTable.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type UserProfile = z.infer<typeof selectUserSchema>;
+export type InsertUser = typeof usersTable.$inferInsert;
+export type UserProfile = Omit<User, "passwordHash">;

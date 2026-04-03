@@ -10,7 +10,7 @@ export const RegisterSchema = z.object({
   email: z.string().email("E-mail inválido"),
   phone: z.string().min(9, "Telefone inválido"),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
-  role: z.enum(["candidato", "mentor"]).default("candidato"),
+  role: z.enum(["candidato", "mentor", "admin"]).default("candidato"),
   
   // Profile fields (conditional in UI, but validated here)
   formation: z.string().optional(),
