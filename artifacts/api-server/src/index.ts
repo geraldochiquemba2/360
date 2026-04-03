@@ -22,4 +22,12 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+  
+  // Anti-Hibernation: Self-ping every 14 minutes
+  const APP_URL = process.env["RENDER_EXTERNAL_URL"] || "https://carreira360.onrender.com/";
+  setInterval(() => {
+    fetch(APP_URL)
+      .then(() => logger.info("Self-ping successful"))
+      .catch((err) => logger.error({ err }, "Self-ping failed"));
+  }, 14 * 60 * 1000);
 });
