@@ -54,6 +54,15 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#001F33] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
+      {/* Back Button */}
+      <div className="absolute top-8 left-8 z-20">
+        <Link href="/">
+          <Button variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10 uppercase font-bold tracking-widest text-xs flex items-center gap-2">
+            ← Voltar para o Início
+          </Button>
+        </Link>
+      </div>
+
       {/* Background elements */}
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#0EA5E9]/10 blur-[120px] rounded-full"></div>
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#F97316]/10 blur-[120px] rounded-full"></div>
@@ -63,11 +72,13 @@ export default function LoginPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-white/5 backdrop-blur-xl border-4 border-[#0EA5E9] p-8 md:p-12 shadow-[16px_16px_0px_0px_rgba(249,115,22,1)]"
       >
-        <div className="mb-8 text-center">
+        <div className="mb-8 text-center flex flex-col items-center">
           <Link href="/">
-            <h1 className="text-4xl font-display uppercase tracking-tighter mb-2 cursor-pointer hover:text-[#0EA5E9] transition-colors">
-              Carreira 360°
-            </h1>
+            <img 
+              src="/assets/logo.png" 
+              alt="Carreira 360" 
+              className="h-16 w-auto object-contain mb-4 cursor-pointer hover:scale-105 transition-transform"
+            />
           </Link>
           <p className="text-white/50 font-medium uppercase tracking-widest text-sm">Entra na tua conta</p>
         </div>

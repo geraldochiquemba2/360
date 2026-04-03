@@ -91,6 +91,15 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-[#001F33] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans pt-20">
+      {/* Back Button */}
+      <div className="absolute top-8 left-8 z-20">
+        <Link href="/">
+          <Button variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10 uppercase font-bold tracking-widest text-xs flex items-center gap-2">
+            ← Voltar para o Início
+          </Button>
+        </Link>
+      </div>
+
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#0EA5E9]/10 blur-[120px] rounded-full"></div>
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#F97316]/10 blur-[120px] rounded-full"></div>
 
@@ -99,13 +108,15 @@ export default function RegisterPage() {
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-2xl bg-white/5 backdrop-blur-xl border-4 border-[#0EA5E9] p-8 md:p-12 shadow-[16px_16px_0px_0px_rgba(249,115,22,1)]"
       >
-        <div className="mb-10">
+        <div className="mb-10 flex flex-col items-center">
           <Link href="/">
-            <h1 className="text-3xl font-display uppercase tracking-tighter mb-4 cursor-pointer hover:text-[#0EA5E9] transition-colors">
-              Carreira 360°
-            </h1>
+            <img 
+              src="/assets/logo.png" 
+              alt="Carreira 360" 
+              className="h-14 w-auto object-contain mb-6 cursor-pointer hover:scale-105 transition-transform"
+            />
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 w-full">
             {steps.map((s, i) => (
               <div key={s} className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold font-display ${step > i ? 'bg-[#0EA5E9] text-[#001F33]' : 'bg-white/10 text-white/40'}`}>
