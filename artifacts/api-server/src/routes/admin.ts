@@ -28,4 +28,29 @@ adminRouter.get("/stats", async (req, res) => {
   }
 });
 
+adminRouter.get("/candidates", async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ error: "Banco de dados não configurado" });
+    }
+
+    const candidates = await db.select({
+      id: usersTable.id,
+      name: usersTable.name,
+      email: usersTable.email,
+      phone: usersTable.phone,
+      formation: usersTable.formation,
+      areaOfInterest: usersTable.areaOfInterest,
+      createdAt: usersTable.createdAt
+    })
+    .from(usersTable)
+    .where(eq(usersTable.role, 'candidato'))
+    .orderBy(usersTable.createdAt);
+
+    return res.json(candidates);
+  } catch (err) {
+    return res.status(500).json({ error: "Erro ao buscar candidatos" });
+  }
+});
+
 export default adminRouter;
