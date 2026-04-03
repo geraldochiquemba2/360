@@ -324,25 +324,100 @@ export default function Home() {
       {/* 6. JORNADA */}
       <section id="jornada" className="py-32 md:py-48 bg-[#F5F0E8] px-6 text-[#0A0A0A]">
         <div className="max-w-[1400px] mx-auto">
-          <h2 className="text-7xl md:text-[10rem] font-display text-[#0A0A0A] mb-24 uppercase tracking-tighter leading-[0.8]">12 Meses.<br/><span className="text-transparent" style={{ WebkitTextStroke: "2px #0A0A0A" }}>Sem Atalhos.</span></h2>
-          
-          <div className="flex flex-col md:flex-row gap-8 md:gap-0">
+          <motion.h2
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-7xl md:text-[10rem] font-display text-[#0A0A0A] mb-24 uppercase tracking-tighter leading-[0.8]"
+          >
+            12 Meses.<br/>
+            <span className="text-transparent" style={{ WebkitTextStroke: "2px #0A0A0A" }}>Sem Atalhos.</span>
+          </motion.h2>
+
+          {/* Desktop: horizontal */}
+          <div className="hidden md:flex flex-row gap-0">
             {[
-              { num: "1", title: "Diagnóstico", desc: "Análise profunda do teu perfil actual. Onde estás e o que precisas." },
-              { num: "2", title: "Reestruturação", desc: "Construção de CV, LinkedIn e carta de apresentação." },
-              { num: "3", title: "Treino Prático", desc: "Simulações. Como falar, como negociar, como vender o teu valor." },
-              { num: "4", title: "Ataque", desc: "Candidaturas cirúrgicas e acompanhamento até à inserção." },
+              { num: "1", title: "Diagnóstico", desc: "Análise profunda do teu perfil actual. Onde estás e o que precisas.", color: "#FACC15" },
+              { num: "2", title: "Reestruturação", desc: "Construção de CV, LinkedIn e carta de apresentação.", color: "#F97316" },
+              { num: "3", title: "Treino Prático", desc: "Simulações. Como falar, como negociar, como vender o teu valor.", color: "#FACC15" },
+              { num: "4", title: "Ataque", desc: "Candidaturas cirúrgicas e acompanhamento até à inserção.", color: "#F97316" },
             ].map((fase, i) => (
-              <div key={i} className="flex-1 flex flex-col group">
-                <div className="h-4 w-full bg-[#0A0A0A]/10 mb-8 relative">
-                  <div className="absolute inset-y-0 left-0 bg-[#F97316] w-0 group-hover:w-full transition-all duration-500 ease-out"></div>
+              <motion.div
+                key={i}
+                className="flex-1 flex flex-col"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.6, delay: i * 0.15 }}
+              >
+                {/* Barra animada por scroll */}
+                <div className="h-4 w-full bg-[#0A0A0A]/10 mb-8 relative overflow-hidden">
+                  <motion.div
+                    className="absolute inset-y-0 left-0 h-full"
+                    style={{ backgroundColor: fase.color }}
+                    initial={{ width: "0%" }}
+                    whileInView={{ width: "100%" }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.9, delay: i * 0.15 + 0.2, ease: "easeOut" }}
+                  />
                 </div>
                 <div className="pr-8">
-                  <p className="text-[6rem] font-display text-[#0A0A0A]/20 leading-none mb-4 group-hover:text-[#FACC15] transition-colors">{fase.num}</p>
+                  <motion.p
+                    className="text-[6rem] font-display leading-none mb-4"
+                    style={{ color: fase.color }}
+                    initial={{ opacity: 0.15 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: i * 0.15 + 0.3 }}
+                  >
+                    {fase.num}
+                  </motion.p>
                   <h4 className="text-4xl font-display uppercase mb-4 text-[#0A0A0A]">{fase.title}</h4>
                   <p className="font-sans text-lg font-medium text-[#0A0A0A]/70">{fase.desc}</p>
                 </div>
-              </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Mobile: cartões empilhados */}
+          <div className="flex flex-col gap-6 md:hidden">
+            {[
+              { num: "01", title: "Diagnóstico", desc: "Análise profunda do teu perfil actual. Onde estás e o que precisas.", color: "#FACC15", bg: "#0A0A0A" },
+              { num: "02", title: "Reestruturação", desc: "Construção de CV, LinkedIn e carta de apresentação.", color: "#F97316", bg: "#F5F0E8" },
+              { num: "03", title: "Treino Prático", desc: "Simulações. Como falar, como negociar, como vender o teu valor.", color: "#FACC15", bg: "#0A0A0A" },
+              { num: "04", title: "Ataque", desc: "Candidaturas cirúrgicas e acompanhamento até à inserção.", color: "#F97316", bg: "#F5F0E8" },
+            ].map((fase, i) => (
+              <motion.div
+                key={i}
+                className="flex items-start gap-6 p-6 border-2 rounded-none"
+                style={{ borderColor: fase.color, backgroundColor: i % 2 === 0 ? "#0A0A0A" : "transparent" }}
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <span
+                  className="font-display text-7xl leading-none shrink-0 w-20"
+                  style={{ color: fase.color }}
+                >
+                  {fase.num}
+                </span>
+                <div>
+                  <h4
+                    className="text-2xl font-display uppercase mb-2"
+                    style={{ color: i % 2 === 0 ? "#ffffff" : "#0A0A0A" }}
+                  >
+                    {fase.title}
+                  </h4>
+                  <p
+                    className="font-sans text-base font-medium"
+                    style={{ color: i % 2 === 0 ? "rgba(255,255,255,0.65)" : "rgba(10,10,10,0.65)" }}
+                  >
+                    {fase.desc}
+                  </p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
