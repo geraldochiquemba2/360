@@ -53,7 +53,14 @@ export default function RegisterPage() {
       localStorage.setItem("user", JSON.stringify(data.user));
       
       toast({ title: "Bem-vindo!", description: "Conta criada com sucesso." });
-      setLocation("/");
+      
+      if (data.user?.role === "admin") {
+        setLocation("/admin");
+      } else if (data.user?.role === "mentor") {
+        setLocation("/mentor");
+      } else {
+        setLocation("/dashboard");
+      }
       return;
     } catch (error: any) {
       toast({

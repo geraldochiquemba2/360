@@ -6,6 +6,9 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import LoginPage from "@/pages/auth/login";
 import RegisterPage from "@/pages/auth/register";
+import AdminDashboard from "@/pages/admin/dashboard";
+import CandidateDashboard from "@/pages/candidate/dashboard";
+import MentorDashboard from "@/pages/mentor/dashboard";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +18,9 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/auth/login" component={LoginPage} />
       <Route path="/auth/register" component={RegisterPage} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/dashboard" component={CandidateDashboard} />
+      <Route path="/mentor" component={MentorDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

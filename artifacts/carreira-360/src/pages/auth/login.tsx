@@ -40,7 +40,14 @@ export default function LoginPage() {
       localStorage.setItem("user", JSON.stringify(data.user));
       
       toast({ title: "Bem-vindo!", description: "Login realizado com sucesso." });
-      setLocation("/");
+      
+      if (data.user?.role === "admin") {
+        setLocation("/admin");
+      } else if (data.user?.role === "mentor") {
+        setLocation("/mentor");
+      } else {
+        setLocation("/dashboard");
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
