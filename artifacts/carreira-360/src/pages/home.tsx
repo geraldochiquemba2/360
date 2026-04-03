@@ -407,8 +407,8 @@ export default function Home() {
                     style={{ backgroundColor: fase.color }}
                     initial={{ width: "0%" }}
                     whileInView={{ width: "100%" }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{ duration: 0.9, delay: i * 0.15 + 0.2, ease: "easeOut" }}
+                    viewport={{ once: true, margin: "-20px" }}
+                    transition={{ duration: 0.9, delay: i * 0.15 + 0.1, ease: "easeOut" }}
                   />
                 </div>
                 <div className="pr-8">

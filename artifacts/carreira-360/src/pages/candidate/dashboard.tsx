@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Briefcase, MapPin, Building2, Calendar, ExternalLink, GraduationCap, Award, LayoutDashboard, LogOut } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function CandidateDashboard() {
   const [, setLocation] = useLocation();
@@ -18,22 +20,172 @@ export default function CandidateDashboard() {
       return;
     }
     setUser(parsedUser);
+    fetchOpportunities();
   }, [setLocation]);
+
+  const [opportunities, setOpportunities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchOpportunities = async () => {
+    try {
+      const response = await fetch("/api/opportunities");
+      if (response.ok) {
+        const data = await response.json();
+        setOpportunities(data);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar vagas", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setLocation("/");
+  };
 
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] flex flex-col p-8">
-      <h1 className="text-3xl font-display text-[#001F33] mb-4 uppercase">Painel do Candidato</h1>
-      <p className="font-sans text-[#001F33]/80">Bem-vindo, {user.name}!</p>
-      <div className="mt-8 p-8 bg-white shadow-xl border-l-4 border-[#0EA5E9] rounded-xl max-w-2xl">
-        <h2 className="text-xl font-display text-[#0EA5E9] mb-2 uppercase">Módulo de IA em Desenvolvimento</h2>
-        <p className="mb-4">As tuas trilhas de carreira gamificadas e gerador de CV estão a ser construídos de acordo com o plano do projeto!</p>
-        <Button onClick={() => {
-          localStorage.clear();
-          setLocation("/");
-        }}>Sair</Button>
-      </div>
+    <div className="min-h-screen bg-[#F5F0E8] flex font-sans text-[#001F33]">
+      {/* Sidebar Simples */}
+      <aside className="w-64 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0">
+        <div className="p-8 border-b border-white/10">
+          <img src="/assets/logo.png" className="h-12 w-auto object-contain" alt="Logo" />
+        </div>
+        <nav className="flex-1 p-6 space-y-4">
+          <Button variant="ghost" className="w-full justify-start text-white bg-[#0EA5E9]/20 uppercase tracking-widest font-bold text-xs h-12">
+            <LayoutDashboard className="mr-3 h-5 w-5" /> Início
+          </Button>
+          <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
+            <Briefcase className="mr-3 h-5 w-5" /> Minhas Vagas
+          </Button>
+          <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
+            <Award className="mr-3 h-5 w-5" /> Certificações
+          </Button>
+        </nav>
+        <div className="p-6 border-t border-white/10">
+          <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase tracking-widest font-bold text-xs">
+            <LogOut className="mr-3 h-5 w-5" /> Sair
+          </Button>
+        </div>
+      </aside>
+
+      {/* Content */}
+      <main className="flex-1 ml-64 p-8">
+        <header className="mb-8 flex justify-between items-end">
+          <div>
+            <h1 className="text-4xl font-display uppercase tracking-tight">Painel do Candidato</h1>
+            <p className="text-[#001F33]/50 font-medium mt-1">Bem-vindo, {user.name}! Estas são as oportunidades para o teu perfil.</p>
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Main Feed */}
+          <div className="xl:col-span-2 space-y-6">
+            <h2 className="text-xl font-display uppercase text-[#0EA5E9] tracking-widest">Oportunidades em Destaque</h2>
+            
+            {loading ? (
+              <div className="flex justify-center py-10"><div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full"></div></div>
+            ) : opportunities.length === 0 ? (
+              <div className="bg-white p-12 text-center rounded-2xl shadow-sm border border-[#001F33]/5">
+                <p className="text-xl font-display uppercase text-[#001F33]/20">Sem vagas disponíveis agora.</p>
+              </div>
+            ) : (
+              <div className="grid gap-6">
+                {opportunities.map((op) => (
+                  <motion.div 
+                    key={op.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white p-6 rounded-2xl shadow-sm border border-[#001F33]/5 hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-6 justify-between items-center"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${
+                          op.type === 'bolsa' ? 'bg-[#F97316]/10 text-[#F97316]' : 'bg-[#0EA5E9]/10 text-[#0EA5E9]'
+                        }`}>
+                          {op.type}
+                        </span>
+                        <span className="text-xs text-[#001F33]/30 font-bold">• {new Date(op.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <h3 className="text-xl font-display uppercase text-[#001F33] group-hover:text-[#0EA5E9] transition-colors">{op.title}</h3>
+                      <div className="flex flex-wrap gap-4 mt-2">
+                        <span className="flex items-center text-sm font-sans text-[#001F33]/60"><Building2 size={14} className="mr-1.5 opacity-40" /> {op.company}</span>
+                        <span className="flex items-center text-sm font-sans text-[#001F33]/60"><MapPin size={14} className="mr-1.5 opacity-40" /> {op.location}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 w-full md:w-auto">
+                      {op.link && (
+                        <Button className="w-full md:w-auto bg-[#001F33] hover:bg-[#0EA5E9] text-white uppercase font-bold text-xs tracking-widest h-12 px-8" asChild>
+                          <a href={op.link} target="_blank">Candidate-se</a>
+                        </Button>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Right Column: AI Pulse */}
+          <div className="space-y-8">
+            <div className="bg-[#001F33] p-8 rounded-2xl text-white shadow-xl relative overflow-hidden">
+              <div className="relative z-10">
+                <GradientPulse />
+                <h3 className="text-2xl font-display uppercase mb-4 leading-tight">Pulso de <br/><span className="text-[#0EA5E9]">Carreira IA</span></h3>
+                <p className="text-white/60 text-sm font-sans leading-relaxed">
+                  A nossa IA está a analisar o teu perfil para sugerir as melhores trilhas de aprendizagem e simulações.
+                </p>
+                <div className="mt-8 pt-8 border-t border-white/10">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#F97316] mb-2">Próxima Etapa:</p>
+                  <p className="text-sm font-bold uppercase">Gerar o teu novo CV →</p>
+                </div>
+              </div>
+              <div className="absolute -right-8 -bottom-8 opacity-10">
+                <img src="/assets/logo.png" className="h-40 object-contain" alt="" />
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#001F33]/5">
+              <h3 className="text-lg font-display uppercase text-[#001F33] mb-4">Destaque de Formação</h3>
+              <div className="space-y-4">
+                <div className="p-4 bg-[#F5F0E8] rounded-xl group hover:bg-[#0EA5E9]/10 transition-colors cursor-pointer">
+                  <p className="text-[10px] font-bold uppercase text-[#0EA5E9]">Curso Recomendado</p>
+                  <h4 className="font-bold uppercase text-sm mt-1">Liderança em Ambientes Digitais</h4>
+                </div>
+                <div className="p-4 bg-[#F5F0E8] rounded-xl group hover:bg-[#0EA5E9]/10 transition-colors cursor-pointer">
+                  <p className="text-[10px] font-bold uppercase text-[#F97316]">Trilha Gratuita</p>
+                  <h4 className="font-bold uppercase text-sm mt-1">Domínio de Soft Skills 2026</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function GradientPulse() {
+  return (
+    <div className="flex gap-1 mb-6">
+      {[1, 2, 3].map((i) => (
+        <motion.div
+          key={i}
+          animate={{
+            height: [8, 16, 8],
+            opacity: [0.3, 1, 0.3],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            delay: i * 0.2,
+          }}
+          className="w-1.5 bg-[#0EA5E9] rounded-full"
+        />
+      ))}
     </div>
   );
 }

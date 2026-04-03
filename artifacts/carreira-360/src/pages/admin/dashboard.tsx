@@ -1,8 +1,23 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu } from "lucide-react";
-import { motion } from "framer-motion";
+import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
@@ -11,8 +26,23 @@ export default function AdminDashboard() {
   const [currentTab, setCurrentTab] = useState<"overview" | "users" | "jobs" | "content">("overview");
   const [stats, setStats] = useState({ totalJovens: 0, totalMentores: 0, oportunidades: 0, simulacoes: 0 });
   const [candidates, setCandidates] = useState<any[]>([]);
+  const [opportunities, setOpportunities] = useState<any[]>([]);
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingCandidates, setLoadingCandidates] = useState(false);
+  const [loadingOpportunities, setLoadingOpportunities] = useState(false);
+  const [isAddingOpportunity, setIsAddingOpportunity] = useState(false);
+  const { toast } = useToast();
+
+  const [newOpportunity, setNewOpportunity] = useState({
+    title: "",
+    company: "",
+    location: "",
+    type: "emprego",
+    description: "",
+    requirements: "",
+    link: "",
+    deadline: ""
+  });
 
   useEffect(() => {
     // Basic auth check
@@ -76,8 +106,69 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (currentTab === "users") {
       fetchCandidates();
+    } else if (currentTab === "jobs") {
+      fetchOpportunities();
     }
   }, [currentTab]);
+
+  const fetchOpportunities = async () => {
+    setLoadingOpportunities(true);
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/admin/opportunities", {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setOpportunities(data);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar oportunidades", err);
+    } finally {
+      setLoadingOpportunities(false);
+    }
+  };
+
+  const handleAddOpportunity = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/admin/opportunities", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(newOpportunity)
+      });
+      if (response.ok) {
+        toast({ title: "Sucesso", description: "Oportunidade criada com sucesso!" });
+        setIsAddingOpportunity(false);
+        setNewOpportunity({ title: "", company: "", location: "", type: "emprego", description: "", requirements: "", link: "", deadline: "" });
+        fetchOpportunities();
+      }
+    } catch (err) {
+      toast({ title: "Erro", description: "Falha ao criar oportunidade", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteOpportunity = async (id: number) => {
+    if (!confirm("Tem a certeza que deseja eliminar esta vaga?")) return;
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`/api/admin/opportunities/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (response.ok) {
+        toast({ title: "Eliminado", description: "Vaga removida com sucesso." });
+        fetchOpportunities();
+      }
+    } catch (err) {
+      toast({ title: "Erro", description: "Falha ao eliminar vaga", variant: "destructive" });
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -159,6 +250,63 @@ export default function AdminDashboard() {
             <Button variant="outline" size="sm" onClick={fetchCandidates} disabled={loadingCandidates} className="border-[#0EA5E9] text-[#0EA5E9] hover:bg-[#0EA5E9] hover:text-white uppercase font-bold text-xs">
               Atualizar Lista
             </Button>
+          )}
+          {currentTab === 'jobs' && (
+            <Dialog open={isAddingOpportunity} onOpenChange={setIsAddingOpportunity}>
+              <DialogTrigger asChild>
+                <Button className="bg-[#0EA5E9] hover:bg-[#F97316] text-white uppercase font-bold text-xs tracking-widest h-10 px-6">
+                  <Plus className="mr-2 h-4 w-4" /> Nova Vaga
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl bg-white border-2 border-[#001F33]/10">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-display uppercase text-[#001F33]">Cadastrar Oportunidade</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-4 py-4 font-sans">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-[#001F33]/50">Título da Vaga</label>
+                    <Input placeholder="Ex: Gestor de Marketing" value={newOpportunity.title} onChange={(e) => setNewOpportunity({...newOpportunity, title: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-[#001F33]/50">Empresa</label>
+                    <Input placeholder="Ex: UNITEL" value={newOpportunity.company} onChange={(e) => setNewOpportunity({...newOpportunity, company: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-[#001F33]/50">Localização</label>
+                    <Input placeholder="Ex: Luanda - Kilamba" value={newOpportunity.location} onChange={(e) => setNewOpportunity({...newOpportunity, location: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-[#001F33]/50">Tipo</label>
+                    <Select value={newOpportunity.type} onValueChange={(val) => setNewOpportunity({...newOpportunity, type: val})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecionar Tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="emprego">Emprego</SelectItem>
+                        <SelectItem value="estagio">Estágio</SelectItem>
+                        <SelectItem value="bolsa">Bolsa de Estudo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-2 space-y-2">
+                    <label className="text-xs font-bold uppercase text-[#001F33]/50">Descrição</label>
+                    <Textarea placeholder="Descreve brevemente o que o candidato fará..." value={newOpportunity.description} onChange={(e) => setNewOpportunity({...newOpportunity, description: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-[#001F33]/50">Link / E-mail</label>
+                    <Input placeholder="URL ou e-mail de candidatura" value={newOpportunity.link} onChange={(e) => setNewOpportunity({...newOpportunity, link: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-[#001F33]/50">Data Limite</label>
+                    <Input type="date" value={newOpportunity.deadline} onChange={(e) => setNewOpportunity({...newOpportunity, deadline: e.target.value})} />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="ghost" onClick={() => setIsAddingOpportunity(false)} className="uppercase font-bold text-xs">Cancelar</Button>
+                  <Button onClick={handleAddOpportunity} className="bg-[#001F33] hover:bg-[#0EA5E9] text-white uppercase font-bold text-xs tracking-widest px-8">Salvar Vaga</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           )}
         </header>
         
@@ -268,11 +416,85 @@ export default function AdminDashboard() {
                 </table>
               </div>
             </motion.div>
+          ) : currentTab === 'jobs' ? (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              {loadingOpportunities ? (
+                <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full"></div></div>
+              ) : opportunities.length === 0 ? (
+                <div className="bg-white rounded-xl p-16 text-center shadow-sm border border-[#001F33]/5">
+                  <Briefcase size={64} className="mx-auto text-[#001F33]/10 mb-4" />
+                  <h3 className="text-xl font-display uppercase text-[#001F33]/40">Nenhuma vaga cadastrada</h3>
+                  <p className="text-sm text-[#001F33]/60 mt-2 max-w-xs mx-auto">Começa agora mesmo a carregar empregos e bolsas de estudo para os jovens.</p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl shadow-sm border border-[#001F33]/5 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-[#001F33] text-white uppercase text-xs tracking-widest font-bold">
+                          <th className="px-6 py-4">Título / Empresa</th>
+                          <th className="px-6 py-4">Localização</th>
+                          <th className="px-6 py-4">Tipo</th>
+                          <th className="px-6 py-4">Prazo</th>
+                          <th className="px-6 py-4 text-right">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#001F33]/5">
+                        {opportunities.map((op) => (
+                          <tr key={op.id} className="hover:bg-[#0EA5E9]/5 transition-colors group">
+                            <td className="px-6 py-4">
+                              <span className="block font-bold uppercase text-[#0EA5E9] leading-tight">{op.title}</span>
+                              <span className="text-xs text-[#001F33]/50 flex items-center mt-1">
+                                <Building2 size={12} className="mr-1" /> {op.company}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm font-sans text-[#001F33]/80">
+                              <span className="flex items-center"><MapPin size={14} className="mr-2 text-[#001F33]/30" /> {op.location}</span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                                op.type === 'bolsa' ? 'bg-[#F97316]/10 text-[#F97316]' : 'bg-[#0EA5E9]/10 text-[#0EA5E9]'
+                              }`}>
+                                {op.type}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-xs text-[#001F33]/50">
+                              <span className="flex items-center">
+                                <Calendar size={14} className="mr-2 opacity-30" />
+                                {op.deadline ? new Date(op.deadline).toLocaleDateString() : 'Aberto'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button variant="ghost" size="icon" className="text-[#001F33]/30 hover:text-[#F97316]" onClick={() => handleDeleteOpportunity(op.id)}>
+                                  <Trash2 size={18} />
+                                </Button>
+                                {op.link && (
+                                  <Link href={op.link}>
+                                    <a target="_blank" className="p-2 text-[#001F33]/30 hover:text-[#0EA5E9]">
+                                      <ExternalLink size={18} />
+                                    </a>
+                                  </Link>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </motion.div>
           ) : (
             <div className="bg-white rounded-xl p-8 shadow-sm border border-[#001F33]/5 text-center py-20">
               <h3 className="text-2xl font-display uppercase mb-4 text-[#0EA5E9]">Página em Desenvolvimento</h3>
               <p className="text-[#001F33]/60 max-w-md mx-auto">
-                Em breve poderá gerir {currentTab === 'jobs' ? 'Vagas e Oportunidades' : 'Vídeos e Trilhas de Carreira'} nesta secção.
+                Em breve poderá gerir Trilhas de Carreira e Conteúdo nesta secção.
               </p>
             </div>
           )}
