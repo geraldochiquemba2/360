@@ -74,8 +74,8 @@ export default function Home() {
   return (
     <div className="min-h-[100dvh] bg-[#0A0A0A] font-sans text-white overflow-x-hidden selection:bg-[#FACC15] selection:text-[#0A0A0A]">
       {/* NAVBAR */}
-      <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference text-white">
-        <div className="max-w-[1400px] mx-auto px-6 h-24 flex items-center justify-between">
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${isMenuOpen ? 'bg-black/90 backdrop-blur-xl' : 'mix-blend-difference text-white'}`}>
+        <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between">
           <div className="font-display text-4xl cursor-pointer hover:text-[#FACC15] transition-colors" onClick={() => window.scrollTo(0,0)}>
             CARREIRA 360°
           </div>
@@ -94,12 +94,51 @@ export default function Home() {
 
         {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-[#0A0A0A] fixed inset-0 top-20 left-0 right-0 p-8 flex flex-col gap-6 shadow-2xl z-[60] border-b border-white/10 overflow-y-auto">
-            <button onClick={() => scrollTo("estatisticas")} className="text-left text-2xl font-display uppercase hover:text-[#FACC15]">O Problema</button>
-            <button onClick={() => scrollTo("pilares")} className="text-left text-2xl font-display uppercase hover:text-[#FACC15]">Os Pilares</button>
-            <button onClick={() => scrollTo("jornada")} className="text-left text-2xl font-display uppercase hover:text-[#FACC15]">Jornada</button>
-            <button onClick={() => scrollTo("publico")} className="text-left text-2xl font-display uppercase hover:text-[#FACC15]">Para Quem</button>
-            <button onClick={() => scrollTo("inscricao")} className="text-left text-2xl font-display text-[#FACC15] uppercase">Inscrever-me</button>
+          <div className="md:hidden fixed inset-0 top-20 bg-black/90 backdrop-blur-xl p-8 flex flex-col gap-8 shadow-2xl z-[60] border-t border-white/10 overflow-y-auto">
+            <motion.button 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              onClick={() => scrollTo("estatisticas")} 
+              className="text-left text-4xl font-display uppercase hover:text-[#FACC15] transition-colors"
+            >
+              O Problema
+            </motion.button>
+            <motion.button 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              onClick={() => scrollTo("pilares")} 
+              className="text-left text-4xl font-display uppercase hover:text-[#FACC15] transition-colors"
+            >
+              Os Pilares
+            </motion.button>
+            <motion.button 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              onClick={() => scrollTo("jornada")} 
+              className="text-left text-4xl font-display uppercase hover:text-[#FACC15] transition-colors"
+            >
+              Jornada
+            </motion.button>
+            <motion.button 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              onClick={() => scrollTo("publico")} 
+              className="text-left text-4xl font-display uppercase hover:text-[#FACC15] transition-colors"
+            >
+              Para Quem
+            </motion.button>
+            <motion.button 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              onClick={() => scrollTo("inscricao")} 
+              className="text-left text-4xl font-display text-[#FACC15] uppercase border-t border-white/10 pt-4"
+            >
+              Inscrever-me
+            </motion.button>
           </div>
         )}
       </nav>
