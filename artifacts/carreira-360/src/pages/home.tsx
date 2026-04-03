@@ -80,7 +80,7 @@ export default function Home() {
             <img 
               src="/assets/logo.png" 
               alt="Carreira 360" 
-              className="h-12 w-auto object-contain"
+              className="h-16 w-auto object-contain rotate-90 hover:scale-105 transition-transform"
               style={{ imageRendering: 'crisp-edges' }}
             />
           </div>
