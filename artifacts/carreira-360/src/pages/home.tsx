@@ -189,11 +189,7 @@ export default function Home() {
             
             <motion.div variants={fadeUpVariant} className="mt-12 flex items-center gap-4 p-4 rounded-2xl bg-secondary/5 border border-secondary/10 backdrop-blur-sm">
               <div className="flex -space-x-3">
-                {[
-                  { style: "adventurer", seed: "Felix", label: "jovem" },
-                  { style: "adventurer", seed: "Ana", label: "jovem" },
-                  { style: "avataaars", seed: "Carlos", label: "adulto" },
-                ].map((avatar, i) => (
+                {[1,2,3].map((i) => (
                   <motion.div
                     key={i}
                     className="w-12 h-12 rounded-full border-2 border-background bg-secondary/10 flex items-center justify-center overflow-hidden"
@@ -202,10 +198,10 @@ export default function Home() {
                       duration: 2.2,
                       repeat: Infinity,
                       ease: "easeInOut",
-                      delay: i * 0.35,
+                      delay: (i - 1) * 0.35,
                     }}
                   >
-                    <img src={`https://api.dicebear.com/7.x/${avatar.style}/svg?seed=${avatar.seed}&backgroundColor=transparent`} alt={avatar.label} />
+                    <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${i + 10}&backgroundColor=transparent`} alt="avatar" />
                   </motion.div>
                 ))}
               </div>
