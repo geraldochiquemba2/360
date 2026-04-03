@@ -260,46 +260,80 @@ export default function Home() {
       </section>
 
       {/* The Context Section */}
-      <section id="contexto" className="py-32 px-6 bg-secondary text-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto relative z-10">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeUpVariant}
-            className="max-w-3xl mb-20"
+      <section id="contexto" className="py-24 px-6 bg-background border-y border-border overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+
+          {/* Top: label + headline */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white border border-white/20 text-sm font-bold mb-6">
-              O Contexto Angolano
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-primary mb-3 block">O Contexto Angolano</span>
+              <h2 className="text-4xl md:text-5xl font-display font-extrabold leading-tight max-w-xl">
+                Os números que nos motivam a agir.
+              </h2>
             </div>
-            <h2 className="text-4xl md:text-6xl font-display font-extrabold mb-6 leading-tight">A realidade que vamos mudar.</h2>
-            <p className="text-xl md:text-2xl text-white/70 leading-relaxed font-medium">
-              O mercado de trabalho em Angola é complexo. As estatísticas mostram uma realidade dura, mas nós vemos um mar de potencial não aproveitado.
+            <p className="text-muted-foreground text-lg max-w-sm leading-relaxed">
+              Angola tem talento de sobra. O que falta é orientação estruturada para o ligar ao mercado.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          {/* Stats strip */}
+          <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border border border-border rounded-3xl overflow-hidden">
             {[
-              { stat: "29,4%", label: "Taxa de desemprego geral", icon: Target, color: "text-primary" },
-              { stat: ">80%", label: "Dos desempregados têm menos de 35 anos", icon: Users, color: "text-accent" },
-              { stat: "50%+", label: "Desemprego no grupo dos 15 aos 24 anos", icon: Briefcase, color: "text-white" }
+              {
+                stat: "29,4%",
+                label: "Taxa geral de desemprego em Angola",
+                note: "INE, 1.º trimestre 2025",
+                accent: "bg-primary",
+              },
+              {
+                stat: "+80%",
+                label: "Dos desempregados têm menos de 35 anos",
+                note: "Jovens são os mais afectados",
+                accent: "bg-accent",
+              },
+              {
+                stat: "50%+",
+                label: "Desemprego entre jovens dos 15 aos 24 anos",
+                note: "Um dos maiores desafios estruturais",
+                accent: "bg-secondary",
+              },
             ].map((item, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.6 }}
-                className="bg-white/5 border border-white/10 p-10 rounded-[2rem] backdrop-blur-sm hover:bg-white/10 transition-colors group"
+                transition={{ delay: i * 0.12, duration: 0.5 }}
+                className="relative p-10 bg-card group hover:bg-muted/40 transition-colors"
               >
-                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                  <item.icon className={`w-8 h-8 ${item.color}`} />
-                </div>
-                <h3 className="text-6xl font-display font-extrabold mb-4">{item.stat}</h3>
-                <p className="text-white/70 font-medium text-xl leading-snug">{item.label}</p>
+                <div className={`w-1 h-12 ${item.accent} rounded-full mb-8 group-hover:h-16 transition-all duration-300`} />
+                <p className="text-6xl md:text-7xl font-display font-extrabold tracking-tight mb-4 text-foreground">
+                  {item.stat}
+                </p>
+                <p className="text-base font-semibold text-foreground/80 mb-3 leading-snug">{item.label}</p>
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{item.note}</p>
               </motion.div>
             ))}
           </div>
+
+          {/* Bottom message */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="mt-10 flex items-center gap-3 text-muted-foreground text-sm"
+          >
+            <div className="w-8 h-px bg-primary" />
+            <span>Jovens competentes perdem oportunidades — não por falta de talento, mas por falta de preparação.</span>
+          </motion.div>
+
         </div>
       </section>
 
