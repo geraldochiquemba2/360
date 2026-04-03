@@ -230,7 +230,15 @@ export default function Home() {
             </div>
           </div>
           <div className="lg:w-1/2 h-[50vh] lg:h-auto relative overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=80" alt="Formação" className="absolute inset-0 w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" />
+            <motion.img
+              src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=80"
+              alt="Formação"
+              className="absolute inset-0 w-full h-full object-cover scale-105"
+              initial={{ filter: "grayscale(100%) brightness(0.7)" }}
+              whileInView={{ filter: "grayscale(0%) brightness(1)" }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 1.6, ease: "easeOut" }}
+            />
           </div>
         </div>
 
@@ -251,7 +259,15 @@ export default function Home() {
             </div>
           </div>
           <div className="lg:w-1/2 h-[50vh] lg:h-auto relative overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1000&q=80" alt="Networking" className="absolute inset-0 w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" />
+            <motion.img
+              src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1000&q=80"
+              alt="Networking"
+              className="absolute inset-0 w-full h-full object-cover scale-105"
+              initial={{ filter: "grayscale(100%) brightness(0.7)" }}
+              whileInView={{ filter: "grayscale(0%) brightness(1)" }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 1.6, ease: "easeOut" }}
+            />
           </div>
         </div>
 
@@ -272,7 +288,15 @@ export default function Home() {
             </div>
           </div>
           <div className="lg:w-1/2 h-[50vh] lg:h-auto relative overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1000&q=80" alt="Entrevista" className="absolute inset-0 w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" />
+            <motion.img
+              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1000&q=80"
+              alt="Entrevista"
+              className="absolute inset-0 w-full h-full object-cover scale-105"
+              initial={{ filter: "grayscale(100%) brightness(0.7)" }}
+              whileInView={{ filter: "grayscale(0%) brightness(1)" }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 1.6, ease: "easeOut" }}
+            />
           </div>
         </div>
       </section>
