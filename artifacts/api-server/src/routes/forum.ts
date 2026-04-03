@@ -138,7 +138,7 @@ forumRouter.post("/topics/:id/posts", requireAuth, async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const userId = (req as any).user.id;
-    const topicId = parseInt(req.params.id);
+    const topicId = parseInt(req.params.id as string);
     const { content } = req.body;
 
     const [newPost] = await db.insert(forumPostsTable).values({
@@ -160,7 +160,7 @@ forumRouter.post("/topics/:id/like", requireAuth, async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const userId = (req as any).user.id;
-    const topicId = parseInt(req.params.id);
+    const topicId = parseInt(req.params.id as string);
 
     // Verificar se já deu like
     const [existing] = await db.select().from(forumLikesTable)

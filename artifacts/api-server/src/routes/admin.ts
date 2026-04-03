@@ -311,7 +311,7 @@ adminRouter.patch("/mentors/:id", async (req, res) => {
 adminRouter.delete("/forum/topics/:id", requireAuth, async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     await db.delete(forumTopicsTable).where(eq(forumTopicsTable.id, id));
     return res.json({ success: true });
   } catch (err) {
