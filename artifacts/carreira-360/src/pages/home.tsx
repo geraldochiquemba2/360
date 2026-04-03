@@ -74,7 +74,7 @@ export default function Home() {
   return (
     <div className="min-h-[100dvh] bg-[#001F33] font-sans text-white overflow-x-hidden selection:bg-[#0EA5E9] selection:text-[#001F33]">
       {/* NAVBAR */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${isMenuOpen ? 'bg-black/90 backdrop-blur-xl' : 'mix-blend-difference text-white'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isMenuOpen ? 'bg-[#001F33] backdrop-blur-xl' : 'bg-[#001F33]/80 backdrop-blur-md border-b border-white/10'}`}>
         <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="font-display text-3xl cursor-pointer hover:text-[#0EA5E9] transition-colors" onClick={() => window.scrollTo(0,0)}>
             CARREIRA 360°
