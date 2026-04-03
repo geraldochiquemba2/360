@@ -322,7 +322,7 @@ export default function Home() {
                 tags: ["Revisão de Perfil", "Networking", "Mapeamento de Vagas"],
                 icon: Network,
                 color: "bg-accent/10 text-accent-foreground border-accent/20",
-                img: "https://images.unsplash.com/photo-1515169067868-5387ec356754?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                img: "https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
               },
               {
                 title: "Simulação de Entrevistas",
@@ -330,7 +330,7 @@ export default function Home() {
                 tags: ["Treino Prático", "Feedback Estruturado", "Postura e Confiança"],
                 icon: FileText,
                 color: "bg-secondary/10 text-secondary border-secondary/20",
-                img: "https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
               }
             ].map((pillar, i) => (
               <motion.div 
