@@ -97,7 +97,7 @@ export default function CandidateDashboard() {
       {/* Sidebar Simples */}
       <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div className="p-8 border-b border-white/10 relative flex items-center justify-between">
-          <img src="/assets/logo.png" className="h-12 w-auto object-contain" alt="Logo" />
+          <img src="/assets/logo.png" className="h-16 w-auto object-contain" alt="Logo" />
           <Button 
             variant="ghost" 
             size="icon" 
@@ -224,6 +224,7 @@ export default function CandidateDashboard() {
                         <div className="flex flex-wrap gap-4 mt-2">
                           <span className="flex items-center text-sm font-sans text-[#001F33] font-medium"><Building2 size={14} className="mr-1.5 text-[#0EA5E9]" /> {op.company}</span>
                           <span className="flex items-center text-sm font-sans text-[#001F33] font-medium"><MapPin size={14} className="mr-1.5 text-[#0EA5E9]" /> {op.location}</span>
+                          <span className="flex items-center text-sm font-sans text-[#001F33]/70 font-bold"><Calendar size={14} className="mr-1.5 text-[#F97316]" /> Prazo: {op.deadline ? new Date(op.deadline).toLocaleDateString() : 'Indefinido'}</span>
                         </div>
                       </div>
                       <div className="flex gap-3 w-full md:w-auto">

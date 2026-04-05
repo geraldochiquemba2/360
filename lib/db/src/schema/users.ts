@@ -16,7 +16,14 @@ export const usersTable = pgTable("users", {
   experienceLevel: text("experience_level"),
   careerGoals: text("career_goals"),
   difficulties: text("difficulties"), // Can store as JSON string or comma-separated
+  province: text("province"),
+  municipality: text("municipality"),
   
+  cvUrl: text("cv_url"),
+  socialLink: text("social_link"),
+  status: text("status").notNull().default("pendente"),
+  rejectionReason: text("rejection_reason"),
+
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

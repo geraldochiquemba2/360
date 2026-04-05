@@ -49,11 +49,15 @@ export default function AdminDashboard() {
   const [isAddingVideo, setIsAddingVideo] = useState(false);
   const [videos, setVideos] = useState<any[]>([]);
 
-  // Estados de Edição
+  // Estados de Edição e Visualização
   const [editingOpportunity, setEditingOpportunity] = useState<any>(null);
   const [editingTrack, setEditingTrack] = useState<any>(null);
   const [editingModule, setEditingModule] = useState<any>(null);
   const [editingVideo, setEditingVideo] = useState<any>(null);
+  const [viewUser, setViewUser] = useState<any>(null);
+  const [isRejectingUser, setIsRejectingUser] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [userToReject, setUserToReject] = useState<number | null>(null);
 
   // Estados de Confirmação (Substituto do confirm)
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -111,6 +115,31 @@ export default function AdminDashboard() {
     else if (currentTab === "mentors") fetchMentors();
     else if (currentTab === "forum") fetchForumTopics();
   }, [currentTab]);
+
+  const handleUpdateStatus = async (id: number, status: string, reason?: string) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`/api/admin/users/${id}`, {
+        method: "PATCH",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status, rejectionReason: reason })
+      });
+      if (response.ok) {
+        toast({ title: "Sucesso", description: `Estado atualizado.` });
+        setIsRejectingUser(false);
+        setRejectionReason("");
+        setUserToReject(null);
+        fetchCandidates();
+      } else {
+        throw new Error("Falha");
+      }
+    } catch(err: any) {
+      toast({ variant: "destructive", title: "Erro", description: err.message });
+    }
+  };
 
   const fetchMentors = async () => {
     setLoadingMentors(true);
@@ -457,21 +486,93 @@ export default function AdminDashboard() {
 
           {currentTab === 'users' && (
             <div className="bg-white rounded-[32px] shadow-2xl overflow-hidden border border-[#001F33]/5">
-              <div className="overflow-x-auto">
+
+              {/* MOBILE CARDS */}
+              <div className="md:hidden divide-y divide-[#001F33]/5">
+                {candidates.map(c => (
+                  <div key={c.id} className={`p-5 flex flex-col gap-3 ${c.status === 'pendente' ? 'bg-orange-50' : c.status === 'rejeitado' ? 'bg-red-50 opacity-60' : ''}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-black uppercase text-sm text-[#001F33]">{c.name}</p>
+                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full mt-1 inline-block ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                          {c.role === 'mentor' ? 'Mentor' : 'Jovem'}
+                        </span>
+                      </div>
+                      <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full shrink-0 ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                        {c.status === 'pendente' ? 'Pendente' : c.status === 'rejeitado' ? 'Rejeitado' : 'Ativo'}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-[#001F33]/60 break-all">{c.email}</p>
+                      <p className="text-xs font-bold text-[#F97316]">{c.phone || '---'}</p>
+                    </div>
+                    <div className="flex gap-4 text-xs font-bold">
+                      {c.cvUrl ? (
+                        <a href={c.cvUrl} target="_blank" rel="noreferrer" className="text-[#0EA5E9] underline flex items-center gap-1"><ExternalLink size={12}/> CV</a>
+                      ) : <span className="text-[#001F33]/30">Sem CV</span>}
+                      {c.socialLink ? (
+                        <a href={c.socialLink} target="_blank" rel="noreferrer" className="text-blue-600 underline flex items-center gap-1"><ExternalLink size={12}/> LinkedIn</a>
+                      ) : <span className="text-[#001F33]/30">Sem LinkedIn</span>}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-8 text-[9px] uppercase px-3 font-black border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes</Button>
+                      {c.status === 'pendente' && (
+                        <>
+                          <Button onClick={() => handleUpdateStatus(c.id, 'ativo')} size="sm" className="h-8 bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-3">Aprovar</Button>
+                          <Button onClick={() => { setUserToReject(c.id); setIsRejectingUser(true); }} size="sm" variant="destructive" className="h-8 font-bold text-[9px] uppercase px-3">Rejeitar</Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* DESKTOP TABLE */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left">
                   <thead className="bg-[#001F33] text-white uppercase text-[10px] font-black tracking-widest">
-                    <tr className="h-16"><th className="px-10">Candidato</th><th className="px-10">Contacto</th><th className="px-10">Formação</th><th className="px-10">Registo</th></tr>
+                    <tr className="h-16">
+                      <th className="px-10 whitespace-nowrap">Candidato / Perfil</th>
+                      <th className="px-10 whitespace-nowrap">E-mail / Contacto</th>
+                      <th className="px-10 whitespace-nowrap">Mídia (CV / LinkedIn)</th>
+                      <th className="px-10 whitespace-nowrap text-center">Estado / Ação</th>
+                    </tr>
                   </thead>
                   <tbody className="divide-y divide-[#001F33]/5">
                     {candidates.map(c => (
-                      <tr key={c.id} className="hover:bg-[#F5F0E8]/50 h-20 group transition-colors">
-                        <td className="px-10 font-black uppercase text-sm text-[#001F33]">{c.name}</td>
-                        <td className="px-10 text-xs font-bold text-[#001F33]/60">{c.email}</td>
+                      <tr key={c.id} className={`hover:bg-[#F5F0E8]/50 h-24 group transition-colors ${c.status === 'pendente' ? 'bg-orange-50' : c.status === 'rejeitado' ? 'bg-red-50 opacity-60' : ''}`}>
                         <td className="px-10">
-                          <span className="text-[10px] font-black text-[#F97316] uppercase block">{c.areaOfInterest || 'Área indefinida'}</span>
-                          <span className="text-xs font-bold text-[#001F33]">{c.formation || 'N/A'}</span>
+                          <span className="font-black uppercase text-sm text-[#001F33] block mb-1">{c.name}</span>
+                          <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-full ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                            {c.role === 'mentor' ? 'Mentor' : 'Jovem'}
+                          </span>
                         </td>
-                        <td className="px-10 text-xs font-bold text-[#001F33]/40">{new Date(c.createdAt).toLocaleDateString()}</td>
+                        <td className="px-10">
+                          <span className="text-xs font-bold text-[#001F33]/60 block">{c.email}</span>
+                          <span className="text-xs font-bold text-[#F97316]">{c.phone || "---"}</span>
+                        </td>
+                        <td className="px-10 text-xs font-bold">
+                          {c.cvUrl ? (
+                            <a href={c.cvUrl} target="_blank" rel="noreferrer" className="text-[#0EA5E9] hover:text-[#F97316] underline flex items-center mb-1"><ExternalLink size={12} className="mr-1" /> CV Documento</a>
+                          ) : <span className="text-[#001F33]/40 block mb-1">Sem CV</span>}
+                          {c.socialLink ? (
+                            <a href={c.socialLink} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center"><ExternalLink size={12} className="mr-1" /> LinkedIn</a>
+                          ) : <span className="text-[#001F33]/40 block">Sem Rede Social</span>}
+                        </td>
+                        <td className="px-10">
+                          <div className="flex flex-col items-center gap-2">
+                            <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                              {c.status === 'pendente' ? 'Pendente' : c.status === 'rejeitado' ? 'Rejeitado' : 'Ativo'}
+                            </span>
+                            <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-7 text-[9px] uppercase px-2 font-black border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes Completos</Button>
+                            {c.status === 'pendente' && (
+                              <div className="flex gap-2">
+                                <Button onClick={() => handleUpdateStatus(c.id, 'ativo')} size="sm" className="h-7 bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-2">Aprovar</Button>
+                                <Button onClick={() => { setUserToReject(c.id); setIsRejectingUser(true); }} size="sm" variant="destructive" className="h-7 font-bold text-[9px] uppercase px-2">Rejeitar</Button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -501,7 +602,7 @@ export default function AdminDashboard() {
                     <span className="flex items-center gap-2"><MapPin size={16} className="text-[#0EA5E9]"/> {op.location}</span>
                   </div>
                   <div className="flex justify-between items-center pt-8 border-t border-[#001F33]/5">
-                    <span className="text-[10px] font-black uppercase text-[#001F33]/40">Prazo: {op.deadline ? new Date(op.deadline).toLocaleDateString() : 'Indefinido'}</span>
+                    <span className="text-[10px] font-black uppercase text-[#001F33]/70">Prazo: {op.deadline ? new Date(op.deadline).toLocaleDateString() : 'Indefinido'}</span>
                     <div className="h-10 w-10 rounded-full bg-[#F5F0E8] flex items-center justify-center text-[#0EA5E9] group-hover:bg-[#0EA5E9] group-hover:text-white transition-all"><ExternalLink size={16} /></div>
                   </div>
                 </motion.div>
@@ -747,7 +848,125 @@ export default function AdminDashboard() {
             <DialogFooter><Button onClick={handleSaveVideo} className="w-full bg-[#0EA5E9] text-white uppercase font-black text-xs h-18 rounded-[32px] shadow-2xl shadow-[#0EA5E9]/40 active:scale-95 transition-all tracking-[0.3em]">{editingVideo ? 'Guardar Etapa' : 'Vincular à Trilha'}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <Dialog open={isRejectingUser} onOpenChange={setIsRejectingUser}>
+          <DialogContent className="max-w-md bg-white border-none shadow-2xl rounded-[40px] p-10">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-display uppercase text-[#001F33] tracking-tighter">Motivo da Recusa</DialogTitle>
+            </DialogHeader>
+            <div className="py-6 space-y-4">
+              <p className="text-sm font-bold text-[#001F33]/60">Por favor, indique o motivo pelo qual este perfil está a ser recusado. O utilizador verá esta mensagem ao tentar fazer login.</p>
+              <Textarea 
+                className="text-[#001F33] bg-[#F5F0E8] border-none min-h-[120px] rounded-2xl font-bold p-6 focus:ring-[#0EA5E9]" 
+                value={rejectionReason} 
+                onChange={e => setRejectionReason(e.target.value)} 
+                placeholder="Ex: Documentação incompleta ou perfil não ajustado às vagas atuais."
+              />
+            </div>
+            <DialogFooter>
+              <Button 
+                onClick={() => userToReject && handleUpdateStatus(userToReject, 'rejeitado', rejectionReason)} 
+                disabled={!rejectionReason.trim()}
+                className="w-full bg-red-500 text-white uppercase font-black text-xs h-16 rounded-3xl shadow-xl hover:bg-red-600 transition-all tracking-[0.2em]"
+              >
+                Confirmar Recusa
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
+
+      <Dialog open={!!viewUser} onOpenChange={(open) => !open && setViewUser(null)}>
+        <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto bg-[#F5F0E8] border-none text-[#001F33] rounded-[32px] p-8">
+          <DialogHeader className="mb-6">
+             <div className="flex items-center gap-4">
+                <div className="h-16 w-16 bg-[#0EA5E9]/10 text-[#0EA5E9] rounded-2xl flex justify-center items-center font-display text-2xl uppercase">
+                  {viewUser?.name?.[0]}
+                </div>
+                <div>
+                   <DialogTitle className="text-2xl font-display uppercase tracking-tight text-[#001F33]">{viewUser?.name}</DialogTitle>
+                   <p className="font-bold text-[#001F33]/50 text-sm uppercase flex items-center gap-2 mt-1">
+                      {viewUser?.email} • {viewUser?.phone || 'Sem N.º'}
+                   </p>
+                </div>
+             </div>
+             <div className="mt-4 flex gap-2">
+               <span className={`text-[10px] uppercase font-black px-3 py-1 rounded-full ${viewUser?.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                 Papel: {viewUser?.role}
+               </span>
+               <span className={`text-[10px] uppercase font-black px-3 py-1 rounded-full ${viewUser?.status === 'ativo' ? 'bg-green-100 text-green-600' : viewUser?.status === 'pendente' ? 'bg-orange-100 text-orange-600' : 'bg-red-100 text-red-600'}`}>
+                 Estado: {viewUser?.status}
+               </span>
+             </div>
+             {viewUser?.status === 'rejeitado' && viewUser?.rejectionReason && (
+               <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-1">Motivo da Recusa</p>
+                 <p className="text-sm font-bold text-[#001F33] italic">{viewUser.rejectionReason}</p>
+               </div>
+             )}
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-[#001F33]/10">
+             <div className="space-y-1">
+               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Formação Académica</p>
+               <p className="font-bold text-sm">{viewUser?.formation || 'Não Especificado'}</p>
+             </div>
+             <div className="space-y-1">
+               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Área de Interesse</p>
+               <p className="font-bold text-sm text-[#F97316]">{viewUser?.areaOfInterest || 'Não Especificado'}</p>
+             </div>
+             <div className="space-y-1">
+               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Nível de Experiência</p>
+               <p className="font-bold text-sm capitalize">{viewUser?.experienceLevel || 'Não Especificado'}</p>
+             </div>
+             <div className="space-y-1">
+               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Localização</p>
+               <p className="font-bold text-sm flex items-center gap-1">
+                  <MapPin size={14} className="text-[#0EA5E9]" />
+                  {viewUser?.municipality && viewUser?.province ? `${viewUser.municipality}, ${viewUser.province}` : 'Sem Local'}
+               </p>
+             </div>
+             
+             <div className="col-span-full space-y-1 mt-2">
+               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Principais Dificuldades</p>
+               <div className="flex flex-wrap gap-2 mt-2">
+                  {viewUser?.difficulties ? (
+                    viewUser.difficulties.split(',').map((dif: string) => (
+                      <span key={dif} className="bg-white px-3 py-1.5 rounded-lg text-xs font-bold border border-[#001F33]/5">{dif.trim()}</span>
+                    ))
+                  ) : (
+                    <span className="text-xs font-medium text-[#001F33]/40">Nenhuma dificuldade reportada.</span>
+                  )}
+               </div>
+             </div>
+          </div>
+
+          <div className="pt-6 space-y-4">
+             <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Mídia Associada</p>
+             <div className="flex flex-wrap gap-4">
+                {viewUser?.cvUrl ? (
+                  <Button asChild className="bg-[#0EA5E9] hover:bg-[#001F33] text-white uppercase font-bold text-[10px] tracking-widest rounded-xl">
+                    <a href={viewUser.cvUrl} target="_blank" rel="noreferrer">
+                      <ExternalLink size={14} className="mr-2" /> Visualizar Currículo PDF
+                    </a>
+                  </Button>
+                ) : (
+                  <div className="p-3 bg-red-50 text-red-600 rounded-xl text-xs font-bold w-auto inline-flex items-center">Sem Currículo Anexado</div>
+                )}
+                
+                {viewUser?.socialLink ? (
+                  <Button asChild variant="outline" className="border-[#0EA5E9] text-[#0EA5E9] hover:bg-[#0EA5E9] hover:text-white uppercase font-bold text-[10px] tracking-widest rounded-xl">
+                    <a href={viewUser.socialLink} target="_blank" rel="noreferrer">
+                      <ExternalLink size={14} className="mr-2" /> Ver LinkedIn
+                    </a>
+                  </Button>
+                ) : (
+                  <div className="p-3 bg-gray-100 text-gray-400 rounded-xl text-xs font-bold w-auto inline-flex items-center">Sem Rede Social</div>
+                )}
+             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

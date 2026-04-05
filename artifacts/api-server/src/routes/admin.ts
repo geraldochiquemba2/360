@@ -14,16 +14,22 @@ adminRouter.get("/stats", async (req, res) => {
       return res.status(500).json({ error: "Banco de dados não configurado" });
     }
 
-    const totalJovensResult = await db.select({ count: count() }).from(usersTable).where(eq(usersTable.role, 'candidato'));
-    const totalMentoresResult = await db.select({ count: count() }).from(usersTable).where(eq(usersTable.role, 'mentor'));
+    const [totalJovensResult] = await db.select({ val: count() }).from(usersTable).where(eq(usersTable.role, 'candidato'));
+    const [totalMentoresResult] = await db.select({ val: count() }).from(usersTable).where(eq(usersTable.role, 'mentor'));
+    const [totalOportunidadesResult] = await db.select({ val: count() }).from(opportunitiesTable);
+    const [totalForumResult] = await db.select({ val: count() }).from(forumTopicsTable);
 
-    return res.json({
-      totalJovens: totalJovensResult[0].count,
-      totalMentores: totalMentoresResult[0].count,
-      oportunidades: 0,
+    const statsData = {
+      totalJovens: Number(totalJovensResult?.val || 0),
+      totalMentores: Number(totalMentoresResult?.val || 0),
+      oportunidades: Number(totalOportunidadesResult?.val || 0),
+      forumTopics: Number(totalForumResult?.val || 0),
       simulacoes: 0
-    });
+    };
+
+    return res.json(statsData);
   } catch (err) {
+    console.error("Dashboard Stats Error:", err);
     return res.status(500).json({ error: "Erro ao buscar estatísticas" });
   }
 });
@@ -34,22 +40,46 @@ adminRouter.get("/candidates", async (req, res) => {
       return res.status(500).json({ error: "Banco de dados não configurado" });
     }
 
-    const candidates = await db.select({
+    const users = await db.select({
       id: usersTable.id,
       name: usersTable.name,
       email: usersTable.email,
       phone: usersTable.phone,
       formation: usersTable.formation,
       areaOfInterest: usersTable.areaOfInterest,
+      role: usersTable.role,
+      status: usersTable.status,
+      cvUrl: usersTable.cvUrl,
+      socialLink: usersTable.socialLink,
+      experienceLevel: usersTable.experienceLevel,
+      difficulties: usersTable.difficulties,
+      province: usersTable.province,
+      municipality: usersTable.municipality,
+      rejectionReason: usersTable.rejectionReason,
       createdAt: usersTable.createdAt
     })
     .from(usersTable)
-    .where(eq(usersTable.role, 'candidato'))
-    .orderBy(usersTable.createdAt);
+    .orderBy(desc(usersTable.createdAt));
 
-    return res.json(candidates);
+    return res.json(users);
   } catch (err) {
-    return res.status(500).json({ error: "Erro ao buscar candidatos" });
+    return res.status(500).json({ error: "Erro ao buscar utilizadores" });
+  }
+});
+
+adminRouter.patch("/users/:id", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Banco de dados não configurado" });
+    const { status, rejectionReason } = req.body; // 'ativo' | 'rejeitado' | 'pendente'
+    const id = parseInt(req.params.id);
+
+    await db.update(usersTable).set({ 
+      status, 
+      rejectionReason: status === 'rejeitado' ? rejectionReason : null 
+    }).where(eq(usersTable.id, id));
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Erro ao atualizar status do utilizador" });
   }
 });
 
@@ -308,7 +338,27 @@ adminRouter.patch("/mentors/:id", async (req, res) => {
 });
 
 // 5. MODERAÇÃO DE FÓRUM
-adminRouter.delete("/forum/topics/:id", requireAuth, async (req, res) => {
+adminRouter.get("/forum/topics", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const topics = await db.select({
+      id: forumTopicsTable.id,
+      title: forumTopicsTable.title,
+      category: forumTopicsTable.category,
+      createdAt: forumTopicsTable.createdAt,
+      authorName: usersTable.name
+    })
+    .from(forumTopicsTable)
+    .leftJoin(usersTable, eq(forumTopicsTable.authorId, usersTable.id))
+    .orderBy(desc(forumTopicsTable.createdAt));
+    
+    return res.json(topics);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch forum topics" });
+  }
+});
+
+adminRouter.delete("/forum/topics/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const id = parseInt(req.params.id as string);
