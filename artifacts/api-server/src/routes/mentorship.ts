@@ -102,7 +102,18 @@ mentorshipRouter.get("/mentor-sessions", requireAuth, async (req, res) => {
 
     const sessions = await db.select({
       id: bookingsTable.id,
+      candidateId: usersTable.id,
       candidateName: usersTable.name,
+      candidateEmail: usersTable.email,
+      candidatePhone: usersTable.phone,
+      formation: usersTable.formation,
+      areaOfInterest: usersTable.areaOfInterest,
+      experienceLevel: usersTable.experienceLevel,
+      difficulties: usersTable.difficulties,
+      province: usersTable.province,
+      municipality: usersTable.municipality,
+      cvUrl: usersTable.cvUrl,
+      socialLink: usersTable.socialLink,
       dateTime: bookingsTable.dateTime,
       status: bookingsTable.status,
       notes: bookingsTable.notes

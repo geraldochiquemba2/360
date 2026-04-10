@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Users, Calendar, Clock, MessageSquare, LayoutDashboard, LogOut, ExternalLink, ChevronRight, CheckCircle2, Clock3 } from "lucide-react";
+import { Users, Calendar, Clock, MessageSquare, LayoutDashboard, LogOut, ExternalLink, ChevronRight, CheckCircle2, Clock3, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
 export default function MentorshipPage() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [location, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
   const [mentors, setMentors] = useState<any[]>([]);
@@ -91,9 +93,30 @@ export default function MentorshipPage() {
   return (
     <div className="min-h-screen bg-[#F5F0E8] flex font-sans text-[#001F33]">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 border-r border-white/5">
-        <div className="p-8 border-b border-white/10">
-          <img src="/assets/logo.png" className="h-12 w-auto object-contain" alt="Logo" />
+      
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="p-8 border-b border-white/10 relative flex items-center justify-between">
+          <img src="/assets/logo.png" className="h-14 w-auto object-contain" alt="Logo" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden text-white/50 hover:text-white"
+          >
+            <X size={24} />
+          </Button>
         </div>
         <nav className="flex-1 p-6 space-y-4">
           <Link href="/dashboard">
@@ -118,12 +141,24 @@ export default function MentorshipPage() {
       </aside>
 
       {/* Content */}
-      <main className="flex-1 ml-64 p-8">
-        <header className="mb-12">
-          <h1 className="text-4xl font-display uppercase tracking-tight mb-2">Mentoria Profissional</h1>
-          <p className="text-[#001F33]/50 font-medium max-w-2xl">
-            Conecta-te com profissionais experientes para acelerar a tua carreira. Escolhe um mentor, agenda uma conversa e recebe orientação personalizada.
-          </p>
+      <main className="flex-1 md:ml-72 p-6 sm:p-8">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-[#001F33]"
+            >
+              <Menu size={24} />
+            </Button>
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-display uppercase tracking-tight mb-2">Mentoria Profissional</h1>
+              <p className="text-[#001F33]/50 font-medium max-w-2xl text-xs sm:text-sm">
+                Conecta-te com profissionais experientes para acelerar a tua carreira. Escolhe um mentor, agenda uma conversa e recebe orientação personalizada.
+              </p>
+            </div>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
@@ -137,7 +172,7 @@ export default function MentorshipPage() {
             {loading ? (
               <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full"></div></div>
             ) : mentors.length === 0 ? (
-              <div className="bg-white p-12 text-center rounded-3xl shadow-sm border border-[#001F33]/5 italic text-[#001F33]/30">
+              <div className="bg-white p-12 text-center rounded-3xl shadow-sm border border-[#8B4513]/50 italic text-[#001F33]/30">
                 Nenhum mentor ativo de momento. Volta mais tarde!
               </div>
             ) : (
@@ -146,7 +181,7 @@ export default function MentorshipPage() {
                   <motion.div 
                     key={mentor.id}
                     whileHover={{ y: -5 }}
-                    className="bg-white rounded-3xl p-6 shadow-sm border border-[#001F33]/5 group relative overflow-hidden"
+                    className="bg-white rounded-3xl p-6 shadow-sm border border-[#8B4513]/50 group relative overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#0EA5E9]/5 rounded-bl-full -mr-16 -mt-16 transition-all group-hover:bg-[#0EA5E9]/10" />
                     <div className="flex items-start gap-4 relative z-10">
@@ -195,7 +230,7 @@ export default function MentorshipPage() {
                     key={session.id}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="bg-white p-5 rounded-3xl shadow-sm border border-[#001F33]/5 relative overflow-hidden"
+                    className="bg-white p-5 rounded-3xl shadow-sm border border-[#8B4513]/50 relative overflow-hidden"
                   >
                     <div className="flex justify-between items-start mb-3">
                        <p className="text-xs font-bold uppercase text-[#0EA5E9]">{session.mentorName}</p>
@@ -212,7 +247,7 @@ export default function MentorshipPage() {
                     </div>
                     
                     {session.status === 'confirmado' && (
-                      <div className="mt-4 pt-4 border-t border-[#001F33]/5">
+                      <div className="mt-4 pt-4 border-t border-[#8B4513]/50">
                         <Button className="w-full bg-[#001F33] text-white text-[10px] font-bold uppercase h-9 shadow-lg shadow-[#001F33]/20" asChild>
                            <a href={session.meetingLink} target="_blank">Entrar na Chamada</a>
                         </Button>
@@ -240,61 +275,60 @@ export default function MentorshipPage() {
       </main>
 
       {/* Booking Modal */}
-      <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
-        <DialogContent className="max-w-md bg-white rounded-3xl border-none shadow-2xl p-8 font-sans">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-display uppercase text-[#001F33] mb-4">Solicitar Mentoria</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-6 py-4">
-             <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Especialista Selecionado</label>
-                <div className="p-3 bg-[#F5F0E8] rounded-xl flex items-center gap-3">
-                   <div className="h-8 w-8 bg-[#0EA5E9] rounded-lg flex items-center justify-center text-white font-bold text-xs">
-                      {selectedMentor?.name[0]}
-                   </div>
-                   <span className="font-bold uppercase text-xs">{selectedMentor?.name}</span>
-                </div>
-             </div>
+      <ResponsiveDialog 
+        isOpen={isBookingModalOpen} 
+        setIsOpen={setIsBookingModalOpen}
+        title="Solicitar Mentoria"
+        className="sm:max-w-md"
+      >
+        <div className="space-y-6 py-4">
+           <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Especialista Selecionado</label>
+              <div className="p-3 bg-[#F5F0E8] rounded-xl flex items-center gap-3">
+                 <div className="h-8 w-8 bg-[#0EA5E9] rounded-lg flex items-center justify-center text-white font-bold text-xs">
+                    {selectedMentor?.name[0]}
+                 </div>
+                 <span className="font-bold uppercase text-xs">{selectedMentor?.name}</span>
+              </div>
+           </div>
 
-             <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Escolhe o Dia e Hora</label>
-                <input 
-                  type="datetime-local" 
-                  value={bookingDate}
-                  onChange={(e) => setBookingDate(e.target.value)}
-                  className="w-full h-12 bg-white border border-[#001F33]/10 rounded-xl px-4 text-sm font-medium focus:ring-2 focus:ring-[#0EA5E9] outline-none"
-                />
-             </div>
+           <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Escolhe o Dia e Hora</label>
+              <input 
+                type="datetime-local" 
+                value={bookingDate}
+                onChange={(e) => setBookingDate(e.target.value)}
+                className="w-full h-12 bg-white border border-[#001F33]/10 rounded-xl px-4 text-sm font-medium outline-none focus:ring-2 focus:ring-[#0EA5E9]"
+              />
+           </div>
 
-             <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Objetivo da Mentoria</label>
-                <Textarea 
-                  placeholder="Ex: Queria rever o meu CV para vagas de Design..." 
-                  value={bookingNotes}
-                  onChange={(e) => setBookingNotes(e.target.value)}
-                  className="min-h-[100px] bg-white border border-[#001F33]/20 rounded-xl focus:ring-2 focus:ring-[#0EA5E9] text-[#001F33] font-medium"
-                />
-             </div>
-          </div>
+           <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Objetivo da Mentoria</label>
+              <Textarea 
+                placeholder="Ex: Queria rever o meu CV..." 
+                value={bookingNotes}
+                onChange={(e) => setBookingNotes(e.target.value)}
+                className="min-h-[100px] bg-white border border-[#001F33]/20 rounded-xl focus:ring-2 focus:ring-[#0EA5E9] text-[#001F33] font-medium"
+              />
+           </div>
+        </div>
 
-          <DialogFooter className="mt-8 flex flex-col gap-3">
-             <Button 
-                onClick={handleBooking}
-                className="w-full bg-[#0EA5E9] hover:bg-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-14 shadow-lg shadow-[#0EA5E9]/30"
-             >
-                Enviar Solicitação
-             </Button>
-             <Button 
-               variant="ghost" 
-               onClick={() => setIsBookingModalOpen(false)}
-               className="w-full text-[10px] font-bold uppercase text-[#001F33]/40"
-             >
-               Cancelar
-             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        <DialogFooter className="mt-8 flex flex-col gap-3">
+           <Button 
+              onClick={handleBooking}
+              className="w-full bg-[#0EA5E9] hover:bg-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-14 shadow-lg shadow-[#0EA5E9]/30"
+           >
+              Enviar Solicitação
+           </Button>
+           <Button 
+             variant="ghost" 
+             onClick={() => setIsBookingModalOpen(false)}
+             className="w-full text-[10px] font-bold uppercase text-[#001F33]/40"
+           >
+             Cancelar
+           </Button>
+        </DialogFooter>
+      </ResponsiveDialog>
     </div>
   );
 }

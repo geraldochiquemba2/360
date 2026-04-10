@@ -13,20 +13,22 @@ import {
   Briefcase,
   LogOut,
   ArrowLeft,
-  Users2
+  Users2,
+  Menu,
+  X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { 
-  Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
   DialogTrigger,
   DialogFooter
 } from "@/components/ui/dialog";
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { useToast } from "@/hooks/use-toast";
 
 const categories = [
@@ -38,6 +40,7 @@ const categories = [
 ];
 
 export default function ForumHome() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [location, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
   const [topics, setTopics] = useState<any[]>([]);
@@ -114,9 +117,30 @@ export default function ForumHome() {
   return (
     <div className="min-h-screen bg-[#F5F0E8] flex font-sans text-[#001F33]">
       {/* Sidebar - Consistent with Dashboard */}
-      <aside className="w-64 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-20">
-        <div className="p-8 border-b border-white/10">
-          <img src="/assets/logo.png" className="h-10 w-auto object-contain" alt="Logo" />
+      
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="p-8 border-b border-white/10 relative flex items-center justify-between">
+          <img src="/assets/logo.png" className="h-14 w-auto object-contain" alt="Logo" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden text-white/50 hover:text-white"
+          >
+            <X size={24} />
+          </Button>
         </div>
         <nav className="flex-1 p-6 space-y-4">
           <Link href="/dashboard">
@@ -143,15 +167,25 @@ export default function ForumHome() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-64 p-10 mt-2">
-        <header className="flex justify-between items-end mb-12">
-          <div>
-            <span className="text-[#0EA5E9] font-black uppercase text-[10px] tracking-[0.3em] block mb-2">Comunidade Carreira 360</span>
-            <h1 className="text-5xl font-display uppercase tracking-tight text-[#001F33] leading-none">Muro de Discussões</h1>
+      <main className="flex-1 md:ml-72 p-6 sm:p-10 mt-2">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-[#001F33]"
+            >
+              <Menu size={24} />
+            </Button>
+            <div>
+              <span className="text-[#0EA5E9] font-black uppercase text-[10px] tracking-[0.3em] block mb-2">Comunidade Carreira 360</span>
+              <h1 className="text-3xl sm:text-5xl font-display uppercase tracking-tight text-[#001F33] leading-none">Muro de Discussões</h1>
+            </div>
           </div>
           <Button 
             onClick={() => setIsAddingTopic(true)}
-            className="bg-[#0EA5E9] text-white uppercase font-black text-xs px-8 h-14 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all"
+            className="bg-[#0EA5E9] text-white uppercase font-black text-xs px-8 h-12 sm:h-14 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto"
           >
             <Plus className="mr-2 h-5 w-5" /> Iniciar Discussão
           </Button>
@@ -160,7 +194,7 @@ export default function ForumHome() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
           {/* Categorias */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white p-6 rounded-[32px] shadow-sm border border-[#001F33]/5">
+            <div className="bg-white p-6 rounded-[32px] shadow-sm border border-[#8B4513]/50">
               <h3 className="text-[10px] font-black uppercase text-[#001F33]/40 tracking-widest mb-6 px-2">Categorias</h3>
               <div className="space-y-2">
                 {categories.map(cat => (
@@ -188,7 +222,7 @@ export default function ForumHome() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
                     key={t.id}
-                    className="bg-white p-8 rounded-[32px] shadow-sm border border-[#001F33]/5 hover:shadow-2xl transition-all group relative overflow-hidden"
+                    className="bg-white p-5 sm:p-8 rounded-[32px] shadow-sm border border-[#8B4513]/50 hover:shadow-2xl transition-all group relative overflow-hidden"
                   >
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-3">
@@ -212,7 +246,7 @@ export default function ForumHome() {
                       {t.content}
                     </p>
 
-                    <div className="flex items-center justify-between pt-8 border-t border-[#001F33]/5">
+                    <div className="flex items-center justify-between pt-8 border-t border-[#8B4513]/50">
                       <div className="flex items-center gap-6">
                         <button 
                           onClick={() => handleLike(t.id)}
@@ -241,55 +275,55 @@ export default function ForumHome() {
         </div>
 
         {/* Modal Novo Tópico */}
-        <Dialog open={isAddingTopic} onOpenChange={setIsAddingTopic}>
-          <DialogContent className="max-w-2xl bg-white border-none shadow-2xl rounded-[40px] p-12 select-none">
-            <DialogHeader>
-              <DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter">Iniciar Nova Discussão</DialogTitle>
-            </DialogHeader>
-            <div className="py-8 space-y-8">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Título do Tópico</label>
-                <Input 
-                  className="text-[#001F33] bg-[#F5F0E8] border-none h-16 rounded-2xl font-bold px-8 text-lg focus:ring-[#0EA5E9]" 
-                  value={newTopic.title}
-                  onChange={e => setNewTopic({...newTopic, title: e.target.value})}
-                  placeholder="Ex: Como melhorar meu CV para tecnologia?"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Categoria</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {categories.filter(c => c.id !== 'all').map(cat => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setNewTopic({...newTopic, category: cat.id})}
-                      className={`h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${newTopic.category === cat.id ? 'bg-[#001F33] text-white shadow-lg' : 'bg-[#F5F0E8] text-[#001F33]/40'}`}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Conteúdo / Pergunta</label>
-                <Textarea 
-                  className="text-[#001F33] bg-[#F5F0E8] border-none min-h-[160px] rounded-[32px] font-bold p-8 focus:ring-[#0EA5E9]" 
-                  value={newTopic.content}
-                  onChange={e => setNewTopic({...newTopic, content: e.target.value})}
-                  placeholder="Explica o que queres debater com a comunidade..."
-                />
+        <ResponsiveDialog 
+          isOpen={isAddingTopic} 
+          setIsOpen={setIsAddingTopic}
+          title="Iniciar Nova Discussão"
+          className="sm:max-w-2xl"
+        >
+          <div className="py-4 space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Título do Tópico</label>
+              <Input 
+                className="text-[#001F33] bg-[#F5F0E8] border-none h-16 rounded-2xl font-bold px-8 text-lg" 
+                value={newTopic.title}
+                onChange={e => setNewTopic({...newTopic, title: e.target.value})}
+                placeholder="Ex: Como melhorar meu CV?"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Categoria</label>
+              <div className="grid grid-cols-2 gap-3">
+                {categories.filter(c => c.id !== 'all').map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setNewTopic({...newTopic, category: cat.id})}
+                    className={`h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${newTopic.category === cat.id ? 'bg-[#001F33] text-white shadow-lg' : 'bg-[#F5F0E8] text-[#001F33]/40'}`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
               </div>
             </div>
-            <DialogFooter>
-              <Button 
-                onClick={handleCreateTopic}
-                className="w-full bg-[#001F33] text-white uppercase font-black text-xs h-18 rounded-[32px] shadow-2xl shadow-[#001F33]/20 hover:bg-[#0EA5E9] transition-all tracking-[0.3em]"
-              >
-                Publicar Tópico (+100 XP)
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Conteúdo / Pergunta</label>
+              <Textarea 
+                className="text-[#001F33] bg-[#F5F0E8] border-none min-h-[160px] rounded-[32px] font-bold p-8" 
+                value={newTopic.content}
+                onChange={e => setNewTopic({...newTopic, content: e.target.value})}
+                placeholder="Explica o que queres debater..."
+              />
+            </div>
+          </div>
+          <DialogFooter className="mt-6">
+            <Button 
+              onClick={handleCreateTopic}
+              className="w-full bg-[#001F33] text-white uppercase font-black text-xs h-18 rounded-[32px] shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.3em]"
+            >
+              Publicar Tópico (+100 XP)
+            </Button>
+          </DialogFooter>
+        </ResponsiveDialog>
       </main>
     </div>
   );

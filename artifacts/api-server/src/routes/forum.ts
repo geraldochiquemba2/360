@@ -106,12 +106,15 @@ forumRouter.get("/topics/:id", async (req, res) => {
 
     if (!topic) return res.status(404).json({ error: "Topic not found" });
 
-    // Comentários
     const comments = await db.select({
       id: forumPostsTable.id,
       content: forumPostsTable.content,
       createdAt: forumPostsTable.createdAt,
       authorName: usersTable.name,
+      authorId: forumPostsTable.authorId,
+      isHidden: forumPostsTable.isHidden,
+      hideReason: forumPostsTable.hideReason,
+      parentId: forumPostsTable.parentId,
     })
     .from(forumPostsTable)
     .leftJoin(usersTable, eq(forumPostsTable.authorId, usersTable.id))
@@ -139,12 +142,13 @@ forumRouter.post("/topics/:id/posts", requireAuth, async (req, res) => {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const userId = (req as any).user.id;
     const topicId = parseInt(req.params.id as string);
-    const { content } = req.body;
+    const { content, parentId } = req.body;
 
     const [newPost] = await db.insert(forumPostsTable).values({
       topicId,
       authorId: userId,
-      content
+      content,
+      parentId: parentId || null,
     }).returning();
 
     await addXP(userId, 20);
@@ -182,6 +186,53 @@ forumRouter.post("/topics/:id/like", requireAuth, async (req, res) => {
     }
   } catch (err) {
     return res.status(500).json({ error: "Failed to toggle like" });
+  }
+});
+
+// 6. APAGAR COMENTÁRIO
+forumRouter.delete("/comments/:id", requireAuth, async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const commentId = parseInt(req.params.id as string);
+    const userId = (req as any).user.id;
+    const userRole = (req as any).user.role;
+
+    const [comment] = await db.select().from(forumPostsTable).where(eq(forumPostsTable.id, commentId));
+    if (!comment) return res.status(404).json({ error: "Comment not found" });
+
+    if (comment.authorId !== userId && userRole !== 'admin') {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    await db.delete(forumPostsTable).where(eq(forumPostsTable.id, commentId));
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to delete comment" });
+  }
+});
+
+// 7. OCULTAR COMENTÁRIO
+forumRouter.post("/comments/:id/hide", requireAuth, async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const commentId = parseInt(req.params.id as string);
+    const userRole = (req as any).user.role;
+    const { hideReason } = req.body;
+
+    if (userRole !== 'admin') {
+      return res.status(403).json({ error: "Apenas administradores podem ocultar comentários." });
+    }
+
+    const [comment] = await db.select().from(forumPostsTable).where(eq(forumPostsTable.id, commentId));
+    if (!comment) return res.status(404).json({ error: "Comment not found" });
+
+    await db.update(forumPostsTable)
+      .set({ isHidden: true, hideReason: hideReason || "Nenhum motivo fornecido." })
+      .where(eq(forumPostsTable.id, commentId));
+
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to hide comment" });
   }
 });
 

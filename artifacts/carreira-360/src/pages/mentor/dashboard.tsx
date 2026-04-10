@@ -16,7 +16,8 @@ import {
   X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,6 +28,7 @@ export default function MentorDashboard() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<any>(null);
+  const [viewCandidate, setViewCandidate] = useState<any>(null);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [meetingLink, setMeetingLink] = useState("");
   const { toast } = useToast();
@@ -123,7 +125,7 @@ export default function MentorDashboard() {
           >
             <X size={24} />
           </Button>
-          <img src="/assets/logo.png" className="h-14 w-auto object-contain mb-4" alt="Logo" />
+          <img src="/assets/logo.png" className="h-18 w-auto object-contain mb-4" alt="Logo" />
           <span className="px-3 py-1 bg-[#F97316]/20 text-[#F97316] rounded-full text-[10px] font-bold uppercase tracking-widest">Painel do Mentor</span>
         </div>
         <nav className="flex-1 p-6 space-y-4">
@@ -150,7 +152,7 @@ export default function MentorDashboard() {
 
       {/* Main Content */}
       <main className="flex-1 md:ml-72 min-h-screen">
-        <header className="p-6 md:p-10 bg-white/50 md:bg-transparent border-b md:border-none border-[#001F33]/5 sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
+        <header className="p-6 md:p-10 bg-white/50 md:bg-transparent border-b md:border-none border-[#8B4513]/50 sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
@@ -167,7 +169,7 @@ export default function MentorDashboard() {
           </div>
 
           <div className="flex gap-4 md:absolute md:right-10 md:top-10">
-             <div className="bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-[#001F33]/5 flex items-center gap-3">
+             <div className="bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-[#8B4513]/50 flex items-center gap-3">
                 <div className="h-8 w-8 md:h-10 md:w-10 bg-[#0EA5E9]/10 rounded-xl flex items-center justify-center text-[#0EA5E9]">
                    <Users size={18} />
                 </div>
@@ -187,7 +189,7 @@ export default function MentorDashboard() {
         {loading ? (
           <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#F97316] border-t-transparent rounded-full"></div></div>
         ) : sessions.length === 0 ? (
-          <div className="bg-white p-20 text-center rounded-[2.5rem] shadow-sm border border-[#001F33]/5">
+          <div className="bg-white p-20 text-center rounded-[2.5rem] shadow-sm border border-[#8B4513]/50">
             <Calendar size={64} className="mx-auto text-[#001F33]/10 mb-6" />
             <h3 className="text-xl font-display uppercase text-[#001F33]/30">Ainda não tens pedidos</h3>
             <p className="text-sm text-[#001F33]/40 mt-2">Assim que um jovem agendar contigo, a notificação irá aparecer aqui.</p>
@@ -199,7 +201,7 @@ export default function MentorDashboard() {
                 key={session.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white p-6 rounded-[2rem] shadow-sm border border-[#001F33]/5 hover:shadow-md transition-shadow flex items-center justify-between gap-8"
+                className="bg-white p-5 sm:p-8 rounded-[2rem] shadow-sm border border-[#8B4513]/50 hover:shadow-md transition-shadow flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8"
               >
                 <div className="flex items-center gap-6">
                   <div className="h-14 w-14 bg-[#F5F0E8] rounded-2xl flex items-center justify-center text-[#001F33] font-display text-xl">
@@ -207,19 +209,22 @@ export default function MentorDashboard() {
                   </div>
                   <div>
                     <h3 className="text-lg font-display uppercase text-[#001F33] mb-1">{session.candidateName}</h3>
-                    <div className="flex items-center gap-4 text-xs font-semibold text-[#001F33]/40">
+                    <div className="flex items-center gap-4 text-xs font-semibold text-[#001F33]/40 mb-2">
                        <span className="flex items-center"><Calendar size={14} className="mr-1.5" /> {new Date(session.dateTime).toLocaleDateString()}</span>
                        <span className="flex items-center"><Clock size={14} className="mr-1.5" /> {new Date(session.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
+                    <Button onClick={() => setViewCandidate(session)} variant="outline" size="sm" className="h-7 text-[9px] uppercase px-3 font-black border-[#001F33]/20 text-[#0EA5E9] hover:bg-[#0EA5E9]/10">
+                      Visualizar Perfil Completo
+                    </Button>
                   </div>
                 </div>
 
-                <div className="flex-1 max-w-md bg-[#F5F0E8]/50 p-4 rounded-2xl">
+                <div className="w-full lg:flex-1 lg:max-w-md bg-[#F5F0E8]/50 p-4 rounded-2xl">
                    <p className="text-[10px] font-bold uppercase text-[#001F33]/30 tracking-widest mb-1">Notas do Aluno:</p>
                    <p className="text-sm text-[#001F33]/70 italic line-clamp-2">"{session.notes || 'Sem observações...'}"</p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full lg:w-auto">
                   {session.status === 'pendente' ? (
                     <>
                       <Button 
@@ -253,42 +258,118 @@ export default function MentorDashboard() {
       </main>
 
       {/* Approval Modal */}
-      <Dialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
-        <DialogContent className="max-w-md bg-white rounded-3xl border-none shadow-2xl p-8 font-sans">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-display uppercase text-[#0EA5E9] mb-4">Confirmar Mentoria</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-6 py-4">
-             <div className="p-4 bg-[#F5F0E8] rounded-2xl">
-                <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-widest mb-1">Candidato</p>
-                <p className="font-bold text-lg uppercase">{selectedSession?.candidateName}</p>
-                <p className="text-xs text-[#001F33]/50">{new Date(selectedSession?.dateTime).toLocaleString()}</p>
-             </div>
+      <ResponsiveDialog 
+        isOpen={isApproveModalOpen} 
+        setIsOpen={setIsApproveModalOpen}
+        title="Confirmar Mentoria"
+        className="sm:max-w-md"
+      >
+        <div className="space-y-6 py-4">
+           <div className="p-4 bg-[#F5F0E8] rounded-2xl">
+              <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-widest mb-1">Candidato</p>
+              <p className="font-bold text-lg uppercase">{selectedSession?.candidateName}</p>
+              <p className="text-xs text-[#001F33]/50">{new Date(selectedSession?.dateTime).toLocaleString()}</p>
+           </div>
 
-             <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Link da Videochamada</label>
-                <Input 
-                   placeholder="Ex: https://meet.google.com/xxx-xxxx-xxx" 
-                   value={meetingLink}
-                   onChange={(e) => setMeetingLink(e.target.value)}
-                   className="h-12 border-[#001F33]/10 rounded-xl focus:ring-2 focus:ring-[#0EA5E9]"
-                />
-                <p className="text-[10px] text-[#001F33]/50 font-medium">O aluno irá receber este link após a sua confirmação.</p>
+           <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Link da Videochamada</label>
+              <Input 
+                 placeholder="Ex: https://meet.google.com/xxx-xxxx-xxx" 
+                 value={meetingLink}
+                 onChange={(e) => setMeetingLink(e.target.value)}
+                 className="h-12 border-[#8B4513]/50 rounded-xl focus:ring-2 focus:ring-[#0EA5E9]"
+              />
+              <p className="text-[10px] text-[#001F33]/50 font-medium">O aluno irá receber este link após a sua confirmação.</p>
+           </div>
+        </div>
+
+        <DialogFooter className="mt-8">
+           <Button 
+              onClick={() => handleUpdateStatus(selectedSession.id, 'confirmado', meetingLink)}
+              disabled={!meetingLink}
+              className="w-full bg-[#0EA5E9] hover:bg-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-14 shadow-lg shadow-[#0EA5E9]/30"
+           >
+              Confirmar e Enviar Link
+           </Button>
+        </DialogFooter>
+      </ResponsiveDialog>
+
+      {/* Candidate Profile Modal */}
+      <ResponsiveDialog 
+        isOpen={!!viewCandidate} 
+        setIsOpen={(open) => !open && setViewCandidate(null)}
+        title="Perfil do Jovem"
+        className="sm:max-w-xl"
+      >
+        {viewCandidate && (
+          <div className="space-y-6 py-4">
+             <div className="flex items-center justify-between border-b border-[#8B4513]/50 pb-4">
+                <div>
+                   <h2 className="text-2xl font-display uppercase tracking-tight text-[#001F33]">{viewCandidate.candidateName}</h2>
+                   <p className="font-bold text-[#001F33]/50 text-xs uppercase mt-1">
+                      {viewCandidate.candidateEmail} • {viewCandidate.candidatePhone || 'Sem N.º'}
+                   </p>
+                </div>
+             </div>
+             
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Formação Académica</p>
+                 <p className="font-bold text-sm mt-1">{viewCandidate.formation || 'Não Especificado'}</p>
+               </div>
+               <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Área de Interesse</p>
+                 <p className="font-bold text-sm mt-1 text-[#F97316]">{viewCandidate.areaOfInterest || 'Não Especificado'}</p>
+               </div>
+               <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Experiência</p>
+                 <p className="font-bold text-sm mt-1 capitalize">{viewCandidate.experienceLevel || 'Não Especificado'}</p>
+               </div>
+               <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Localização</p>
+                 <p className="font-bold text-sm mt-1">
+                    {viewCandidate.municipality && viewCandidate.province ? `${viewCandidate.municipality}, ${viewCandidate.province}` : 'Sem Local'}
+                 </p>
+               </div>
+             </div>
+ 
+             <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40 mb-2">Principais Dificuldades</p>
+               <div className="flex flex-wrap gap-2">
+                  {viewCandidate.difficulties ? (
+                    viewCandidate.difficulties.split(',').map((dif: string) => (
+                      <span key={dif} className="bg-white px-2 py-1 rounded-md text-[10px] font-bold border border-[#8B4513]/50 uppercase tracking-wider">{dif.trim()}</span>
+                    ))
+                  ) : (
+                    <span className="text-xs font-medium text-[#001F33]/40">Nenhuma dificuldade reportada.</span>
+                  )}
+               </div>
+             </div>
+ 
+             <div className="flex flex-wrap gap-4 pt-2">
+                {viewCandidate.cvUrl ? (
+                  <Button asChild className="flex-1 min-w-[140px] bg-[#001F33] hover:bg-[#0EA5E9] text-white font-bold text-[10px] uppercase tracking-widest h-12 rounded-xl">
+                    <a href={viewCandidate.cvUrl} target="_blank" rel="noreferrer">
+                      <ExternalLink size={14} className="mr-2" /> Abrir CV (PDF)
+                    </a>
+                  </Button>
+                ) : (
+                  <div className="flex-1 min-w-[140px] p-3 bg-red-50 text-red-600 rounded-xl text-[10px] uppercase font-bold text-center border border-red-200 flex items-center justify-center">Sem CV</div>
+                )}
+                
+                {viewCandidate.socialLink ? (
+                  <Button asChild variant="outline" className="flex-1 min-w-[140px] bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white font-bold text-[10px] uppercase tracking-widest h-12 rounded-xl">
+                    <a href={viewCandidate.socialLink} target="_blank" rel="noreferrer">
+                      <ExternalLink size={14} className="mr-2" /> LinkedIn
+                    </a>
+                  </Button>
+                ) : (
+                   <div className="flex-1 min-w-[140px] p-3 bg-gray-100 text-gray-400 rounded-xl text-[10px] uppercase font-bold text-center border border-gray-200 flex items-center justify-center">Sem Mídia Social</div>
+                )}
              </div>
           </div>
-
-          <DialogFooter className="mt-8">
-             <Button 
-                onClick={() => handleUpdateStatus(selectedSession.id, 'confirmado', meetingLink)}
-                disabled={!meetingLink}
-                className="w-full bg-[#0EA5E9] hover:bg-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-14 shadow-lg shadow-[#0EA5E9]/30"
-             >
-                Confirmar e Enviar Link
-             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        )}
+      </ResponsiveDialog>
     </div>
   );
 }

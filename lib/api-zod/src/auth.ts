@@ -18,6 +18,8 @@ export const RegisterSchema = z.object({
   experienceLevel: z.string().optional(),
   careerGoals: z.string().optional(),
   difficulties: z.array(z.string()).optional(),
+  province: z.string().optional(),
+  municipality: z.string().optional(),
 });
 
 export type LoginRequest = z.infer<typeof LoginSchema>;

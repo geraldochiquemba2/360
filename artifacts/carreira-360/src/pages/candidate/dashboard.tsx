@@ -151,7 +151,7 @@ export default function CandidateDashboard() {
 
       {/* Content */}
       <main className="flex-1 md:ml-72 min-h-screen">
-        <header className="p-6 md:p-8 bg-white/50 md:bg-transparent border-b md:border-none border-[#001F33]/5 sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
+        <header className="p-4 sm:p-8 bg-white/50 md:bg-transparent border-b md:border-none border-[#8B4513]/50 sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
@@ -168,7 +168,7 @@ export default function CandidateDashboard() {
           </div>
           
           {/* Gamification Badge - Visible in header on desktop, maybe simplified on mobile */}
-          <div className="bg-white px-4 md:px-6 py-2 md:py-4 rounded-2xl shadow-sm border border-[#001F33]/5 flex items-center gap-3 md:gap-4 md:absolute md:right-8 md:top-8">
+          <div className="bg-white px-4 md:px-6 py-2 md:py-4 rounded-2xl shadow-sm border border-[#8B4513]/50 flex items-center gap-3 md:gap-4 md:absolute md:right-8 md:top-8">
             <div className="h-10 w-10 md:h-12 md:w-12 bg-[#0EA5E9] rounded-xl flex items-center justify-center text-white font-display text-xl md:text-2xl shadow-lg shadow-[#0EA5E9]/30">
               {stats.level}
             </div>
@@ -186,7 +186,7 @@ export default function CandidateDashboard() {
           </div>
         </header>
 
-        <div className="p-6 md:p-8">
+        <div className="p-4 sm:p-8">
           <div className="md:hidden mb-6">
             <p className="text-[#001F33] font-bold text-sm">Bem-vindo, {user.name}!</p>
           </div>
@@ -199,7 +199,7 @@ export default function CandidateDashboard() {
               {loading ? (
                 <div className="flex justify-center py-10"><div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full"></div></div>
               ) : opportunities.length === 0 ? (
-                <div className="bg-white p-12 text-center rounded-2xl shadow-sm border border-[#001F33]/5">
+                <div className="bg-white p-12 text-center rounded-2xl shadow-sm border border-[#8B4513]/50">
                   <p className="text-xl font-display uppercase text-[#001F33]/20">Sem vagas disponíveis agora.</p>
                 </div>
               ) : (
@@ -209,7 +209,7 @@ export default function CandidateDashboard() {
                       key={op.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white p-6 rounded-2xl shadow-sm border border-[#001F33]/5 hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-6 justify-between items-center"
+                      className="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border border-[#8B4513]/50 hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-6 justify-between items-center"
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -297,7 +297,7 @@ export default function CandidateDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#001F33]/5">
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#8B4513]/50">
                 <h3 className="text-lg font-display uppercase text-[#001F33] mb-4">Destaque de Formação</h3>
                 <div className="space-y-4">
                   <div className="p-4 bg-[#F5F0E8] rounded-xl group hover:bg-[#0EA5E9]/10 transition-colors cursor-pointer">

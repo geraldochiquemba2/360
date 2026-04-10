@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, boolean, AnyPgColumn } from "drizzle-orm/pg-core";
 import { usersTable } from "./users";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
@@ -16,6 +16,9 @@ export const forumPostsTable = pgTable("forum_posts", {
   topicId: integer("topic_id").notNull().references(() => forumTopicsTable.id, { onDelete: "cascade" }),
   authorId: integer("author_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
   content: text("content").notNull(),
+  isHidden: boolean("is_hidden").notNull().default(false),
+  hideReason: text("hide_reason"),
+  parentId: integer("parent_id").references((): AnyPgColumn => forumPostsTable.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
