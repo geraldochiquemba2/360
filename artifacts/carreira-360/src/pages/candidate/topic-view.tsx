@@ -274,9 +274,9 @@ export default function TopicView() {
                  <Button 
                    onClick={handleLike}
                    variant="ghost" 
-                   className={`h-14 px-8 rounded-full gap-3 ${likes.some((l: any) => l.userId === user.id) ? 'bg-red-50 text-red-500 hover:bg-red-100' : 'bg-[#F5F0E8] text-[#001F33]/60 hover:bg-[#F5F0E8]/80'}`}
+                   className={`h-14 px-8 rounded-full gap-3 ${likes.some((l: any) => l.userId === user?.id) ? 'bg-red-50 text-red-500 hover:bg-red-100' : 'bg-[#F5F0E8] text-[#001F33]/60 hover:bg-[#F5F0E8]/80'}`}
                  >
-                   <Heart className={`h-5 w-5 ${likes.some((l: any) => l.userId === user.id) ? 'fill-current' : ''}`} />
+                   <Heart className={`h-5 w-5 ${likes.some((l: any) => l.userId === user?.id) ? 'fill-current' : ''}`} />
                    <span className="text-xs font-black uppercase tracking-widest">{likes.length < 1 ? 'Gostar' : `${likes.length} Gostos`}</span>
                  </Button>
                  
