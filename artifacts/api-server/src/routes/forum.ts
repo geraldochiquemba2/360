@@ -198,14 +198,22 @@ forumRouter.delete("/comments/:id", requireAuth, async (req, res) => {
     const userRole = (req as any).user.role;
 
     const [comment] = await db.select().from(forumPostsTable).where(eq(forumPostsTable.id, commentId));
-    if (!comment) return res.status(404).json({ error: "Comment not found" });
+    if (!comment) return res.status(404).json({ error: "Comentário não encontrado." });
 
-    if (comment.authorId !== userId && userRole !== 'admin') {
-      return res.status(403).json({ error: "Unauthorized" });
+    console.log(`[DeleteComment] Attempting to delete comment ${commentId} by user ${userId} (role: ${userRole})`);
+    console.log(`[DeleteComment] Comment authorId: ${comment?.authorId}`);
+
+    // Robust comparison using Number to avoid string/number mismatch
+    const isAuthor = Number(comment.authorId) === Number(userId);
+    const isAdmin = userRole === 'admin';
+
+    if (!isAuthor && !isAdmin) {
+      console.warn(`[DeleteComment] Unauthorized: User ${userId} is not author nor admin`);
+      return res.status(403).json({ error: "Não tens permissão para apagar este comentário." });
     }
 
     await db.delete(forumPostsTable).where(eq(forumPostsTable.id, commentId));
-    return res.json({ success: true });
+    return res.json({ success: true, message: "Comentário apagado." });
   } catch (err) {
     return res.status(500).json({ error: "Failed to delete comment" });
   }

@@ -127,10 +127,19 @@ export default function TopicView() {
         toast({ title: "Comentário removido", description: "O comentário foi apagado permanentemente." });
         fetchTopicDetails();
       } else {
-        toast({ title: "Erro", description: "Não tens permissão para apagar este comentário." });
+        const data = await response.json();
+        toast({ 
+          variant: "destructive",
+          title: "Erro ao apagar", 
+          description: data.error || "Não tens permissão para apagar este comentário." 
+        });
       }
     } catch (err) {
-      toast({ title: "Erro ao apagar", description: "Tenta novamente mais tarde." });
+      toast({ 
+        variant: "destructive",
+        title: "Erro técnico", 
+        description: "Tenta novamente mais tarde." 
+      });
     }
   };
 
