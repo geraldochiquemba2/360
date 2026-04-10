@@ -20,6 +20,7 @@ export const RegisterSchema = z.object({
   difficulties: z.array(z.string()).optional(),
   province: z.string().optional(),
   municipality: z.string().optional(),
+  cvFile: z.any().optional(), // Allow file objects from browser
 });
 
 export type LoginRequest = z.infer<typeof LoginSchema>;

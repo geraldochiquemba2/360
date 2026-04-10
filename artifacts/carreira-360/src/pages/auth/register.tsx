@@ -42,19 +42,23 @@ export default function RegisterPage() {
 
   async function onSubmit(values: any): Promise<void> {
     setIsLoading(true);
+    console.log("[Register] Form values:", values);
     try {
       const formData = new FormData();
       Object.keys(values).forEach(key => {
-        if (key === 'cvFile' && values[key]) {
-          formData.append(key, values[key]);
-        } else if (key === 'difficulties') {
-          formData.append(key, JSON.stringify(values[key]));
-        } else if (values[key] !== undefined && values[key] !== "") {
-          formData.append(key, values[key]);
+        const value = values[key];
+        if (key === 'cvFile' && value) {
+          console.log(`[Register] Attaching ${key}:`, value.name || "File");
+          formData.append(key, value);
+        } else if (key === 'difficulties' && Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value));
+        } else if (value !== undefined && value !== null && value !== "") {
+          formData.append(key, String(value));
         }
       });
 
       if (!formData.has("cvFile")) {
+        console.error("[Register] No cvFile in FormData!");
         throw new Error("O envio do CV em PDF é obrigatório.");
       }
 
