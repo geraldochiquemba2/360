@@ -138,7 +138,7 @@ export default function RegisterPage() {
           </p>
           
           <div className="bg-white/5 p-6 border border-white/10 mb-8 w-full text-left">
-            <p className="text-[10px] text-[#0EA5E9] mb-1 uppercase tracking-widest font-black">Próximos Passos</p>
+            <p className="text-[10px] text-[#0EA5E9] mb-1 uppercase tracking-widest font-bold">Próximos Passos</p>
             <p className="text-sm text-white/70">Receberás uma notificação assim que o teu perfil for validado. Podes fechar esta página agora.</p>
           </div>
 
@@ -239,7 +239,7 @@ export default function RegisterPage() {
                             <SelectValue placeholder="Escolhe o teu perfil" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white">
+                        <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white max-h-[300px]">
                           <SelectItem value="candidato">Candidato (Jovem à procura de emprego)</SelectItem>
                           <SelectItem value="mentor">Mentor (Recrutador / Profissional)</SelectItem>
                           <SelectItem value="admin">Administrador (Gestão da Plataforma)</SelectItem>
@@ -266,7 +266,7 @@ export default function RegisterPage() {
                               <SelectValue placeholder="Selecione..." />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white">
+                          <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white max-h-[300px]">
                             <SelectItem value="Ensino Médio">Ensino Médio</SelectItem>
                             <SelectItem value="Técnico Médio">Técnico Médio</SelectItem>
                             <SelectItem value="Frequência Universitária">Frequência Universitária</SelectItem>
@@ -286,7 +286,7 @@ export default function RegisterPage() {
                               <SelectValue placeholder="Selecione..." />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white">
+                          <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white max-h-[300px]">
                             <SelectItem value="Tecnologia / TI">Tecnologia / TI</SelectItem>
                             <SelectItem value="Marketing & Design">Marketing & Design</SelectItem>
                             <SelectItem value="Finanças & Gestão">Finanças & Gestão</SelectItem>
@@ -345,7 +345,7 @@ export default function RegisterPage() {
                             <SelectValue placeholder="Selecione" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white">
+                        <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white max-h-[300px]">
                           <SelectItem value="nenhuma">Sem Experiência</SelectItem>
                           <SelectItem value="estagio">Estágio / Junior</SelectItem>
                           <SelectItem value="pleno">Pleno</SelectItem>

@@ -62,7 +62,7 @@ export function AdminSidebar({
           <X size={24} />
         </Button>
         <img src="/assets/logo.png" alt="Carreira 360" className="h-16 w-auto object-contain mb-4" />
-        <p className="text-white/50 text-[10px] uppercase tracking-widest font-black">Centro Administrativo</p>
+        <p className="text-white/50 text-[10px] uppercase tracking-widest font-bold">Centro Administrativo</p>
       </div>
       <nav className="flex-1 py-6 px-4 space-y-3">
         {menuItems.map((item) => (
@@ -70,14 +70,14 @@ export function AdminSidebar({
             key={item.id}
             variant="ghost" 
             onClick={() => handleTabClick(item.id)} 
-            className={`w-full justify-start ${currentTab === item.id ? 'bg-[#0EA5E9]' : 'hover:bg-white/5'} text-white uppercase font-black text-xs h-12 rounded-xl transition-all shadow-sm ${currentTab === item.id ? 'shadow-lg shadow-[#0EA5E9]/30' : ''}`}
+            className={`w-full justify-start ${currentTab === item.id ? 'bg-[#0EA5E9]' : 'hover:bg-white/5'} text-white uppercase font-bold text-xs h-12 rounded-xl transition-all shadow-sm ${currentTab === item.id ? 'shadow-lg shadow-[#0EA5E9]/30' : ''}`}
           >
             <item.icon className="mr-3 h-5 w-5" /> {item.label}
           </Button>
         ))}
       </nav>
       <div className="p-6 border-t-4 border-white/20">
-        <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase font-black text-xs h-12 rounded-xl">
+        <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase font-bold text-xs h-12 rounded-xl">
           <LogOut className="mr-3 h-5 w-5" /> Terminar Sessão
         </Button>
       </div>

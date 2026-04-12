@@ -225,7 +225,7 @@ export default function LoginPage() {
           </DialogHeader>
           <div className="py-6 space-y-6">
             <div className="bg-red-50 p-6 border-2 border-red-200">
-              <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-2">Motivo da Decisão:</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 mb-2">Motivo da Decisão:</p>
               <p className="text-[#001F33] font-bold text-lg leading-tight italic">"{rejectionReason}"</p>
             </div>
             <p className="text-sm font-bold text-[#001F33]/60 leading-relaxed">
@@ -235,7 +235,7 @@ export default function LoginPage() {
           <DialogFooter>
             <Button 
               onClick={() => setIsRejectedProfile(false)} 
-              className="w-full bg-[#001F33] text-white uppercase font-black text-xs h-16 rounded-none shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.2em]"
+              className="w-full bg-[#001F33] text-white uppercase font-bold text-xs h-16 rounded-none shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.2em]"
             >
               Entendido, Tentar Novamente
             </Button>

@@ -50,7 +50,7 @@
   --popover-foreground: 204 100% 10%;
 
   --app-font-sans: 'Inter', sans-serif;
-  --app-font-display: 'Bebas Neue', sans-serif;
+  --app-font-display: 'Inter', sans-serif;
   --radius: 0rem;
 }
 
@@ -65,6 +65,5 @@
   
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--app-font-display);
-    text-transform: uppercase;
   }
 }

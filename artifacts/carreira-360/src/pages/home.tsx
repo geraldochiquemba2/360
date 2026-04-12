@@ -257,7 +257,7 @@ export default function Home() {
         {/* Pilar 01 */}
         <div className="w-full flex flex-col lg:flex-row min-h-[50vh] border-y border-white/20 hover:bg-white/5 transition-colors group">
           <div className="lg:w-1/2 p-6 md:p-12 flex flex-col justify-center relative overflow-hidden">
-            <span className="absolute -top-10 -left-10 text-[10rem] md:text-[14rem] font-display font-black text-white/5 z-0 group-hover:text-[#0EA5E9]/10 transition-colors">01</span>
+            <span className="absolute -top-10 -left-10 text-[10rem] md:text-[14rem] font-display font-bold text-white/5 z-0 group-hover:text-[#0EA5E9]/10 transition-colors">01</span>
             <div className="relative z-10">
               <h3 className="text-4xl md:text-5xl font-display text-white mb-4 uppercase tracking-tight">Formação & Orientação</h3>
               <p className="text-lg md:text-xl font-sans text-white/70 leading-relaxed mb-8 max-w-xl">
@@ -286,7 +286,7 @@ export default function Home() {
         {/* Pilar 02 */}
         <div className="w-full flex flex-col lg:flex-row-reverse min-h-[50vh] border-b border-white/20 hover:bg-white/5 transition-colors group">
           <div className="lg:w-1/2 p-6 md:p-12 flex flex-col justify-center relative overflow-hidden">
-            <span className="absolute -bottom-20 -right-10 text-[10rem] md:text-[14rem] font-display font-black text-white/5 z-0 group-hover:text-[#F97316]/10 transition-colors">02</span>
+            <span className="absolute -bottom-20 -right-10 text-[10rem] md:text-[14rem] font-display font-bold text-white/5 z-0 group-hover:text-[#F97316]/10 transition-colors">02</span>
             <div className="relative z-10">
               <h3 className="text-4xl md:text-5xl font-display text-white mb-4 uppercase tracking-tight">Assistência Técnica</h3>
               <p className="text-lg md:text-xl font-sans text-white/70 leading-relaxed mb-8 max-w-xl">
@@ -300,7 +300,7 @@ export default function Home() {
                   { num: '04', label: 'Adaptação para Vagas Específicas' },
                 ].map(item => (
                   <div key={item.num} className="flex items-center gap-4 border-b border-white/10 pb-3">
-                    <span className="text-[#F97316] font-display text-lg font-black w-8 shrink-0">{item.num}</span>
+                    <span className="text-[#F97316] font-display text-lg font-bold w-8 shrink-0">{item.num}</span>
                     <span className="text-white/80 font-sans text-sm uppercase tracking-widest font-bold">{item.label}</span>
                   </div>
                 ))}
@@ -323,7 +323,7 @@ export default function Home() {
         {/* Pilar 03 */}
         <div className="w-full flex flex-col lg:flex-row min-h-[50vh] border-b border-white/20 hover:bg-white/5 transition-colors group">
           <div className="lg:w-1/2 p-6 md:p-12 flex flex-col justify-center relative overflow-hidden">
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] md:text-[14rem] font-display font-black text-white/5 z-0 group-hover:text-[#0EA5E9]/10 transition-colors">03</span>
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] md:text-[14rem] font-display font-bold text-white/5 z-0 group-hover:text-[#0EA5E9]/10 transition-colors">03</span>
             <div className="relative z-10">
               <h3 className="text-4xl md:text-5xl font-display text-white mb-4 uppercase tracking-tight">Simulação de Entrevistas</h3>
               <p className="text-lg md:text-xl font-sans text-white/70 leading-relaxed mb-8 max-w-xl">
@@ -364,7 +364,7 @@ export default function Home() {
             é falta de <span className="text-white mix-blend-difference block mt-4">orientação estruturada.</span>"
           </h2>
           <div className="mt-16 inline-block">
-            <p className="text-[#001F33] font-black font-sans text-2xl uppercase tracking-[0.2em] border-b-8 border-[#001F33] pb-2">Vagner Fernandes</p>
+            <p className="text-[#001F33] font-bold font-sans text-2xl uppercase tracking-[0.2em] border-b-8 border-[#001F33] pb-2">Vagner Fernandes</p>
             <p className="text-[#001F33]/60 font-bold uppercase tracking-widest text-sm mt-4">Promotor do Programa</p>
           </div>
         </motion.div>

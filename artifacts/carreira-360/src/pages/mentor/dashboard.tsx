@@ -213,7 +213,7 @@ export default function MentorDashboard() {
                        <span className="flex items-center"><Calendar size={14} className="mr-1.5" /> {new Date(session.dateTime).toLocaleDateString()}</span>
                        <span className="flex items-center"><Clock size={14} className="mr-1.5" /> {new Date(session.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
-                    <Button onClick={() => setViewCandidate(session)} variant="outline" size="sm" className="h-7 text-[9px] uppercase px-3 font-black border-[#001F33]/20 text-[#0EA5E9] hover:bg-[#0EA5E9]/10">
+                    <Button onClick={() => setViewCandidate(session)} variant="outline" size="sm" className="h-7 text-[9px] uppercase px-3 font-bold border-[#001F33]/20 text-[#0EA5E9] hover:bg-[#0EA5E9]/10">
                       Visualizar Perfil Completo
                     </Button>
                   </div>
@@ -314,19 +314,19 @@ export default function MentorDashboard() {
              
              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Formação Académica</p>
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/40">Formação Académica</p>
                  <p className="font-bold text-sm mt-1">{viewCandidate.formation || 'Não Especificado'}</p>
                </div>
                <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Área de Interesse</p>
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/40">Área de Interesse</p>
                  <p className="font-bold text-sm mt-1 text-[#F97316]">{viewCandidate.areaOfInterest || 'Não Especificado'}</p>
                </div>
                <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Experiência</p>
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/40">Experiência</p>
                  <p className="font-bold text-sm mt-1 capitalize">{viewCandidate.experienceLevel || 'Não Especificado'}</p>
                </div>
                <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Localização</p>
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/40">Localização</p>
                  <p className="font-bold text-sm mt-1">
                     {viewCandidate.municipality && viewCandidate.province ? `${viewCandidate.municipality}, ${viewCandidate.province}` : 'Sem Local'}
                  </p>
@@ -334,7 +334,7 @@ export default function MentorDashboard() {
              </div>
  
              <div className="bg-[#EBDCC6] p-4 rounded-xl border-2 border-[#8B4513]">
-               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40 mb-2">Principais Dificuldades</p>
+               <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/40 mb-2">Principais Dificuldades</p>
                <div className="flex flex-wrap gap-2">
                   {viewCandidate.difficulties ? (
                     viewCandidate.difficulties.split(',').map((dif: string) => (

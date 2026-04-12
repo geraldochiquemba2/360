@@ -11,6 +11,8 @@ import CandidateDashboard from "@/pages/candidate/dashboard";
 import MentorshipPage from "@/pages/candidate/mentorship";
 import ForumHome from "@/pages/candidate/forum-home";
 import TopicView from "@/pages/candidate/topic-view";
+import OpportunitiesPage from "@/pages/candidate/opportunities-list";
+import TracksListPage from "@/pages/candidate/tracks-list";
 import MentorDashboard from "@/pages/mentor/dashboard";
 
 const queryClient = new QueryClient();
@@ -23,6 +25,8 @@ function Router() {
       <Route path="/auth/register" component={RegisterPage} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/dashboard" component={CandidateDashboard} />
+      <Route path="/opportunities" component={OpportunitiesPage} />
+      <Route path="/career-tracks" component={TracksListPage} />
       <Route path="/mentorship" component={MentorshipPage} />
       <Route path="/forum" component={ForumHome} />
       <Route path="/forum/topic/:id" component={TopicView} />

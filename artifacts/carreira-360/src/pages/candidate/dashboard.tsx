@@ -1,3 +1,4 @@
+import { CandidateSidebar } from "@/components/layout/CandidateSidebar";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -80,7 +81,7 @@ export default function CandidateDashboard() {
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
 
   return (
-    <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33] relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#EBDCC6] block font-sans text-[#001F33] relative overflow-x-hidden">
       {/* Overlay para mobile */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -95,62 +96,14 @@ export default function CandidateDashboard() {
       </AnimatePresence>
 
       {/* Sidebar Simples */}
-      <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        <div className="p-8 border-b border-white/10 relative flex items-center justify-between">
-          <img src="/assets/logo.png" className="h-16 w-auto object-contain" alt="Logo" />
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsSidebarOpen(false)}
-            className="md:hidden text-white/50 hover:text-white"
-          >
-            <X size={24} />
-          </Button>
-        </div>
-        <nav className="flex-1 p-6 space-y-4">
-          <Link href="/dashboard">
-            <Button 
-              variant="ghost" 
-              onClick={() => setIsSidebarOpen(false)}
-              className={`w-full justify-start ${location === '/dashboard' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-xs h-12`}
-            >
-              <LayoutDashboard className="mr-3 h-5 w-5" /> Início
-            </Button>
-          </Link>
-          <Link href="/forum">
-            <Button 
-              variant="ghost" 
-              onClick={() => setIsSidebarOpen(false)}
-              className={`w-full justify-start ${location === '/forum' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-xs h-12`}
-            >
-              <MessageSquare className="mr-3 h-5 w-5" /> Comunidade
-            </Button>
-          </Link>
-          <Link href="/mentorship">
-            <Button 
-              variant="ghost" 
-              onClick={() => setIsSidebarOpen(false)}
-              className={`w-full justify-start ${location === '/mentorship' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-xs h-12`}
-            >
-              <Users className="mr-3 h-5 w-5" /> Mentoria
-            </Button>
-          </Link>
-          <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
-            <Briefcase className="mr-3 h-5 w-5" /> Minhas Vagas
-          </Button>
-          <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
-            <Award className="mr-3 h-5 w-5" /> Certificações
-          </Button>
-        </nav>
-        <div className="p-6 border-t border-white/10">
-          <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase tracking-widest font-bold text-xs">
-            <LogOut className="mr-3 h-5 w-5" /> Sair
-          </Button>
-        </div>
-      </aside>
+      <CandidateSidebar 
+          currentTab="dashboard" 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+        />
 
       {/* Content */}
-      <main className="flex-1 md:ml-72 min-h-screen">
+      <main className="md:ml-72 min-h-screen p-8 md:p-16">
         <header className="p-4 sm:p-8 bg-white/50 md:bg-transparent border-b-2 md:border-none border-[#8B4513] sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
           <div className="flex items-center gap-4">
             <Button 
@@ -161,9 +114,9 @@ export default function CandidateDashboard() {
             >
               <Menu size={24} />
             </Button>
-            <div>
-              <h1 className="text-xl sm:text-2xl md:text-4xl font-display uppercase tracking-tight truncate max-w-[180px] sm:max-w-none">Painel do Candidato</h1>
-              <p className="text-[#001F33] font-bold mt-1 hidden sm:block truncate text-xs sm:text-base">Bem-vindo, {user.name}! Estas são as oportunidades para o teu perfil.</p>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-4xl font-display uppercase tracking-tight leading-tight">Painel do Candidato</h1>
+              <p className="text-[#001F33] font-bold mt-1 hidden sm:block text-xs sm:text-base leading-relaxed">Bem-vindo, {user.name}! Estas são as oportunidades para o teu perfil.</p>
             </div>
           </div>
           
@@ -173,7 +126,7 @@ export default function CandidateDashboard() {
               {stats.level}
             </div>
             <div className="hidden sm:block">
-              <p className="text-[10px] font-black uppercase text-[#001F33] tracking-widest leading-none mb-1">Nível de Carreira</p>
+              <p className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest leading-none mb-1">Nível de Carreira</p>
               <div className="w-24 md:w-32 h-2 bg-[#001F33]/5 rounded-full overflow-hidden mb-1">
                 <motion.div 
                    initial={{ width: 0 }}
@@ -204,21 +157,21 @@ export default function CandidateDashboard() {
                 </div>
               ) : (
                 <div className="grid gap-6">
-                  {opportunities.map((op) => (
+                  {opportunities.slice(0, 3).map((op) => (
                     <motion.div 
                       key={op.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-6 justify-between items-center"
+                      className="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-6 justify-between items-start md:items-center"
                     >
-                      <div className="flex-1">
+                      <div className="flex-1 w-full">
                         <div className="flex items-center gap-2 mb-2">
                           <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${
-                            op.type === 'bolsa' ? 'bg-[#F97316]/10 text-[#F97316]' : 'bg-[#0EA5E9]/10 text-[#0EA5E9]'
+                            op.type === 'bolsa' ? 'bg-[#F97316]/20 text-[#F97316] border border-[#F97316]/30' : 'bg-[#0EA5E9]/20 text-[#0EA5E9] border border-[#0EA5E9]/30'
                           }`}>
                             {op.type}
                           </span>
-                          <span className="text-xs text-[#001F33]/30 font-bold">• {new Date(op.createdAt).toLocaleDateString()}</span>
+                          <span className="text-[10px] text-[#001F33]/70 font-black tracking-wider uppercase">• {new Date(op.createdAt).toLocaleDateString()}</span>
                         </div>
                         <h3 className="text-xl font-display uppercase text-[#001F33] group-hover:text-[#0EA5E9] transition-colors">{op.title}</h3>
                         <div className="flex flex-wrap gap-4 mt-2">
@@ -236,6 +189,16 @@ export default function CandidateDashboard() {
                       </div>
                     </motion.div>
                   ))}
+                  
+                  {opportunities.length > 3 && (
+                    <div className="flex justify-center mt-4">
+                       <Link href="/opportunities">
+                          <Button variant="outline" className="border-2 border-[#8B4513]/20 text-[#001F33] font-bold uppercase text-[10px] tracking-widest px-10 h-11 hover:bg-[#0EA5E9] hover:text-white transition-all">
+                             Ver Mais Oportunidades
+                          </Button>
+                       </Link>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -248,31 +211,42 @@ export default function CandidateDashboard() {
                       <p className="text-[#001F33]/30 font-bold uppercase text-xs">Novas trilhas em breve</p>
                     </div>
                   ) : (
-                    tracks.map((track) => (
-                      <motion.div 
-                        key={track.id}
-                        whileHover={{ scale: 1.02 }}
-                        className="bg-[#001F33] rounded-2xl overflow-hidden shadow-xl group border border-white/5"
-                      >
-                        <div className="h-32 bg-gray-800 relative">
-                          {track.imageUrl ? (
-                            <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center opacity-20">
-                               <GraduationCap size={48} className="text-white" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#001F33] to-transparent" />
-                        </div>
-                        <div className="p-6">
-                          <h3 className="text-lg font-display uppercase text-white mb-2">{track.title}</h3>
-                          <p className="text-sm text-white/50 line-clamp-2 h-10 mb-4">{track.description}</p>
-                          <Button className="w-full bg-[#0EA5E9] hover:bg-white hover:text-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-10">
-                            Começar Agora
-                          </Button>
-                        </div>
-                      </motion.div>
-                    ))
+                    <>
+                      {tracks.slice(0, 2).map((track) => (
+                        <motion.div 
+                          key={track.id}
+                          whileHover={{ scale: 1.02 }}
+                          className="bg-[#001F33] rounded-2xl overflow-hidden shadow-xl group border border-white/5"
+                        >
+                          <div className="h-32 bg-gray-800 relative">
+                            {track.imageUrl ? (
+                              <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center opacity-20">
+                                 <GraduationCap size={48} className="text-white" />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#001F33] to-transparent" />
+                          </div>
+                          <div className="p-6">
+                            <h3 className="text-lg font-display uppercase text-white mb-2">{track.title}</h3>
+                            <p className="text-sm text-white/50 line-clamp-2 h-10 mb-4">{track.description}</p>
+                            <Link href="/career-tracks">
+                              <Button className="w-full bg-[#0EA5E9] hover:bg-white hover:text-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-10">
+                                Começar Agora
+                              </Button>
+                            </Link>
+                          </div>
+                        </motion.div>
+                      ))}
+                      <div className="col-span-1 md:col-span-2 flex justify-center mt-4">
+                        <Link href="/career-tracks">
+                            <Button variant="ghost" className="text-[#F97316] font-bold uppercase text-[10px] tracking-widest px-10 h-11 hover:bg-[#F97316]/10 transition-all">
+                               Explorar Mais Trilhas →
+                            </Button>
+                        </Link>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
@@ -302,11 +276,11 @@ export default function CandidateDashboard() {
                 <div className="space-y-4">
                   <div className="p-4 bg-[#EBDCC6] rounded-xl group hover:bg-[#0EA5E9]/10 transition-colors cursor-pointer">
                     <p className="text-[10px] font-bold uppercase text-[#0EA5E9]">Curso Recomendado</p>
-                    <h4 className="font-bold uppercase text-sm mt-1">Liderança em Ambientes Digitais</h4>
+                    <h4 className="font-bold uppercase text-[12px] tracking-wider text-[#001F33] mt-1">Liderança em Ambientes Digitais</h4>
                   </div>
                   <div className="p-4 bg-[#EBDCC6] rounded-xl group hover:bg-[#0EA5E9]/10 transition-colors cursor-pointer">
                     <p className="text-[10px] font-bold uppercase text-[#F97316]">Trilha Gratuita</p>
-                    <h4 className="font-bold uppercase text-sm mt-1">Domínio de Soft Skills 2026</h4>
+                    <h4 className="font-bold uppercase text-[12px] tracking-wider text-[#001F33] mt-1">Domínio de Soft Skills 2026</h4>
                   </div>
                 </div>
               </div>

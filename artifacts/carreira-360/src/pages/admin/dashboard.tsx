@@ -148,7 +148,7 @@ export default function AdminDashboard() {
       return (
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[32px] border-2 border-[#8B4513] shadow-sm">
           <div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full mb-4"></div>
-          <p className="text-xs font-black uppercase tracking-widest text-[#001F33]/50">A carregar utilizadores...</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#001F33]/50">A carregar utilizadores...</p>
         </div>
       );
     }
@@ -163,7 +163,7 @@ export default function AdminDashboard() {
             <Button 
               variant="ghost" 
               onClick={() => { setSearchUsers(""); setFilterRole("all"); }}
-              className="mt-6 text-[#0EA5E9] hover:bg-[#0EA5E9]/10 font-black uppercase text-[10px] tracking-widest rounded-full h-11 px-8"
+              className="mt-6 text-[#0EA5E9] hover:bg-[#0EA5E9]/10 font-bold uppercase text-[10px] tracking-widest rounded-full h-11 px-8"
             >
               Limpar Filtros
             </Button>
@@ -180,12 +180,12 @@ export default function AdminDashboard() {
             <div key={c.id} className={`p-5 flex flex-col gap-3 ${c.status === 'pendente' ? 'bg-orange-50' : c.status === 'rejeitado' ? 'bg-red-50 opacity-60' : ''}`}>
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="font-black uppercase text-sm text-[#001F33]">{c.name}</p>
-                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full mt-1 inline-block ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                  <p className="font-bold uppercase text-sm text-[#001F33]">{c.name}</p>
+                  <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full mt-1 inline-block ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
                     {c.role === 'mentor' ? 'Mentor' : 'Jovem'}
                   </span>
                 </div>
-                <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full shrink-0 ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full shrink-0 ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                   {c.status === 'pendente' ? 'Pendente' : c.status === 'rejeitado' ? 'Rejeitado' : 'Ativo'}
                 </span>
               </div>
@@ -202,7 +202,7 @@ export default function AdminDashboard() {
                 ) : <span className="text-[#001F33]/70">Sem LinkedIn</span>}
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-8 text-[9px] uppercase px-3 font-black border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes</Button>
+                <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-8 text-[9px] uppercase px-3 font-bold border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes</Button>
                 {c.status === 'pendente' && (
                   <>
                     <Button onClick={() => handleUpdateStatus(c.id, 'ativo')} size="sm" className="h-8 bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-3 shadow-sm">Aprovar</Button>
@@ -218,7 +218,7 @@ export default function AdminDashboard() {
         <div className="hidden lg:block overflow-x-auto bg-white rounded-[32px] shadow-2xl border-2 border-[#8B4513]">
           <div className="min-w-[1000px]">
             <table className="w-full text-left">
-              <thead className="bg-[#001F33] text-white uppercase text-[10px] font-black tracking-widest">
+              <thead className="bg-[#001F33] text-white uppercase text-[10px] font-bold tracking-widest">
                 <tr className="h-16">
                   <th className="px-10 whitespace-nowrap">Candidato / Perfil</th>
                   <th className="px-10 whitespace-nowrap">E-mail / Contacto</th>
@@ -230,8 +230,8 @@ export default function AdminDashboard() {
                 {filteredCandidates.map(c => (
                   <tr key={c.id} className={`hover:bg-[#EBDCC6]/50 h-24 group transition-colors ${c.status === 'pendente' ? 'bg-orange-50' : c.status === 'rejeitado' ? 'bg-red-50 opacity-60' : ''}`}>
                     <td className="px-10">
-                      <span className="font-black uppercase text-sm text-[#001F33] block mb-1">{c.name}</span>
-                      <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-full ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                      <span className="font-bold uppercase text-sm text-[#001F33] block mb-1">{c.name}</span>
+                      <span className={`text-[9px] font-bold uppercase px-2 py-1 rounded-full ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
                         {c.role === 'mentor' ? 'Mentor' : 'Jovem'}
                       </span>
                     </td>
@@ -249,10 +249,10 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-10">
                       <div className="flex flex-col items-center gap-2">
-                        <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                        <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                           {c.status === 'pendente' ? 'Pendente' : c.status === 'rejeitado' ? 'Rejeitado' : 'Ativo'}
                         </span>
-                        <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-7 text-[9px] uppercase px-2 font-black border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes Completos</Button>
+                        <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-7 text-[9px] uppercase px-2 font-bold border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes Completos</Button>
                         {c.status === 'pendente' && (
                           <div className="flex gap-2">
                             <Button onClick={() => handleUpdateStatus(c.id, 'ativo')} size="sm" className="h-7 bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-2 shadow-sm">Aprovar</Button>
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
       return (
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[32px] border-2 border-[#8B4513] shadow-sm">
           <div className="animate-spin h-10 w-10 border-4 border-[#F97316] border-t-transparent rounded-full mb-4"></div>
-          <p className="text-xs font-black uppercase tracking-widest text-[#001F33]/50">A carregar mentores...</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#001F33]/50">A carregar mentores...</p>
         </div>
       );
     }
@@ -298,7 +298,7 @@ export default function AdminDashboard() {
             <Button 
               variant="ghost" 
               onClick={() => { setSearchMentors(""); setFilterMentorStatus("all"); }}
-              className="mt-6 text-[#F97316] hover:bg-[#F97316]/10 font-black uppercase text-[10px] tracking-widest rounded-full h-11 px-8"
+              className="mt-6 text-[#F97316] hover:bg-[#F97316]/10 font-bold uppercase text-[10px] tracking-widest rounded-full h-11 px-8"
             >
               Limpar Pesquisa
             </Button>
@@ -316,20 +316,20 @@ export default function AdminDashboard() {
             <div key={m.id} className={`p-6 flex flex-col gap-4 ${m.status === 'pendente' ? 'bg-[#F97316]/5' : ''}`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-black uppercase text-base text-[#001F33]">{m.name}</p>
+                  <p className="font-bold uppercase text-base text-[#001F33]">{m.name}</p>
                   <p className="text-xs font-bold text-[#001F33]/60">{m.email}</p>
                 </div>
-                <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${m.status === 'pendente' ? 'bg-orange-100 text-orange-600' : m.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full ${m.status === 'pendente' ? 'bg-orange-100 text-orange-600' : m.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                   {m.status}
                 </span>
               </div>
               <div className="bg-[#EBDCC6]/50 p-3 rounded-xl border border-[#8B4513]/20">
-                <p className="text-[9px] font-black uppercase text-[#001F33]/40 tracking-widest mb-1">Especialidade / Bio</p>
+                <p className="text-[9px] font-bold uppercase text-[#001F33]/40 tracking-widest mb-1">Especialidade / Bio</p>
                 <p className="text-xs font-bold text-[#001F33]/80 line-clamp-3 leading-relaxed">{m.bio || 'Sem biografia informada'}</p>
               </div>
               <div className="flex flex-wrap gap-2 text-xs font-bold text-[#001F33]/50">
                 {m.expertise && (
-                  <span className="bg-[#0EA5E9]/5 text-[#0EA5E9] px-2 py-0.5 rounded border border-[#0EA5E9]/20 uppercase text-[9px] font-black">{m.expertise}</span>
+                  <span className="bg-[#0EA5E9]/5 text-[#0EA5E9] px-2 py-0.5 rounded border border-[#0EA5E9]/20 uppercase text-[9px] font-bold">{m.expertise}</span>
                 )}
               </div>
               <div className="flex flex-wrap gap-2 pt-2 border-t border-[#8B4513]/20">
@@ -340,10 +340,10 @@ export default function AdminDashboard() {
                   </>
                 )}
                 {m.status === 'ativo' && (
-                  <Button onClick={() => updateMentorStatus(m.id, 'rejeitado')} variant="outline" size="sm" className="w-full h-10 text-[9px] border-red-200 text-red-500 hover:bg-red-50 uppercase font-black">Suspender Acesso</Button>
+                  <Button onClick={() => updateMentorStatus(m.id, 'rejeitado')} variant="outline" size="sm" className="w-full h-10 text-[9px] border-red-200 text-red-500 hover:bg-red-50 uppercase font-bold">Suspender Acesso</Button>
                 )}
                 {m.status === 'rejeitado' && (
-                  <Button onClick={() => updateMentorStatus(m.id, 'ativo')} variant="outline" size="sm" className="w-full h-10 text-[9px] border-green-200 text-green-600 hover:bg-green-50 uppercase font-black">Ativar Mentor</Button>
+                  <Button onClick={() => updateMentorStatus(m.id, 'ativo')} variant="outline" size="sm" className="w-full h-10 text-[9px] border-green-200 text-green-600 hover:bg-green-50 uppercase font-bold">Ativar Mentor</Button>
                 )}
               </div>
             </div>
@@ -353,7 +353,7 @@ export default function AdminDashboard() {
         {/* DESKTOP TABLE */}
         <div className="hidden lg:block bg-white rounded-[32px] shadow-2xl overflow-hidden border-2 border-[#8B4513]">
           <table className="w-full text-left">
-            <thead className="bg-[#001F33] text-white font-black uppercase text-[10px] tracking-widest border-b border-[#8B4513]/50">
+            <thead className="bg-[#001F33] text-white font-bold uppercase text-[10px] tracking-widest border-b border-[#8B4513]/50">
               <tr className="h-16">
                 <th className="px-10">Mentor / Cadastro</th>
                 <th className="px-10">Biografia & Especialidade</th>
@@ -365,17 +365,17 @@ export default function AdminDashboard() {
               {filteredMentors.map(m => (
                 <tr key={m.id} className={`h-24 hover:bg-[#EBDCC6]/50 transition-colors ${m.status === 'pendente' ? 'bg-[#F97316]/5' : ''}`}>
                   <td className="px-10">
-                    <p className="font-black uppercase text-sm text-[#001F33]">{m.name}</p>
+                    <p className="font-bold uppercase text-sm text-[#001F33]">{m.name}</p>
                     <p className="text-xs font-bold text-[#001F33]/60">{m.email}</p>
                   </td>
                   <td className="px-10 py-4 max-w-md">
                     {m.expertise && (
-                      <span className="inline-block bg-[#0EA5E9]/10 text-[#0EA5E9] text-[9px] font-black uppercase px-2 py-0.5 rounded mb-1.5">{m.expertise}</span>
+                      <span className="inline-block bg-[#0EA5E9]/10 text-[#0EA5E9] text-[9px] font-bold uppercase px-2 py-0.5 rounded mb-1.5">{m.expertise}</span>
                     )}
                     <p className="text-xs font-bold text-[#001F33]/80 line-clamp-2 leading-relaxed">{m.bio || 'Sem biografia informada'}</p>
                   </td>
                   <td className="px-10">
-                    <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-full ${m.status === 'pendente' ? 'bg-orange-100 text-orange-600' : m.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                    <span className={`text-[10px] font-bold uppercase px-3 py-1.5 rounded-full ${m.status === 'pendente' ? 'bg-orange-100 text-orange-600' : m.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                       {m.status}
                     </span>
                   </td>
@@ -383,15 +383,15 @@ export default function AdminDashboard() {
                     <div className="flex justify-end gap-2">
                        {m.status === 'pendente' && (
                          <>
-                           <Button onClick={() => updateMentorStatus(m.id, 'ativo')} size="sm" className="bg-green-500 hover:bg-green-600 text-white font-black text-[9px] uppercase px-4 h-10 shadow-lg shadow-green-500/10">Aprovar</Button>
-                           <Button onClick={() => updateMentorStatus(m.id, 'rejeitado')} size="sm" variant="destructive" className="font-black text-[9px] uppercase px-4 h-10 shadow-lg shadow-red-500/10">Rejeitar</Button>
+                           <Button onClick={() => updateMentorStatus(m.id, 'ativo')} size="sm" className="bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-4 h-10 shadow-lg shadow-green-500/10">Aprovar</Button>
+                           <Button onClick={() => updateMentorStatus(m.id, 'rejeitado')} size="sm" variant="destructive" className="font-bold text-[9px] uppercase px-4 h-10 shadow-lg shadow-red-500/10">Rejeitar</Button>
                          </>
                        )}
                        {m.status !== 'pendente' && (
                          <Button 
                            onClick={() => updateMentorStatus(m.id, m.status === 'ativo' ? 'rejeitado' : 'ativo')}
                            variant="outline" 
-                           className={`h-10 text-[9px] font-black uppercase px-6 border-[#8B4513]/30 ${m.status === 'ativo' ? 'text-red-500 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}`}
+                           className={`h-10 text-[9px] font-bold uppercase px-6 border-[#8B4513]/30 ${m.status === 'ativo' ? 'text-red-500 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}`}
                          >
                            {m.status === 'ativo' ? 'Suspender' : 'Ativar'}
                          </Button>
@@ -756,17 +756,17 @@ export default function AdminDashboard() {
             </h1>
           </div>
           {currentTab === 'jobs' && (
-            <Button onClick={() => { setEditingOpportunity(null); setIsAddingOpportunity(true); }} className="bg-[#0EA5E9] text-white uppercase font-black text-[10px] sm:text-xs px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
+            <Button onClick={() => { setEditingOpportunity(null); setIsAddingOpportunity(true); }} className="bg-[#0EA5E9] text-white uppercase font-bold text-[10px] sm:text-xs px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
               <Plus className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Nova Vaga</span>
             </Button>
           )}
           {currentTab === 'content' && !selectedTrack && (
-            <Button onClick={() => { setEditingTrack(null); setIsAddingTrack(true); }} className="bg-[#0EA5E9] text-white uppercase font-black text-[10px] sm:text-xs px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
+            <Button onClick={() => { setEditingTrack(null); setIsAddingTrack(true); }} className="bg-[#0EA5E9] text-white uppercase font-bold text-[10px] sm:text-xs px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
               <Plus className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Nova Trilha</span>
             </Button>
           )}
           {currentTab === 'forum' && (
-            <Button onClick={() => { setNewTopic({title: "", content: "", category: "Geral"}); setIsAddingTopic(true); }} className="bg-[#0EA5E9] text-white uppercase font-black text-[9px] sm:text-[10px] px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all flex items-center">
+            <Button onClick={() => { setNewTopic({title: "", content: "", category: "Geral"}); setIsAddingTopic(true); }} className="bg-[#0EA5E9] text-white uppercase font-bold text-[9px] sm:text-[10px] px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all flex items-center">
               <Plus className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Novo Tópico</span>
             </Button>
           )}
@@ -791,7 +791,7 @@ export default function AdminDashboard() {
                   ].map((s, i) => (
                     <motion.div initial={{opacity:0, scale:0.9}} animate={{opacity:1, scale:1}} transition={{delay: i*0.1}} key={i} className="bg-white p-4 sm:p-8 rounded-3xl shadow-sm border border-[#8B4513]/50 flex flex-col gap-2 group hover:shadow-xl transition-all">
                       <div className={`${s.color} p-4 rounded-2xl text-white w-fit shadow-lg shadow-black/10 group-hover:scale-110 transition-transform`}><s.icon size={28}/></div>
-                      <div className="mt-4"><p className="text-[10px] font-black uppercase text-[#001F33]/80 tracking-widest leading-none mb-1">{s.label}</p><h4 className="text-3xl font-display text-[#001F33]">{s.val}</h4></div>
+                      <div className="mt-4"><p className="text-[10px] font-bold uppercase text-[#001F33]/80 tracking-widest leading-none mb-1">{s.label}</p><h4 className="text-3xl font-display text-[#001F33]">{s.val}</h4></div>
                     </motion.div>
                   ))}
                </div>
@@ -835,7 +835,7 @@ export default function AdminDashboard() {
                    />
                  </div>
                  <div className="text-right z-10">
-                    <p className="text-[10px] font-black uppercase text-[#001F33]/40 tracking-[0.3em] mb-1">Base de Mentores</p>
+                    <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-[0.3em] mb-1">Base de Mentores</p>
                     <div className="flex items-center justify-end gap-3">
                        <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
                        <p className="text-3xl font-display text-[#001F33]">{mentors.length}</p>
@@ -849,28 +849,28 @@ export default function AdminDashboard() {
                 <Button 
                   variant="ghost" 
                   onClick={() => setFilterMentorStatus("all")}
-                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-black tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'all' ? 'bg-[#001F33] text-white shadow-[0_8px_20px_-5px_rgba(0,31,51,0.4)] scale-105' : 'text-[#001F33]/60 hover:bg-[#001F33]/10'}`}
+                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'all' ? 'bg-[#001F33] text-white shadow-[0_8px_20px_-5px_rgba(0,31,51,0.4)] scale-105' : 'text-[#001F33]/60 hover:bg-[#001F33]/10'}`}
                 >
                   <span className="mr-2">📋</span> Todos <span className="ml-2 opacity-50">({mentors.length})</span>
                 </Button>
                 <Button 
                   variant="ghost" 
                   onClick={() => setFilterMentorStatus("pendente")}
-                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-black tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'pendente' ? 'bg-[#F97316] text-white shadow-[0_8px_20px_-5px_rgba(249,115,22,0.4)] scale-105' : 'text-[#F97316]/60 hover:bg-[#F97316]/10'}`}
+                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'pendente' ? 'bg-[#F97316] text-white shadow-[0_8px_20px_-5px_rgba(249,115,22,0.4)] scale-105' : 'text-[#F97316]/60 hover:bg-[#F97316]/10'}`}
                 >
                   <span className="mr-2">🕒</span> Pendentes <span className="ml-2 opacity-50">({mentors.filter(m => m.status === 'pendente').length})</span>
                 </Button>
                 <Button 
                   variant="ghost" 
                   onClick={() => setFilterMentorStatus("ativo")}
-                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-black tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'ativo' ? 'bg-green-500 text-white shadow-[0_8px_20px_-5px_rgba(34,197,94,0.4)] scale-105' : 'text-green-600/70 hover:bg-green-50'}`}
+                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'ativo' ? 'bg-green-500 text-white shadow-[0_8px_20px_-5px_rgba(34,197,94,0.4)] scale-105' : 'text-green-600/70 hover:bg-green-50'}`}
                 >
                   <span className="mr-2">✅</span> Aprovados <span className="ml-2 opacity-50">({mentors.filter(m => m.status === 'ativo').length})</span>
                 </Button>
                 <Button 
                   variant="ghost" 
                   onClick={() => setFilterMentorStatus("rejeitado")}
-                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-black tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'rejeitado' ? 'bg-red-500 text-white shadow-[0_8px_20px_-5px_rgba(239,68,68,0.4)] scale-105' : 'text-red-500/70 hover:bg-red-50'}`}
+                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'rejeitado' ? 'bg-red-500 text-white shadow-[0_8px_20px_-5px_rgba(239,68,68,0.4)] scale-105' : 'text-red-500/70 hover:bg-red-50'}`}
                 >
                   <span className="mr-2">❌</span> Rejeitados <span className="ml-2 opacity-50">({mentors.filter(m => m.status === 'rejeitado').length})</span>
                 </Button>
@@ -894,7 +894,7 @@ export default function AdminDashboard() {
                  </div>
                  <div className="w-full md:w-64">
                    <Select value={filterJobType} onValueChange={setFilterJobType}>
-                     <SelectTrigger className="h-14 bg-[#EBDCC6] border-none rounded-2xl font-black uppercase text-[10px] tracking-widest px-6 focus:ring-2 focus:ring-[#0EA5E9]">
+                     <SelectTrigger className="h-14 bg-[#EBDCC6] border-none rounded-2xl font-bold uppercase text-[10px] tracking-widest px-6 focus:ring-2 focus:ring-[#0EA5E9]">
                        <SelectValue placeholder="Filtrar por Tipo" />
                      </SelectTrigger>
                      <SelectContent>
@@ -918,7 +918,7 @@ export default function AdminDashboard() {
                   .map(op => (
                     <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} key={op.id} className="bg-white p-6 sm:p-10 rounded-[24px] sm:rounded-[32px] shadow-sm border border-[#8B4513]/70 relative group hover:shadow-2xl transition-all">
                       <div className="flex justify-between items-start mb-8">
-                        <span className="bg-[#0EA5E9]/10 text-[#0EA5E9] text-[10px] font-black uppercase px-3 py-1.5 rounded-full tracking-widest">{op.type}</span>
+                        <span className="bg-[#0EA5E9]/10 text-[#0EA5E9] text-[10px] font-bold uppercase px-3 py-1.5 rounded-full tracking-widest">{op.type}</span>
                         <div className="flex gap-2 transition-opacity">
                           <Button variant="ghost" size="icon" className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-full" onClick={() => { 
                             setEditingOpportunity(op); 
@@ -934,7 +934,7 @@ export default function AdminDashboard() {
                         <span className="flex items-center gap-2"><MapPin size={16} className="text-[#0EA5E9]"/> {op.location}</span>
                       </div>
                       <div className="flex justify-between items-center pt-8 border-t border-[#8B4513]/50">
-                        <span className="text-[10px] font-black uppercase text-[#001F33]/70">Prazo: {op.deadline ? new Date(op.deadline).toLocaleDateString() : 'Indefinido'}</span>
+                        <span className="text-[10px] font-bold uppercase text-[#001F33]/70">Prazo: {op.deadline ? new Date(op.deadline).toLocaleDateString() : 'Indefinido'}</span>
                         <div className="h-10 w-10 rounded-full bg-[#EBDCC6] flex items-center justify-center text-[#0EA5E9] group-hover:bg-[#0EA5E9] group-hover:text-white transition-all"><ExternalLink size={16} /></div>
                       </div>
                     </motion.div>
@@ -948,14 +948,14 @@ export default function AdminDashboard() {
                {selectedTrack ? (
                  <div className="space-y-8">
                     <div className="flex items-center gap-4 mb-2">
-                       <Button variant="ghost" onClick={() => setSelectedTrack(null)} className="text-[#0EA5E9] font-black uppercase text-[10px] tracking-widest">← Voltar às Trilhas</Button>
+                       <Button variant="ghost" onClick={() => setSelectedTrack(null)} className="text-[#0EA5E9] font-bold uppercase text-[10px] tracking-widest">← Voltar às Trilhas</Button>
                     </div>
                     <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-[#001F33] p-6 md:p-10 rounded-[32px] text-white flex flex-col md:flex-row justify-between items-start md:items-end shadow-xl gap-6">
                        <div className="space-y-2 w-full">
-                          <p className="text-[#0EA5E9] text-[10px] font-black uppercase tracking-[0.3em]">Gestão de Módulos</p>
+                          <p className="text-[#0EA5E9] text-[10px] font-bold uppercase tracking-[0.3em]">Gestão de Módulos</p>
                           <h2 className="text-5xl font-display uppercase leading-none">{selectedTrack.title}</h2>
                        </div>
-                       <Button onClick={() => { setEditingModule(null); setNewModule({title: "", order: modules.length}); setIsAddingModule(true); }} className="bg-white text-[#001F33] uppercase font-black text-xs px-8 h-12 rounded-full shadow-lg shadow-white/10 hover:scale-105 active:scale-95 transition-all">Novo Módulo</Button>
+                       <Button onClick={() => { setEditingModule(null); setNewModule({title: "", order: modules.length}); setIsAddingModule(true); }} className="bg-white text-[#001F33] uppercase font-bold text-xs px-8 h-12 rounded-full shadow-lg shadow-white/10 hover:scale-105 active:scale-95 transition-all">Novo Módulo</Button>
                     </motion.div>
                     
                     <div className="grid gap-4">
@@ -977,7 +977,7 @@ export default function AdminDashboard() {
                                      fetchVideos(mod.id);
                                    }
                                  }} 
-                                 className={`${currentModule?.id === mod.id ? 'bg-[#001F33]' : 'bg-[#0EA5E9]'} text-white text-[10px] font-black uppercase px-6 h-10 rounded-full transition-all`}
+                                 className={`${currentModule?.id === mod.id ? 'bg-[#001F33]' : 'bg-[#0EA5E9]'} text-white text-[10px] font-bold uppercase px-6 h-10 rounded-full transition-all`}
                                >
                                  {currentModule?.id === mod.id ? 'Fechar Etapas' : 'Etapas / Vídeos'}
                                </Button>
@@ -1017,7 +1017,7 @@ export default function AdminDashboard() {
                                 <Button 
                                   onClick={() => { setEditingVideo(null); setNewVideo({title: "", url: "", description: "", xpPoints: 100, order: videos.length}); setIsAddingVideo(true); }}
                                   variant="outline" 
-                                  className="w-full border-dashed border-2 border-[#0EA5E9]/30 text-[#0EA5E9] font-black uppercase text-[10px] h-12 rounded-2xl hover:bg-[#0EA5E9]/5"
+                                  className="w-full border-dashed border-2 border-[#0EA5E9]/30 text-[#0EA5E9] font-bold uppercase text-[10px] h-12 rounded-2xl hover:bg-[#0EA5E9]/5"
                                 >
                                   <Plus size={14} className="mr-2" /> Adicionar Nova Etapa
                                 </Button>
@@ -1046,7 +1046,7 @@ export default function AdminDashboard() {
                         </div>
                         <Button 
                           onClick={() => { setSelectedTrack(t); fetchModules(t.id); }} 
-                          className="bg-[#001F33] text-white uppercase font-black text-xs px-10 h-14 rounded-full shadow-2xl shadow-[#001F33]/30 active:scale-95 transition-all relative z-10 border-2 border-transparent hover:border-[#0EA5E9]"
+                          className="bg-[#001F33] text-white uppercase font-bold text-xs px-10 h-14 rounded-full shadow-2xl shadow-[#001F33]/30 active:scale-95 transition-all relative z-10 border-2 border-transparent hover:border-[#0EA5E9]"
                         >
                           Gerir Conteúdo
                         </Button>
@@ -1066,13 +1066,13 @@ export default function AdminDashboard() {
                 {forumTopics.map(t => (
                   <div key={t.id} className="p-6 flex flex-col gap-4">
                     <div>
-                      <span className="text-[9px] font-black uppercase px-3 py-1 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] inline-block mb-2">{t.category}</span>
-                      <p className="font-extrabold uppercase text-sm text-[#001F33] leading-tight">{t.title}</p>
+                      <span className="text-[9px] font-bold uppercase px-3 py-1 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] inline-block mb-2">{t.category}</span>
+                      <p className="font-bold uppercase text-sm text-[#001F33] leading-tight">{t.title}</p>
                       <p className="text-[10px] font-bold text-[#001F33]/80 tracking-widest mt-1">{new Date(t.createdAt).toLocaleDateString()} • Por {t.authorName}</p>
                     </div>
                     <div className="flex justify-between items-center pt-2">
                        <Link href={`/forum/topic/${t.id}`}>
-                         <Button variant="outline" size="sm" className="h-9 border-[#0EA5E9] text-[#0EA5E9] text-[9px] uppercase font-black px-4 rounded-full flex items-center">
+                         <Button variant="outline" size="sm" className="h-9 border-[#0EA5E9] text-[#0EA5E9] text-[9px] uppercase font-bold px-4 rounded-full flex items-center">
                            <ExternalLink size={12} className="mr-1.5" /> Ver Tópico
                          </Button>
                        </Link>
@@ -1102,7 +1102,7 @@ export default function AdminDashboard() {
               <div className="hidden lg:block bg-white rounded-[32px] shadow-2xl overflow-x-auto border border-[#8B4513]/50">
                 <div className="min-w-[700px]">
                   <table className="w-full text-left">
-                    <thead className="bg-[#001F33] text-white font-black uppercase text-[10px] tracking-widest">
+                    <thead className="bg-[#001F33] text-white font-bold uppercase text-[10px] tracking-widest">
                       <tr className="h-16">
                         <th className="pl-10 pr-4 w-[40%]">Tópico</th>
                         <th className="px-4 w-[20%]">Categoria</th>
@@ -1114,14 +1114,14 @@ export default function AdminDashboard() {
                       {forumTopics.map(t => (
                         <tr key={t.id} className="h-20 hover:bg-[#EBDCC6]/50 transition-colors">
                           <td className="pl-10 pr-4">
-                            <p className="font-extrabold uppercase text-sm text-[#001F33]">{t.title}</p>
+                            <p className="font-bold uppercase text-sm text-[#001F33]">{t.title}</p>
                             <p className="text-[10px] font-bold text-[#001F33]/80 tracking-widest">{new Date(t.createdAt).toLocaleDateString()}</p>
                           </td>
                           <td className="px-4">
-                            <span className="text-[10px] font-black uppercase px-4 py-1.5 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9]">{t.category}</span>
+                            <span className="text-[10px] font-bold uppercase px-4 py-1.5 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9]">{t.category}</span>
                           </td>
                           <td className="px-4">
-                            <p className="text-xs font-black text-[#001F33] uppercase">{t.authorName}</p>
+                            <p className="text-xs font-bold text-[#001F33] uppercase">{t.authorName}</p>
                           </td>
                           <td className="pr-10 pl-4 text-right">
                             <div className="flex justify-end gap-2">
@@ -1145,7 +1145,7 @@ export default function AdminDashboard() {
                               <Link href={`/forum/topic/${t.id}`}>
                                 <Button 
                                   variant="ghost" 
-                                  className="h-11 rounded-full text-[#0EA5E9] hover:bg-[#0EA5E9]/10 font-black uppercase text-[10px] tracking-widest flex items-center px-4"
+                                  className="h-11 rounded-full text-[#0EA5E9] hover:bg-[#0EA5E9]/10 font-bold uppercase text-[10px] tracking-widest flex items-center px-4"
                                 >
                                   <ExternalLink className="mr-2 h-4 w-4" /> Ver Tópico
                                 </Button>
@@ -1180,21 +1180,21 @@ export default function AdminDashboard() {
           <DialogContent className="max-w-3xl bg-white border-none shadow-2xl rounded-[40px] p-10 select-none">
             <DialogHeader><DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter">{editingOpportunity ? 'Editar Oportunidade' : 'Cadastrar Oportunidade'}</DialogTitle></DialogHeader>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 py-8">
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Cargo / Título</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.title} onChange={e => setNewOpportunity({...newOpportunity, title: e.target.value})} placeholder="Ex: Desenvolvedor React" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Instituição / Empresa</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.company} onChange={e => setNewOpportunity({...newOpportunity, company: e.target.value})} placeholder="Ex: Unitel" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Cidade / Província</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.location} onChange={e => setNewOpportunity({...newOpportunity, location: e.target.value})} placeholder="Ex: Luanda, Talatona" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Cargo / Título</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.title} onChange={e => setNewOpportunity({...newOpportunity, title: e.target.value})} placeholder="Ex: Desenvolvedor React" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Instituição / Empresa</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.company} onChange={e => setNewOpportunity({...newOpportunity, company: e.target.value})} placeholder="Ex: Unitel" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Cidade / Província</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.location} onChange={e => setNewOpportunity({...newOpportunity, location: e.target.value})} placeholder="Ex: Luanda, Talatona" /></div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Natureza</label>
+                <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Natureza</label>
                 <Select value={newOpportunity.type} onValueChange={(val) => setNewOpportunity({...newOpportunity, type: val})}>
                   <SelectTrigger className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6"><SelectValue placeholder="Tipo" /></SelectTrigger>
                   <SelectContent><SelectItem value="emprego">Emprego</SelectItem><SelectItem value="estagio">Estágio</SelectItem><SelectItem value="bolsa">Bolsa de Estudo</SelectItem></SelectContent>
                 </Select>
               </div>
-              <div className="col-span-2 space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Descritivo da Vaga</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[140px] rounded-3xl font-bold p-6 focus:ring-[#0EA5E9]" value={newOpportunity.description} onChange={e => setNewOpportunity({...newOpportunity, description: e.target.value})} placeholder="Quais são as responsabilidades e o que procuro?" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Candidatura (URL/Email)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.link} onChange={e => setNewOpportunity({...newOpportunity, link: e.target.value})} placeholder="Onde o jovem clica?" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Fecho Candidaturas</label><Input type="date" className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.deadline} onChange={e => setNewOpportunity({...newOpportunity, deadline: e.target.value})} /></div>
+              <div className="col-span-2 space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Descritivo da Vaga</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[140px] rounded-3xl font-bold p-6 focus:ring-[#0EA5E9]" value={newOpportunity.description} onChange={e => setNewOpportunity({...newOpportunity, description: e.target.value})} placeholder="Quais são as responsabilidades e o que procuro?" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Candidatura (URL/Email)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.link} onChange={e => setNewOpportunity({...newOpportunity, link: e.target.value})} placeholder="Onde o jovem clica?" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Fecho Candidaturas</label><Input type="date" className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.deadline} onChange={e => setNewOpportunity({...newOpportunity, deadline: e.target.value})} /></div>
             </div>
-            <DialogFooter className="mt-4"><Button onClick={handleSaveOpportunity} className="bg-[#001F33] text-white uppercase font-black text-xs w-full h-16 rounded-3xl shadow-2xl shadow-[#001F33]/30 hover:bg-[#0EA5E9] transition-all tracking-widest">{editingOpportunity ? 'Guardar Alterações' : 'Publicar Vaga Agora'}</Button></DialogFooter>
+            <DialogFooter className="mt-4"><Button onClick={handleSaveOpportunity} className="bg-[#001F33] text-white uppercase font-bold text-xs w-full h-16 rounded-3xl shadow-2xl shadow-[#001F33]/30 hover:bg-[#0EA5E9] transition-all tracking-widest">{editingOpportunity ? 'Guardar Alterações' : 'Publicar Vaga Agora'}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
 
@@ -1202,11 +1202,11 @@ export default function AdminDashboard() {
           <DialogContent className="max-w-xl bg-white border-none shadow-2xl rounded-[40px] p-12">
             <DialogHeader><DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter">{editingTrack ? 'Editar Trilha' : 'Nova Trilha Profissional'}</DialogTitle></DialogHeader>
             <div className="space-y-8 py-8">
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Nome da Jornada</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8 text-lg" value={newTrack.title} onChange={e => setNewTrack({...newTrack, title: e.target.value})} placeholder="Ex: Domínio Financeiro" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Explicação Curta</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[120px] rounded-3xl font-bold p-8" value={newTrack.description} onChange={e => setNewTrack({...newTrack, description: e.target.value})} placeholder="O que o jovem vai atingir com isto?" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Capa (Caminho da Imagem)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newTrack.imageUrl} onChange={e => setNewTrack({...newTrack, imageUrl: e.target.value})} placeholder="/assets/img/trilha-1.jpg" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Nome da Jornada</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8 text-lg" value={newTrack.title} onChange={e => setNewTrack({...newTrack, title: e.target.value})} placeholder="Ex: Domínio Financeiro" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Explicação Curta</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[120px] rounded-3xl font-bold p-8" value={newTrack.description} onChange={e => setNewTrack({...newTrack, description: e.target.value})} placeholder="O que o jovem vai atingir com isto?" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Capa (Caminho da Imagem)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newTrack.imageUrl} onChange={e => setNewTrack({...newTrack, imageUrl: e.target.value})} placeholder="/assets/img/trilha-1.jpg" /></div>
             </div>
-            <DialogFooter><Button onClick={handleSaveTrack} className="bg-[#0EA5E9] text-white uppercase font-black text-xs w-full h-16 rounded-3xl shadow-2xl shadow-[#0EA5E9]/30 hover:bg-[#001F33] transition-all tracking-[0.3em]">{editingTrack ? 'Atualizar Trilha' : 'Lançar Trilha'}</Button></DialogFooter>
+            <DialogFooter><Button onClick={handleSaveTrack} className="bg-[#0EA5E9] text-white uppercase font-bold text-xs w-full h-16 rounded-3xl shadow-2xl shadow-[#0EA5E9]/30 hover:bg-[#001F33] transition-all tracking-[0.3em]">{editingTrack ? 'Atualizar Trilha' : 'Lançar Trilha'}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
 
@@ -1215,11 +1215,11 @@ export default function AdminDashboard() {
             <DialogHeader><DialogTitle className="text-2xl font-display uppercase text-[#001F33] tracking-tighter">{editingModule ? 'Renomear Módulo' : 'Novo Módulo de Aprendizagem'}</DialogTitle></DialogHeader>
             <div className="py-8 space-y-4">
                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Nome do Módulo</label>
-                  <Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-[20px] font-black px-8 text-lg" value={newModule.title} onChange={e => setNewModule({...newModule, title: e.target.value})} placeholder="Ex: Preparação Mental" />
+                  <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest ml-2">Nome do Módulo</label>
+                  <Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-[20px] font-bold px-8 text-lg" value={newModule.title} onChange={e => setNewModule({...newModule, title: e.target.value})} placeholder="Ex: Preparação Mental" />
                </div>
             </div>
-            <DialogFooter><Button onClick={handleSaveModule} className="w-full bg-[#001F33] text-white uppercase font-black text-xs h-16 rounded-3xl shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.2em]">{editingModule ? 'Actualizar Nome' : 'Confirmar Módulo'}</Button></DialogFooter>
+            <DialogFooter><Button onClick={handleSaveModule} className="w-full bg-[#001F33] text-white uppercase font-bold text-xs h-16 rounded-3xl shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.2em]">{editingModule ? 'Actualizar Nome' : 'Confirmar Módulo'}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
 
@@ -1227,14 +1227,14 @@ export default function AdminDashboard() {
           <DialogContent className="max-w-2xl bg-white border-none shadow-2xl rounded-[40px] p-12">
             <DialogHeader><DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter">{editingVideo ? 'Editar Etapa' : 'Adicionar Etapa (Vídeo / Link)'}</DialogTitle></DialogHeader>
             <div className="py-10 space-y-8">
-               <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Título da Etapa</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8 text-lg" value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} /></div>
+               <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest ml-2">Título da Etapa</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8 text-lg" value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} /></div>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Fonte do Vídeo (URL)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newVideo.url} onChange={e => setNewVideo({...newVideo, url: e.target.value})} /></div>
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Recompensa (XP)</label><Input type="number" className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newVideo.xpPoints} onChange={e => setNewVideo({...newVideo, xpPoints: parseInt(e.target.value)})} /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest ml-2">Fonte do Vídeo (URL)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newVideo.url} onChange={e => setNewVideo({...newVideo, url: e.target.value})} /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest ml-2">Recompensa (XP)</label><Input type="number" className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newVideo.xpPoints} onChange={e => setNewVideo({...newVideo, xpPoints: parseInt(e.target.value)})} /></div>
                </div>
-               <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">O que o jovem deve fazer / aprender?</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[140px] rounded-[32px] font-bold p-8" value={newVideo.description} onChange={e => setNewVideo({...newVideo, description: e.target.value})} placeholder="Instruções para completar esta etapa..." /></div>
+               <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest ml-2">O que o jovem deve fazer / aprender?</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[140px] rounded-[32px] font-bold p-8" value={newVideo.description} onChange={e => setNewVideo({...newVideo, description: e.target.value})} placeholder="Instruções para completar esta etapa..." /></div>
             </div>
-            <DialogFooter><Button onClick={handleSaveVideo} className="w-full bg-[#0EA5E9] text-white uppercase font-black text-xs h-18 rounded-[32px] shadow-2xl shadow-[#0EA5E9]/40 active:scale-95 transition-all tracking-[0.3em]">{editingVideo ? 'Guardar Etapa' : 'Vincular à Trilha'}</Button></DialogFooter>
+            <DialogFooter><Button onClick={handleSaveVideo} className="w-full bg-[#0EA5E9] text-white uppercase font-bold text-xs h-18 rounded-[32px] shadow-2xl shadow-[#0EA5E9]/40 active:scale-95 transition-all tracking-[0.3em]">{editingVideo ? 'Guardar Etapa' : 'Vincular à Trilha'}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
 
@@ -1256,7 +1256,7 @@ export default function AdminDashboard() {
               <Button 
                 onClick={() => userToReject && handleUpdateStatus(userToReject, 'rejeitado', rejectionReason)} 
                 disabled={!rejectionReason.trim()}
-                className="w-full bg-red-500 text-white uppercase font-black text-xs h-16 rounded-3xl shadow-xl hover:bg-red-600 transition-all tracking-[0.2em]"
+                className="w-full bg-red-500 text-white uppercase font-bold text-xs h-16 rounded-3xl shadow-xl hover:bg-red-600 transition-all tracking-[0.2em]"
               >
                 Confirmar Recusa
               </Button>
@@ -1280,16 +1280,16 @@ export default function AdminDashboard() {
                 </div>
              </div>
              <div className="mt-4 flex gap-2">
-               <span className={`text-[10px] uppercase font-black px-3 py-1 rounded-full ${viewUser?.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+               <span className={`text-[10px] uppercase font-bold px-3 py-1 rounded-full ${viewUser?.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
                  Papel: {viewUser?.role}
                </span>
-               <span className={`text-[10px] uppercase font-black px-3 py-1 rounded-full ${viewUser?.status === 'ativo' ? 'bg-green-100 text-green-600' : viewUser?.status === 'pendente' ? 'bg-orange-100 text-orange-600' : 'bg-red-100 text-red-600'}`}>
+               <span className={`text-[10px] uppercase font-bold px-3 py-1 rounded-full ${viewUser?.status === 'ativo' ? 'bg-green-100 text-green-600' : viewUser?.status === 'pendente' ? 'bg-orange-100 text-orange-600' : 'bg-red-100 text-red-600'}`}>
                  Estado: {viewUser?.status}
                </span>
              </div>
              {viewUser?.status === 'rejeitado' && viewUser?.rejectionReason && (
                <div className="mt-4 p-4 bg-red-50 border-2 border-red-200 rounded-2xl">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-1">Motivo da Recusa</p>
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 mb-1">Motivo da Recusa</p>
                  <p className="text-sm font-bold text-[#001F33] italic">{viewUser.rejectionReason}</p>
                </div>
              )}
@@ -1297,19 +1297,19 @@ export default function AdminDashboard() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-6 border-b border-[#001F33]/10">
              <div className="bg-[#EBDCC6] p-4 rounded-xl border-4 border-[#8B4513]">
-               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/80">Formação Académica</p>
+               <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/80">Formação Académica</p>
                <p className="font-bold text-sm mt-1">{viewUser?.formation || 'Não Especificado'}</p>
              </div>
              <div className="bg-[#EBDCC6] p-4 rounded-xl border-4 border-[#8B4513]">
-               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/80">Área de Interesse</p>
+               <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/80">Área de Interesse</p>
                <p className="font-bold text-sm text-[#F97316] mt-1">{viewUser?.areaOfInterest || 'Não Especificado'}</p>
              </div>
              <div className="bg-[#EBDCC6] p-4 rounded-xl border-4 border-[#8B4513]">
-               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/80">Nível de Experiência</p>
+               <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/80">Nível de Experiência</p>
                <p className="font-bold text-sm capitalize mt-1">{viewUser?.experienceLevel || 'Não Especificado'}</p>
              </div>
              <div className="bg-[#EBDCC6] p-4 rounded-xl border-4 border-[#8B4513]">
-               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/80">Localização</p>
+               <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/80">Localização</p>
                <p className="font-bold text-sm flex items-center gap-1 mt-1">
                   <MapPin size={14} className="text-[#0EA5E9]" />
                   {viewUser?.municipality && viewUser?.province ? `${viewUser.municipality}, ${viewUser.province}` : 'Sem Local'}
@@ -1317,7 +1317,7 @@ export default function AdminDashboard() {
              </div>
              
              <div className="col-span-full space-y-1 mt-2">
-               <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/80">Principais Dificuldades</p>
+               <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/80">Principais Dificuldades</p>
                <div className="flex flex-wrap gap-2 mt-2">
                   {viewUser?.difficulties ? (
                     viewUser.difficulties.split(',').map((dif: string) => (
@@ -1331,7 +1331,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="pt-6 space-y-4">
-             <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/80">Mídia Associada</p>
+             <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/80">Mídia Associada</p>
              <div className="flex flex-wrap gap-4">
                 {viewUser?.cvUrl ? (
                   <Button asChild className="bg-[#0EA5E9] hover:bg-[#001F33] text-white uppercase font-bold text-[10px] tracking-widest rounded-xl">
@@ -1368,7 +1368,7 @@ export default function AdminDashboard() {
           <DialogHeader><DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter">{editingTopic ? 'Editar Tópico' : 'Novo Tópico de Comunidade'}</DialogTitle></DialogHeader>
           <div className="space-y-8 py-8">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Título da Discussão</label>
+              <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Título da Discussão</label>
               <Input 
                 className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" 
                 value={newTopic.title} 
@@ -1377,7 +1377,7 @@ export default function AdminDashboard() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Conteúdo da Discussão</label>
+              <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Conteúdo da Discussão</label>
               <Textarea 
                 className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[140px] rounded-[32px] font-bold p-8 focus:ring-[#0EA5E9]" 
                 value={newTopic.content} 
@@ -1386,7 +1386,7 @@ export default function AdminDashboard() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Categoria</label>
+              <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Categoria</label>
               <Select value={newTopic.category} onValueChange={(val) => setNewTopic({...newTopic, category: val})}>
                 <SelectTrigger className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6">
                   <SelectValue placeholder="Escolha uma Categoria" />
@@ -1415,7 +1415,7 @@ export default function AdminDashboard() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">URL da Imagem (Opcional)</label>
+                <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">URL da Imagem (Opcional)</label>
                 <Input 
                   className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" 
                   value={newTopic.imageUrl} 
@@ -1424,7 +1424,7 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">URL do Vídeo (Opcional)</label>
+                <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">URL do Vídeo (Opcional)</label>
                 <Input 
                   className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" 
                   value={newTopic.videoUrl} 
@@ -1435,7 +1435,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleSaveTopic} className="w-full bg-[#001F33] text-white uppercase font-black text-xs h-16 rounded-3xl shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.2em]">
+            <Button onClick={handleSaveTopic} className="w-full bg-[#001F33] text-white uppercase font-bold text-xs h-16 rounded-3xl shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.2em]">
               {editingTopic ? 'Salvar Alterações' : 'Publicar Tópico'}
             </Button>
           </DialogFooter>

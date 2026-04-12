@@ -1,3 +1,4 @@
+import { CandidateSidebar } from "@/components/layout/CandidateSidebar";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -114,39 +115,11 @@ export default function MentorshipPage() {
           setIsSidebarOpen={setIsSidebarOpen} 
         />
       ) : (
-        <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-          <div className="p-8 border-b border-white/10 relative flex items-center justify-between">
-            <img src="/assets/logo.png" className="h-14 w-auto object-contain" alt="Logo" />
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setIsSidebarOpen(false)}
-              className="md:hidden text-white/50 hover:text-white"
-            >
-              <X size={24} />
-            </Button>
-          </div>
-          <nav className="flex-1 p-6 space-y-4">
-            <Link href="/dashboard">
-              <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
-                <LayoutDashboard className="mr-3 h-5 w-5" /> Início
-              </Button>
-            </Link>
-            <Button variant="ghost" className="w-full justify-start text-white bg-[#0EA5E9]/20 uppercase tracking-widest font-bold text-xs h-12">
-              <Users className="mr-3 h-5 w-5" /> Mentoria
-            </Button>
-            <Link href="/forum">
-              <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
-                <MessageSquare className="mr-3 h-5 w-5" /> Comunidade
-              </Button>
-            </Link>
-          </nav>
-          <div className="p-6 border-t border-white/10">
-            <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase tracking-widest font-bold text-xs">
-              <LogOut className="mr-3 h-5 w-5" /> Sair
-            </Button>
-          </div>
-        </aside>
+        <CandidateSidebar 
+          currentTab="mentors" 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+        />
       )}
 
       {/* Content */}
@@ -181,7 +154,7 @@ export default function MentorshipPage() {
             {loading ? (
               <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full"></div></div>
             ) : mentors.length === 0 ? (
-              <div className="bg-white p-12 text-center rounded-3xl shadow-sm border-2 border-[#8B4513] italic text-[#001F33]/30">
+              <div className="bg-white p-12 text-center rounded-3xl shadow-sm border-2 border-[#8B4513] font-bold uppercase tracking-widest text-xs text-[#001F33]/60">
                 Nenhum mentor ativo de momento. Volta mais tarde!
               </div>
             ) : (
@@ -231,7 +204,7 @@ export default function MentorshipPage() {
             <div className="space-y-4">
               {mySessions.length === 0 ? (
                 <div className="bg-[#001F33]/5 rounded-3xl p-8 border border-dashed border-[#001F33]/20 text-center">
-                  <p className="text-[10px] font-bold uppercase text-[#001F33]/30 tracking-widest">Tu ainda não tens agendamentos</p>
+                  <p className="text-[10px] font-bold uppercase text-[#001F33]/70 tracking-widest">Tu ainda não tens agendamentos</p>
                 </div>
               ) : (
                 mySessions.map((session) => (
@@ -271,11 +244,11 @@ export default function MentorshipPage() {
             <div className="bg-gradient-to-br from-[#0EA5E9] to-[#001F33] p-8 rounded-3xl text-white shadow-xl relative overflow-hidden">
                <div className="relative z-10">
                   <Clock3 className="mb-4 text-[#F97316]" size={32} />
-                  <h3 className="text-lg font-display uppercase mb-2">Prepara-te para Brilhar</h3>
+                  <h3 className="text-[15px] font-bold uppercase tracking-wider mb-2">Prepara-te para Brilhar</h3>
                   <p className="text-white/60 text-xs font-sans leading-relaxed mb-6">
                     Antes de cada sessão, anota as tuas 3 dúvidas principais. Aproveita cada minuto com o teu mentor!
                   </p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#F97316]">Dica da Carreira 360º</p>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#F97316]">Dica da Carreira 360º</p>
                </div>
                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl" />
             </div>
