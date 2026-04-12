@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
-import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar, Film, Layers, UserCheck, Pencil, MessageSquare, MessageCircle, X, Search } from "lucide-react";
+import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar, Film, Layers, UserCheck, Pencil, MessageSquare, MessageCircle, X, Search, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
@@ -23,6 +23,14 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
+
+const getYouTubeVideoId = (url: string) => {
+  if (!url) return null;
+  // Regex mais robusta que suporta youtu.be, youtube.com, embed, watch?, v/ e parâmetros de query
+  const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[1].length === 11) ? match[1] : null;
+};
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
@@ -137,9 +145,8 @@ export default function AdminDashboard() {
   const filteredCandidates = candidates.filter(c => {
     const matchesSearch = (c.name?.toLowerCase() || "").includes(searchUsers.toLowerCase()) || 
                          (c.email?.toLowerCase() || "").includes(searchUsers.toLowerCase());
-    const matchesRole = filterRole === 'all' ? 
-                       (c.role === 'candidate' || (c.role === 'mentor' && c.status === 'ativo')) : 
-                       (filterRole === 'candidate' ? c.role === 'candidate' : c.role === 'mentor');
+    const matchesRole = filterRole === 'all' ? true : 
+                       (filterRole === 'candidate' ? c.role === 'candidato' : c.role === 'mentor');
     return matchesSearch && matchesRole;
   });
 
@@ -182,7 +189,7 @@ export default function AdminDashboard() {
                 <div>
                   <p className="font-bold uppercase text-sm text-[#001F33]">{c.name}</p>
                   <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full mt-1 inline-block ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
-                    {c.role === 'mentor' ? 'Mentor' : 'Jovem'}
+                    {c.role === 'mentor' ? 'Mentor' : 'Candidato'}
                   </span>
                 </div>
                 <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full shrink-0 ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
@@ -223,7 +230,7 @@ export default function AdminDashboard() {
                   <th className="px-10 whitespace-nowrap">Candidato / Perfil</th>
                   <th className="px-10 whitespace-nowrap">E-mail / Contacto</th>
                   <th className="px-10 whitespace-nowrap">Mídia (CV / LinkedIn)</th>
-                  <th className="px-10 whitespace-nowrap text-center">Estado / Ação</th>
+                  <th className="px-10 whitespace-nowrap text-right pr-20">Gestão</th>
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-[#8B4513]">
@@ -247,19 +254,15 @@ export default function AdminDashboard() {
                         <a href={c.socialLink} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center"><ExternalLink size={12} className="mr-1" /> LinkedIn</a>
                       ) : <span className="text-[#001F33]/80 block">Sem Rede Social</span>}
                     </td>
-                    <td className="px-10">
-                      <div className="flex flex-col items-center gap-2">
-                        <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                          {c.status === 'pendente' ? 'Pendente' : c.status === 'rejeitado' ? 'Rejeitado' : 'Ativo'}
-                        </span>
-                        <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-7 text-[9px] uppercase px-2 font-bold border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes Completos</Button>
-                        {c.status === 'pendente' && (
-                          <div className="flex gap-2">
-                            <Button onClick={() => handleUpdateStatus(c.id, 'ativo')} size="sm" className="h-7 bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-2 shadow-sm">Aprovar</Button>
-                            <Button onClick={() => { setUserToReject(c.id); setIsRejectingUser(true); }} size="sm" variant="destructive" className="h-7 font-bold text-[9px] uppercase px-2 shadow-sm">Rejeitar</Button>
-                          </div>
-                        )}
-                      </div>
+                    <td className="px-10 text-right pr-10">
+                      <Button 
+                        onClick={() => setViewUser(c)} 
+                        size="sm" 
+                        variant="ghost" 
+                        className={`h-11 px-6 rounded-2xl font-bold uppercase text-[10px] tracking-widest transition-all ${c.status === 'pendente' ? 'bg-[#F97316]/10 text-[#F97316] hover:bg-[#F97316]/20' : 'bg-[#0EA5E9]/10 text-[#0EA5E9] hover:bg-[#0EA5E9]/20'}`}
+                      >
+                        {c.status === 'pendente' ? '🕒 Analisar' : '📋 Ver Perfil'}
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -357,8 +360,7 @@ export default function AdminDashboard() {
               <tr className="h-16">
                 <th className="px-10">Mentor / Cadastro</th>
                 <th className="px-10">Biografia & Especialidade</th>
-                <th className="px-10">Estado</th>
-                <th className="px-10 text-right">Ações de Gestão</th>
+                <th className="px-10 text-right pr-20">Estado & Gestão</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#8B4513]/50">
@@ -374,29 +376,15 @@ export default function AdminDashboard() {
                     )}
                     <p className="text-xs font-bold text-[#001F33]/80 line-clamp-2 leading-relaxed">{m.bio || 'Sem biografia informada'}</p>
                   </td>
-                  <td className="px-10">
-                    <span className={`text-[10px] font-bold uppercase px-3 py-1.5 rounded-full ${m.status === 'pendente' ? 'bg-orange-100 text-orange-600' : m.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                      {m.status}
-                    </span>
-                  </td>
-                  <td className="px-10 text-right">
-                    <div className="flex justify-end gap-2">
-                       {m.status === 'pendente' && (
-                         <>
-                           <Button onClick={() => updateMentorStatus(m.id, 'ativo')} size="sm" className="bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-4 h-10 shadow-lg shadow-green-500/10">Aprovar</Button>
-                           <Button onClick={() => updateMentorStatus(m.id, 'rejeitado')} size="sm" variant="destructive" className="font-bold text-[9px] uppercase px-4 h-10 shadow-lg shadow-red-500/10">Rejeitar</Button>
-                         </>
-                       )}
-                       {m.status !== 'pendente' && (
-                         <Button 
-                           onClick={() => updateMentorStatus(m.id, m.status === 'ativo' ? 'rejeitado' : 'ativo')}
-                           variant="outline" 
-                           className={`h-10 text-[9px] font-bold uppercase px-6 border-[#8B4513]/30 ${m.status === 'ativo' ? 'text-red-500 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}`}
-                         >
-                           {m.status === 'ativo' ? 'Suspender' : 'Ativar'}
-                         </Button>
-                       )}
-                    </div>
+                  <td className="px-10 text-right pr-10">
+                    <Button 
+                      onClick={() => setViewUser(m)} 
+                      size="sm" 
+                      variant="ghost" 
+                      className={`h-11 px-6 rounded-2xl font-bold uppercase text-[10px] tracking-widest transition-all ${m.status === 'pendente' ? 'bg-[#F97316]/10 text-[#F97316] hover:bg-[#F97316]/20' : 'bg-[#0EA5E9]/10 text-[#0EA5E9] hover:bg-[#0EA5E9]/20'}`}
+                    >
+                      {m.status === 'pendente' ? '🕒 Analisar' : '📋 Ver Perfil'}
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -816,6 +804,32 @@ export default function AdminDashboard() {
                       />
                     </div>
                   </div>
+
+                  {/* FILTROS RÁPIDOS DE ROLE */}
+                  <div className="flex flex-wrap items-center gap-3 bg-[#EBDCC6]/80 p-3 rounded-[2.5rem] border-2 border-[#8B4513]/20 w-fit backdrop-blur-md shadow-inner mb-8">
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => setFilterRole("all")}
+                      className={`h-12 px-8 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-300 ${filterRole === 'all' ? 'bg-[#001F33] text-white shadow-[0_8px_20px_-5px_rgba(0,31,51,0.4)] scale-105' : 'text-[#001F33]/60 hover:bg-[#001F33]/10'}`}
+                    >
+                      <span className="mr-2 text-base">📋</span> Todos <span className="ml-2 opacity-50">({candidates.length})</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => setFilterRole("candidate")}
+                      className={`h-12 px-8 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-300 ${filterRole === 'candidate' ? 'bg-[#0EA5E9] text-white shadow-[0_8px_20px_-5px_rgba(14,165,233,0.4)] scale-105' : 'text-[#0EA5E9]/70 hover:bg-[#0EA5E9]/10'}`}
+                    >
+                      <span className="mr-2 text-base">🎓</span> Jovens <span className="ml-2 opacity-50">({candidates.filter(c => c.role === 'candidato').length})</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => setFilterRole("mentor")}
+                      className={`h-12 px-8 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] transition-all duration-300 ${filterRole === 'mentor' ? 'bg-[#F97316] text-white shadow-[0_8px_20px_-5px_rgba(249,115,22,0.4)] scale-105' : 'text-[#F97316]/70 hover:bg-[#F97316]/10'}`}
+                    >
+                      <span className="mr-2 text-base">👤</span> Mentores <span className="ml-2 opacity-50">({candidates.filter(c => c.role === 'mentor').length})</span>
+                    </Button>
+                  </div>
+
                   {usersContent}
                 </div>
               </div>
@@ -950,8 +964,16 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-4 mb-2">
                        <Button variant="ghost" onClick={() => setSelectedTrack(null)} className="text-[#0EA5E9] font-bold uppercase text-[10px] tracking-widest">← Voltar às Trilhas</Button>
                     </div>
-                    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-[#001F33] p-6 md:p-10 rounded-[32px] text-white flex flex-col md:flex-row justify-between items-start md:items-end shadow-xl gap-6">
-                       <div className="space-y-2 w-full">
+                    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-[#001F33] p-6 md:p-10 rounded-[32px] text-white flex flex-col md:flex-row justify-between items-start md:items-end shadow-xl gap-6 relative overflow-hidden">
+                       {/* Background Image of the selected track */}
+                       {selectedTrack?.imageUrl && (
+                         <div className="absolute inset-0 pointer-events-none opacity-30">
+                           <img src={selectedTrack.imageUrl} alt="" className="w-full h-full object-cover" />
+                           <div className="absolute inset-0 bg-gradient-to-t from-[#001F33] via-transparent to-transparent" />
+                         </div>
+                       )}
+                       
+                       <div className="space-y-2 w-full relative z-10">
                           <p className="text-[#0EA5E9] text-[10px] font-bold uppercase tracking-[0.3em]">Gestão de Módulos</p>
                           <h2 className="text-5xl font-display uppercase leading-none">{selectedTrack.title}</h2>
                        </div>
@@ -979,7 +1001,7 @@ export default function AdminDashboard() {
                                  }} 
                                  className={`${currentModule?.id === mod.id ? 'bg-[#001F33]' : 'bg-[#0EA5E9]'} text-white text-[10px] font-bold uppercase px-6 h-10 rounded-full transition-all`}
                                >
-                                 {currentModule?.id === mod.id ? 'Fechar Etapas' : 'Etapas / Vídeos'}
+                                 {currentModule?.id === mod.id ? 'Fechar Etapas' : 'Ver Etapas'}
                                </Button>
                                <Button variant="ghost" size="icon" onClick={() => { setEditingModule(mod); setNewModule({title: mod.title, order: mod.order}); setIsAddingModule(true); }} className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-full"><Pencil size={20}/></Button>
                                <Button variant="ghost" size="icon" onClick={() => triggerDelete("Eliminar Módulo", "Isto apagará permanentemente o módulo e todos os vídeos associados.", () => deleteModule(mod.id))} className="text-red-500 hover:bg-red-50 rounded-full"><Trash2 size={22}/></Button>
@@ -995,25 +1017,41 @@ export default function AdminDashboard() {
                                 exit={{ opacity: 0, height: 0 }}
                                 className="pl-12 space-y-3 overflow-hidden"
                               >
-                                {videos.map((vid: any) => (
-                                  <div key={vid.id} className="bg-white/80 p-4 rounded-2xl border border-[#8B4513]/50 flex flex-col sm:flex-row justify-between items-start sm:items-center group/vid gap-4">
-                                    <div className="flex items-start sm:items-center gap-4">
-                                      <div className="h-8 w-8 shrink-0 bg-[#0EA5E9]/10 rounded-lg flex items-center justify-center text-[#0EA5E9]"><Film size={14} /></div>
-                                      <div className="break-all">
-                                        <p className="font-bold text-sm text-[#001F33]">{vid.title}</p>
-                                        <p className="text-[10px] font-medium text-[#001F33]/80 uppercase tracking-widest">{vid.xpPoints} XP • {vid.url.length > 25 ? vid.url.substring(0, 25) + '...' : vid.url}</p>
+                                  {videos.map((vid: any) => (
+                                    <div key={vid.id} className="bg-white/80 p-6 rounded-2xl border border-[#8B4513]/50 flex flex-col gap-6 group/vid transition-all hover:shadow-md">
+                                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                        <div className="flex items-start sm:items-center gap-4">
+                                          <div className="h-10 w-10 shrink-0 bg-[#0EA5E9]/10 rounded-xl flex items-center justify-center text-[#0EA5E9]"><Film size={20} /></div>
+                                          <div className="break-all">
+                                            <p className="font-bold text-base text-[#001F33]">{vid.title}</p>
+                                            <p className="text-[10px] font-medium text-[#001F33]/80 uppercase tracking-widest">{vid.xpPoints} XP • {vid.url.substring(0, 40)}{vid.url.length > 40 ? '...' : ''}</p>
+                                          </div>
+                                        </div>
+                                        <div className="flex gap-2 transition-opacity self-end sm:self-auto">
+                                          <Button variant="ghost" size="icon" className="h-9 w-9 text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-full" onClick={() => {
+                                            setEditingVideo(vid);
+                                            setNewVideo({...vid});
+                                            setIsAddingVideo(true);
+                                          }}><Pencil size={18}/></Button>
+                                          <Button variant="ghost" size="icon" className="h-9 w-9 text-red-500 hover:bg-red-50 rounded-full" onClick={() => triggerDelete("Eliminar Etapa", "Tens a certeza que queres remover este vídeo?", () => deleteVideo(vid.id))}><Trash2 size={18}/></Button>
+                                        </div>
                                       </div>
+                                      
+                                      {/* Video Preview Section */}
+                                      {getYouTubeVideoId(vid.url) && (
+                                        <div className="w-full max-w-2xl aspect-video rounded-xl overflow-hidden border-2 border-[#8B4513]/20 shadow-lg bg-black group-hover/vid:border-[#0EA5E9]/30 transition-colors">
+                                          <iframe 
+                                            className="w-full h-full"
+                                            src={`https://www.youtube.com/embed/${getYouTubeVideoId(vid.url)}`}
+                                            title={vid.title}
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                          ></iframe>
+                                        </div>
+                                      )}
                                     </div>
-                                    <div className="flex gap-2 transition-opacity self-end sm:self-auto">
-                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-[#0EA5E9]" onClick={() => {
-                                        setEditingVideo(vid);
-                                        setNewVideo({...vid});
-                                        setIsAddingVideo(true);
-                                      }}><Pencil size={14}/></Button>
-                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500" onClick={() => triggerDelete("Eliminar Etapa", "Tens a certeza que queres remover este vídeo?", () => deleteVideo(vid.id))}><Trash2 size={14}/></Button>
-                                    </div>
-                                  </div>
-                                ))}
+                                  ))}
                                 <Button 
                                   onClick={() => { setEditingVideo(null); setNewVideo({title: "", url: "", description: "", xpPoints: 100, order: videos.length}); setIsAddingVideo(true); }}
                                   variant="outline" 
@@ -1266,10 +1304,10 @@ export default function AdminDashboard() {
       </main>
 
       <Dialog open={!!viewUser} onOpenChange={(open) => !open && setViewUser(null)}>
-        <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto bg-[#EBDCC6] border-none text-[#001F33] rounded-[32px] p-8">
+        <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto bg-[#EBDCC6] border-none text-[#001F33] rounded-[32px] p-8 focus:outline-none">
           <DialogHeader className="mb-6">
              <div className="flex items-center gap-4">
-                <div className="h-16 w-16 bg-[#0EA5E9]/10 text-[#0EA5E9] rounded-2xl flex justify-center items-center font-display text-2xl uppercase">
+                <div className="h-16 w-16 bg-[#0EA5E9]/10 text-[#0EA5E9] rounded-2xl flex justify-center items-center font-display text-2xl uppercase shadow-inner">
                   {viewUser?.name?.[0]}
                 </div>
                 <div>
@@ -1353,6 +1391,50 @@ export default function AdminDashboard() {
                   <div className="p-3 bg-gray-100 text-gray-400 rounded-xl text-xs font-bold w-auto inline-flex items-center border border-[#001F33]/10">Sem Rede Social</div>
                 )}
              </div>
+          </div>
+
+          {/* ACTIONS AND MANAGEMENT */}
+          <div className="mt-10 pt-8 border-t-2 border-[#8B4513]/20">
+            {viewUser?.status === 'pendente' ? (
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  onClick={() => {
+                    if (viewUser.role === 'mentor') updateMentorStatus(viewUser.id, 'ativo');
+                    else handleUpdateStatus(viewUser.id, 'ativo');
+                    setViewUser(null);
+                  }}
+                  className="flex-1 bg-green-500 hover:bg-green-600 text-white uppercase font-bold text-xs h-14 rounded-2xl shadow-xl shadow-green-500/20"
+                >
+                  <Check size={18} className="mr-2" /> Aprovar Perfil
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setUserToReject(viewUser.id);
+                    setIsRejectingUser(true);
+                    setViewUser(null);
+                  }}
+                  variant="destructive"
+                  className="flex-1 uppercase font-bold text-xs h-14 rounded-2xl shadow-xl"
+                >
+                  <X size={18} className="mr-2" /> Rejeitar Perfil
+                </Button>
+              </div>
+            ) : (
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => {
+                    const newStatus = viewUser.status === 'ativo' ? 'rejeitado' : 'ativo';
+                    if (viewUser.role === 'mentor') updateMentorStatus(viewUser.id, newStatus);
+                    else handleUpdateStatus(viewUser.id, newStatus);
+                    setViewUser(null);
+                  }}
+                  variant="outline"
+                  className={`px-8 h-12 uppercase font-bold text-[10px] tracking-widest rounded-xl border-[#8B4513]/20 ${viewUser?.status === 'ativo' ? 'text-red-500 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}`}
+                >
+                  {viewUser?.status === 'ativo' ? '🚫 Suspender Acesso' : '✅ Ativar Acesso'}
+                </Button>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

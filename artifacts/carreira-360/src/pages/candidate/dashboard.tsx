@@ -104,8 +104,8 @@ export default function CandidateDashboard() {
 
       {/* Content */}
       <main className="md:ml-72 min-h-screen p-8 md:p-16">
-        <header className="p-4 sm:p-8 bg-white/50 md:bg-transparent border-b-2 md:border-none border-[#8B4513] sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
-          <div className="flex items-center gap-4">
+        <header className="p-6 sm:p-8 bg-white/50 md:bg-transparent border-b-2 md:border-none border-[#8B4513] sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             <Button 
               variant="ghost" 
               size="icon" 
@@ -116,16 +116,16 @@ export default function CandidateDashboard() {
             </Button>
             <div className="flex-1 min-w-0">
               <h1 className="text-xl sm:text-2xl md:text-4xl font-display uppercase tracking-tight leading-tight">Painel do Candidato</h1>
-              <p className="text-[#001F33] font-bold mt-1 hidden sm:block text-xs sm:text-base leading-relaxed">Bem-vindo, {user.name}! Estas são as oportunidades para o teu perfil.</p>
+              <p className="text-[#001F33] font-bold mt-1 hidden sm:block text-xs sm:text-base leading-relaxed line-clamp-1">Bem-vindo, {user.name}! Estas são as oportunidades para o teu perfil.</p>
             </div>
           </div>
           
-          {/* Gamification Badge - Visible in header on desktop, maybe simplified on mobile */}
-          <div className="bg-white px-3 md:px-6 py-1.5 md:py-4 rounded-xl md:rounded-2xl shadow-sm border-2 border-[#8B4513] flex items-center gap-2 md:gap-4 md:absolute md:right-8 md:top-8">
-            <div className="h-8 w-8 md:h-12 md:w-12 bg-[#0EA5E9] rounded-lg md:rounded-xl flex items-center justify-center text-white font-display text-lg md:text-2xl shadow-lg shadow-[#0EA5E9]/30">
+          {/* Gamification Badge - Centered on mobile footer/header, right on desktop */}
+          <div className="bg-white px-4 py-2 md:px-6 md:py-4 rounded-2xl shadow-sm border-2 border-[#8B4513] flex items-center gap-3 md:gap-4 self-end md:self-auto">
+            <div className="h-10 w-10 md:h-12 md:w-12 bg-[#0EA5E9] rounded-xl flex items-center justify-center text-white font-display text-lg md:text-2xl shadow-lg shadow-[#0EA5E9]/30">
               {stats.level}
             </div>
-            <div className="hidden sm:block">
+            <div>
               <p className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest leading-none mb-1">Nível de Carreira</p>
               <div className="w-24 md:w-32 h-2 bg-[#001F33]/5 rounded-full overflow-hidden mb-1">
                 <motion.div 
@@ -222,7 +222,7 @@ export default function CandidateDashboard() {
                             {track.imageUrl ? (
                               <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center opacity-20">
+                              <div className="w-full h-full flex items-start justify-center pt-8 opacity-40 group-hover:opacity-60 transition-opacity">
                                  <GraduationCap size={48} className="text-white" />
                               </div>
                             )}
@@ -254,22 +254,27 @@ export default function CandidateDashboard() {
 
             {/* Right Column: AI Pulse */}
             <div className="space-y-8">
-              <div className="bg-[#001F33] p-8 rounded-2xl text-white shadow-xl relative overflow-hidden">
-                <div className="relative z-10">
-                  <GradientPulse />
-                  <h3 className="text-2xl font-display uppercase mb-4 leading-tight">Pulso de <br/><span className="text-[#0EA5E9]">Carreira IA</span></h3>
-                  <p className="text-white/60 text-sm font-sans leading-relaxed">
-                    A nossa IA está a analisar o teu perfil para sugerir as melhores trilhas de aprendizagem e simulações.
-                  </p>
-                  <div className="mt-8 pt-8 border-t border-white/10">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#F97316] mb-2">Próxima Etapa:</p>
-                    <p className="text-sm font-bold uppercase">Gerar o teu novo CV →</p>
+              <Link href="/ai-pulse">
+                <div className="bg-[#001F33] p-8 rounded-2xl text-white shadow-xl relative overflow-hidden cursor-pointer group hover:scale-[1.02] transition-all">
+                  <div className="relative z-10">
+                    <GradientPulse />
+                    <h3 className="text-2xl font-display uppercase mb-4 leading-tight">Pulso de <br/><span className="text-[#0EA5E9]">Carreira IA</span></h3>
+                    <p className="text-white/60 text-sm font-sans leading-relaxed">
+                      A nossa IA está a analisar o teu perfil para sugerir as melhores trilhas de aprendizagem e simulações.
+                    </p>
+                    <div className="mt-8 pt-8 border-t border-white/10 flex items-center justify-between group-hover:text-[#0EA5E9] transition-colors">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#F97316] mb-2">Próxima Etapa:</p>
+                        <p className="text-sm font-bold uppercase">Análise Completa →</p>
+                      </div>
+                      <Sparkles className="text-[#0EA5E9] animate-pulse" size={24} />
+                    </div>
+                  </div>
+                  <div className="absolute -right-8 -bottom-8 opacity-10">
+                    <img src="/assets/logo.png" className="h-40 object-contain" alt="" />
                   </div>
                 </div>
-                <div className="absolute -right-8 -bottom-8 opacity-10">
-                  <img src="/assets/logo.png" className="h-40 object-contain" alt="" />
-                </div>
-              </div>
+              </Link>
 
               <div className="bg-white p-8 rounded-2xl shadow-sm border-2 border-[#8B4513]">
                 <h3 className="text-lg font-display uppercase text-[#001F33] mb-4">Destaque de Formação</h3>

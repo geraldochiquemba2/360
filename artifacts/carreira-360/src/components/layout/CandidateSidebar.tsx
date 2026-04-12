@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, MessageSquare, Users, Briefcase, Award, LogOut, X } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Users, Briefcase, Award, LogOut, X, Sparkles } from "lucide-react";
 
 interface CandidateSidebarProps {
   currentTab: string;
@@ -73,6 +73,15 @@ export function CandidateSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen }
             className={`w-full justify-start ${currentTab === 'tracks' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
           >
             <Award className="mr-3 h-5 w-5" /> Trilhas
+          </Button>
+        </Link>
+        <Link href="/ai-pulse">
+          <Button 
+            variant="ghost" 
+            onClick={() => setIsSidebarOpen(false)}
+            className={`w-full justify-start ${currentTab === 'ai-pulse' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
+          >
+            <Sparkles className={`mr-3 h-5 w-5 ${currentTab === 'ai-pulse' ? '' : 'text-[#0EA5E9]'}`} /> Pulso IA
           </Button>
         </Link>
       </nav>
