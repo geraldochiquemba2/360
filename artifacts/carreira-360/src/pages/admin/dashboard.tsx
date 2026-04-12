@@ -501,7 +501,7 @@ export default function AdminDashboard() {
         toast({ title: editingTrack ? "Trilha Atualizada" : "Trilha Criada" }); 
         setIsAddingTrack(false); 
         setEditingTrack(null);
-        setNewTrack({ title: "", description: "", imageUrl: "" }); 
+        setNewTrack({ title: "", description: "", imageUrl: "", duration: "", hasCertificate: true }); 
         fetchTracks(); 
       }
     } catch (err) { toast({ title: "Erro" }); }
@@ -760,7 +760,7 @@ export default function AdminDashboard() {
             </Button>
           )}
           {currentTab === 'forum' && (
-            <Button onClick={() => { setNewTopic({title: "", content: "", category: "Geral"}); setIsAddingTopic(true); }} className="bg-[#0EA5E9] text-white uppercase font-bold text-[9px] sm:text-[10px] px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all flex items-center">
+            <Button onClick={() => { setNewTopic({title: "", content: "", category: "Geral", imageUrl: "", videoUrl: ""}); setIsAddingTopic(true); }} className="bg-[#0EA5E9] text-white uppercase font-bold text-[9px] sm:text-[10px] px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all flex items-center">
               <Plus className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Novo Tópico</span>
             </Button>
           )}

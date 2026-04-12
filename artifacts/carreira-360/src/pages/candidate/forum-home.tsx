@@ -97,7 +97,7 @@ export default function ForumHome() {
       if (response.ok) {
         toast({ title: "Tópico Criado!", description: "Ganhaste +100 XP por partilhar com a comunidade." });
         setIsAddingTopic(false);
-        setNewTopic({ title: "", content: "", category: "cv" });
+        setNewTopic({ title: "", content: "", category: "cv", imageUrl: "", videoUrl: "" });
         fetchTopics();
       }
     } catch (err) {
