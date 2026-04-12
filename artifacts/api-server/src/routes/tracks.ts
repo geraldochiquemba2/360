@@ -29,7 +29,7 @@ tracksRouter.post("/:id/start", requireAuth, async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const userId = (req as any).user.id;
-    const trackId = parseInt(req.params.id);
+    const trackId = parseInt(req.params.id as string);
 
     // 1. Verificar se já começou
     const [existing] = await db.select().from(userTracksTable)
@@ -53,7 +53,7 @@ tracksRouter.get("/:id/content", requireAuth, async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const userId = (req as any).user.id;
-    const trackId = parseInt(req.params.id);
+    const trackId = parseInt(req.params.id as string);
 
     // 1. Obter info da trilha
     const [track] = await db.select().from(tracksTable).where(eq(tracksTable.id, trackId));
