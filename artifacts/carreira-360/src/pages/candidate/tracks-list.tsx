@@ -4,9 +4,17 @@ import { Button } from "@/components/ui/button";
 import { GraduationCap, Clock, Award, LayoutDashboard, MessageSquare, Users, LogOut, Menu, X, Rocket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CandidateSidebar } from "@/components/layout/CandidateSidebar";
+import { useToast } from "@/hooks/use-toast";
+
+const getFileUrl = (url: string) => {
+  if (!url) return "";
+  if (url.startsWith("http") || url.startsWith("blob:") || url.startsWith("/")) return url;
+  return `/attached_assets/${url}`;
+};
 
 export default function TracksListPage() {
   const [location, setLocation] = useLocation();
+  const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [tracks, setTracks] = useState<any[]>([]);
@@ -38,6 +46,35 @@ export default function TracksListPage() {
   };
 
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
+
+  const handleStartTrack = async (trackId: number) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+       toast({ title: "Erro de Autenticação", description: "Faz login novamente.", variant: "destructive" });
+       setLocation("/auth/login");
+       return;
+    }
+
+    try {
+      const response = await fetch(`/api/tracks/${trackId}/start`, {
+        method: "POST",
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setLocation(`/career-tracks/viewer/${trackId}`);
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        toast({ 
+          title: "Não foi possível iniciar", 
+          description: errData.error || "Tenta novamente mais tarde.", 
+          variant: "destructive" 
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao iniciar trilha", err);
+      toast({ title: "Erro de Conexão", description: "Verifica a tua internet.", variant: "destructive" });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#EBDCC6] block font-sans text-[#001F33] relative overflow-x-hidden">
@@ -79,33 +116,35 @@ export default function TracksListPage() {
               <motion.div 
                 key={track.id}
                 whileHover={{ y: -8 }}
-                className="bg-[#001F33] rounded-3xl overflow-hidden shadow-2xl group border border-white/5 flex flex-col"
+                className="bg-[#001F33] rounded-3xl overflow-hidden shadow-2xl group border border-[#0EA5E9]/20 shadow-[#0EA5E9]/5 hover:border-[#0EA5E9]/40 hover:shadow-[#0EA5E9]/20 transition-all duration-300 flex flex-col"
               >
-                <div className="h-48 bg-gray-800 relative">
+                <div className="h-64 bg-[#001F33] relative">
                   {track.imageUrl ? (
-                    <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-all duration-500 scale-105 group-hover:scale-110" />
+                    <img src={getFileUrl(track.imageUrl)} alt={track.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-all duration-500 scale-105 group-hover:scale-110" />
                   ) : (
                     <div className="w-full h-full flex items-start justify-center pt-8 opacity-40 group-hover:opacity-60 transition-opacity">
                        <GraduationCap size={72} className="text-white" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#001F33] to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#001F33] to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6">
                     <span className="bg-[#0EA5E9] text-white text-[8px] font-black uppercase tracking-[0.3em] px-2 py-1 rounded-sm mb-2 inline-block">Trilha Ativa</span>
                     <h3 className="text-xl font-display uppercase text-white leading-tight">{track.title}</h3>
                   </div>
                 </div>
-                <div className="p-8 flex-1 flex flex-col">
+                <div className="p-8 flex-1 flex flex-col bg-[#001F33] -mt-1 relative z-10">
                   <p className="text-sm text-white/50 font-sans leading-relaxed mb-8 flex-1 line-clamp-3">
                     {track.description}
                   </p>
                   
                   <div className="space-y-4">
                     <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-[#0EA5E9]">
-                       <span className="flex items-start md:items-center"><Clock size={14} className="mr-1.5" /> 12 Horas</span>
-                       <span className="flex items-center"><Award size={14} className="mr-1.5" /> Certificado</span>
+                       <span className="flex items-start md:items-center"><Clock size={14} className="mr-1.5" /> {track.duration || 'Flexível'}</span>
+                       {track.hasCertificate !== false && (
+                         <span className="flex items-center"><Award size={14} className="mr-1.5" /> Certificado</span>
+                       )}
                     </div>
-                    <Button className="w-full bg-[#0EA5E9] hover:bg-white hover:text-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-12 shadow-lg shadow-[#0EA5E9]/20 transition-all">
+                    <Button onClick={() => handleStartTrack(track.id)} className="w-full bg-[#0EA5E9] hover:bg-white hover:text-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-12 shadow-lg shadow-[#0EA5E9]/20 transition-all">
                       Começar Agora
                     </Button>
                   </div>

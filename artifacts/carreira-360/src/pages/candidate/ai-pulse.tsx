@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CandidateSidebar } from "@/components/layout/CandidateSidebar";
+import { Input } from "@/components/ui/input";
 
 export default function AiPulsePage() {
   const [location, setLocation] = useLocation();

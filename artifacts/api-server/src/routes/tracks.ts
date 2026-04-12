@@ -1,7 +1,14 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { tracksTable, modulesTable, videosTable, userProgressTable, userStatsTable } from "@workspace/db";
-import { eq, and, sql, asc } from "drizzle-orm";
+import { 
+  tracksTable, 
+  modulesTable, 
+  videosTable, 
+  userProgressTable, 
+  userStatsTable,
+  userTracksTable
+} from "@workspace/db";
+import { eq, and, sql, asc, desc } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
 
 const tracksRouter = Router();
@@ -10,15 +17,87 @@ const tracksRouter = Router();
 tracksRouter.get("/", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const list = await db.select().from(tracksTable).where(eq(tracksTable.isActive, true));
+    const list = await db.select().from(tracksTable).where(eq(tracksTable.isActive, true)).orderBy(desc(tracksTable.createdAt));
     return res.json(list);
   } catch (err) {
     return res.status(500).json({ error: "Failed to fetch tracks" });
   }
 });
 
+// MARCAR INÍCIO DE UMA TRILHA
+tracksRouter.post("/:id/start", requireAuth, async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const userId = (req as any).user.id;
+    const trackId = parseInt(req.params.id);
+
+    // 1. Verificar se já começou
+    const [existing] = await db.select().from(userTracksTable)
+      .where(and(eq(userTracksTable.userId, userId), eq(userTracksTable.trackId, trackId)));
+    
+    if (existing) {
+      return res.json({ success: true, message: "Already started", startedAt: existing.startedAt });
+    }
+
+    // 2. Registar início
+    const [newEnrollment] = await db.insert(userTracksTable).values({ userId, trackId }).returning();
+    return res.status(201).json({ success: true, startedAt: newEnrollment.startedAt });
+  } catch (err) {
+    console.error("Error in POST /:id/start:", err);
+    return res.status(500).json({ error: "Failed to start track" });
+  }
+});
+
+// OBTER CONTEÚDO COMPLETO DA TRILHA (PARA O VISUALIZADOR)
+tracksRouter.get("/:id/content", requireAuth, async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const userId = (req as any).user.id;
+    const trackId = parseInt(req.params.id);
+
+    // 1. Obter info da trilha
+    const [track] = await db.select().from(tracksTable).where(eq(tracksTable.id, trackId));
+    if (!track) return res.status(404).json({ error: "Track not found" });
+
+    // 2. Obter módulos
+    const modules = await db.select().from(modulesTable)
+      .where(eq(modulesTable.trackId, trackId))
+      .orderBy(asc(modulesTable.order));
+
+    // 3. Obter vídeos e progresso do utilizador
+    const videos = await db.select({
+      id: videosTable.id,
+      moduleId: videosTable.moduleId,
+      title: videosTable.title,
+      url: videosTable.url,
+      description: videosTable.description,
+      duration: videosTable.duration,
+      xpPoints: videosTable.xpPoints,
+      order: videosTable.order,
+      isCompleted: sql<boolean>`CASE WHEN ${userProgressTable.completedAt} IS NOT NULL THEN TRUE ELSE FALSE END`
+    })
+    .from(videosTable)
+    .leftJoin(userProgressTable, and(
+      eq(userProgressTable.videoId, videosTable.id),
+      eq(userProgressTable.userId, userId)
+    ))
+    .where(eq(videosTable.trackId, trackId))
+    .orderBy(asc(videosTable.order));
+
+    return res.json({
+      track,
+      modules,
+      videos
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to fetch track content" });
+  }
+});
+
 // OBTER ESTATÍSTICAS DO UTILIZADOR (XP/NÍVEL)
 tracksRouter.get("/my-stats", requireAuth, async (req, res) => {
+// ... (rest of the file)
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const userId = (req as any).user.id;
@@ -81,6 +160,7 @@ tracksRouter.post("/video-complete", requireAuth, async (req, res) => {
       levelUp: currentLevel > (stats?.level || 1)
     });
   } catch (err) {
+    console.error("Error in POST /video-complete:", err);
     return res.status(500).json({ error: "Failed to record progress" });
   }
 });

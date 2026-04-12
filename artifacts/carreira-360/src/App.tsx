@@ -13,6 +13,7 @@ import ForumHome from "@/pages/candidate/forum-home";
 import TopicView from "@/pages/candidate/topic-view";
 import OpportunitiesPage from "@/pages/candidate/opportunities-list";
 import TracksListPage from "@/pages/candidate/tracks-list";
+import TrackViewerPage from "@/pages/candidate/track-viewer";
 import AiPulsePage from "@/pages/candidate/ai-pulse";
 import MentorDashboard from "@/pages/mentor/dashboard";
 
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/dashboard" component={CandidateDashboard} />
       <Route path="/opportunities" component={OpportunitiesPage} />
       <Route path="/career-tracks" component={TracksListPage} />
+      <Route path="/career-tracks/viewer/:id" component={TrackViewerPage} />
       <Route path="/ai-pulse" component={AiPulsePage} />
       <Route path="/mentorship" component={MentorshipPage} />
       <Route path="/forum" component={ForumHome} />

@@ -8,6 +8,8 @@ export const tracksTable = pgTable("tracks", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   imageUrl: text("image_url"),
+  duration: text("duration"),
+  hasCertificate: boolean("has_certificate").default(true),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -43,7 +45,17 @@ export const userProgressTable = pgTable("user_progress", {
   pk: primaryKey({ columns: [table.userId, table.videoId] }),
 }));
 
-// 5. NÍVEIS E XP (Estado do Utilizador)
+// 5. INÍCIO DE TRILHAS (Inscrições)
+export const userTracksTable = pgTable("user_tracks", {
+  userId: integer("user_id").notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  trackId: integer("track_id").notNull().references(() => tracksTable.id, { onDelete: 'cascade' }),
+  startedAt: timestamp("started_at").notNull().defaultNow(),
+  completedAt: timestamp("completed_at"),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.userId, table.trackId] }),
+}));
+
+// 6. NÍVEIS E XP (Estado do Utilizador)
 export const userStatsTable = pgTable("user_stats", {
   userId: integer("user_id").primaryKey().references(() => usersTable.id, { onDelete: 'cascade' }),
   xp: integer("xp").notNull().default(0),

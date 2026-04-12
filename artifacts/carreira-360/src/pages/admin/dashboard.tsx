@@ -32,6 +32,12 @@ const getYouTubeVideoId = (url: string) => {
   return (match && match[1].length === 11) ? match[1] : null;
 };
 
+const getFileUrl = (url: string) => {
+  if (!url) return "";
+  if (url.startsWith("http") || url.startsWith("blob:") || url.startsWith("/")) return url;
+  return `/attached_assets/${url}`;
+};
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
@@ -90,13 +96,13 @@ export default function AdminDashboard() {
     onConfirm: () => {},
   });
 
-  const [newTrack, setNewTrack] = useState({ title: "", description: "", imageUrl: "" });
+  const [newTrack, setNewTrack] = useState({ title: "", description: "", imageUrl: "", duration: "", hasCertificate: true });
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
   const [modules, setModules] = useState<any[]>([]);
   const [currentModule, setCurrentModule] = useState<any>(null);
   const [newModule, setNewModule] = useState({ title: "", order: 0 });
   const [newVideo, setNewVideo] = useState({ title: "", url: "", description: "", xpPoints: 100, order: 0 });
-  const [newOpportunity, setNewOpportunity] = useState({ title: "", company: "", location: "", type: "emprego", description: "", requirements: "", link: "", deadline: "" });
+  const [newOpportunity, setNewOpportunity] = useState({ title: "", company: "", location: "", type: "emprego", description: "", requirements: "", link: "", deadline: "", imageUrl: "" });
   const [newTopic, setNewTopic] = useState({ title: "", content: "", category: "Geral", imageUrl: "", videoUrl: "" });
   const [customCategory, setCustomCategory] = useState("");
 
@@ -248,7 +254,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-10 text-xs font-bold">
                       {c.cvUrl ? (
-                        <a href={c.cvUrl} target="_blank" rel="noreferrer" className="text-[#0EA5E9] hover:text-[#F97316] underline flex items-center mb-1"><ExternalLink size={12} className="mr-1" /> CV Documento</a>
+                        <a href={getFileUrl(c.cvUrl)} target="_blank" rel="noreferrer" className="text-[#0EA5E9] hover:text-[#F97316] underline flex items-center mb-1"><ExternalLink size={12} className="mr-1" /> CV Documento</a>
                       ) : <span className="text-[#001F33]/80 block mb-1">Sem CV</span>}
                       {c.socialLink ? (
                         <a href={c.socialLink} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center"><ExternalLink size={12} className="mr-1" /> LinkedIn</a>
@@ -611,7 +617,7 @@ export default function AdminDashboard() {
         toast({ title: editingOpportunity ? "Vaga Atualizada" : "Vaga Criada" }); 
         setIsAddingOpportunity(false); 
         setEditingOpportunity(null);
-        setNewOpportunity({ title: "", company: "", location: "", type: "emprego", description: "", requirements: "", link: "", deadline: "" }); 
+        setNewOpportunity({ title: "", company: "", location: "", type: "emprego", description: "", requirements: "", link: "", deadline: "", imageUrl: "" }); 
         fetchOpportunities(); 
       }
     } catch (err) { toast({ title: "Erro" }); }
@@ -930,8 +936,14 @@ export default function AdminDashboard() {
                     return matchesSearch && matchesType;
                   })
                   .map(op => (
-                    <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} key={op.id} className="bg-white p-6 sm:p-10 rounded-[24px] sm:rounded-[32px] shadow-sm border border-[#8B4513]/70 relative group hover:shadow-2xl transition-all">
-                      <div className="flex justify-between items-start mb-8">
+                    <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} key={op.id} className="bg-white overflow-hidden rounded-[24px] sm:rounded-[32px] shadow-sm border border-[#8B4513]/70 relative group hover:shadow-2xl transition-all">
+                      {op.imageUrl && (
+                        <div className="h-32 w-full overflow-hidden border-b border-[#8B4513]/50">
+                          <img src={getFileUrl(op.imageUrl)} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                      )}
+                      <div className="p-6 sm:p-10">
+                        <div className="flex justify-between items-start mb-8">
                         <span className="bg-[#0EA5E9]/10 text-[#0EA5E9] text-[10px] font-bold uppercase px-3 py-1.5 rounded-full tracking-widest">{op.type}</span>
                         <div className="flex gap-2 transition-opacity">
                           <Button variant="ghost" size="icon" className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-full" onClick={() => { 
@@ -951,7 +963,8 @@ export default function AdminDashboard() {
                         <span className="text-[10px] font-bold uppercase text-[#001F33]/70">Prazo: {op.deadline ? new Date(op.deadline).toLocaleDateString() : 'Indefinido'}</span>
                         <div className="h-10 w-10 rounded-full bg-[#EBDCC6] flex items-center justify-center text-[#0EA5E9] group-hover:bg-[#0EA5E9] group-hover:text-white transition-all"><ExternalLink size={16} /></div>
                       </div>
-                    </motion.div>
+                    </div>
+                  </motion.div>
                   ))}
               </div>
             </div>
@@ -964,12 +977,12 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-4 mb-2">
                        <Button variant="ghost" onClick={() => setSelectedTrack(null)} className="text-[#0EA5E9] font-bold uppercase text-[10px] tracking-widest">← Voltar às Trilhas</Button>
                     </div>
-                    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-[#001F33] p-6 md:p-10 rounded-[32px] text-white flex flex-col md:flex-row justify-between items-start md:items-end shadow-xl gap-6 relative overflow-hidden">
+                    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="bg-[#001F33] p-10 md:p-20 min-h-[250px] md:min-h-[350px] rounded-[32px] text-white flex flex-col md:flex-row justify-between items-start md:items-end shadow-xl gap-6 relative overflow-hidden">
                        {/* Background Image of the selected track */}
                        {selectedTrack?.imageUrl && (
-                         <div className="absolute inset-0 pointer-events-none opacity-30">
-                           <img src={selectedTrack.imageUrl} alt="" className="w-full h-full object-cover" />
-                           <div className="absolute inset-0 bg-gradient-to-t from-[#001F33] via-transparent to-transparent" />
+                         <div className="absolute inset-0 pointer-events-none opacity-40">
+                           <img src={getFileUrl(selectedTrack.imageUrl)} alt="" className="w-full h-full object-cover" />
+                           <div className="absolute inset-0 bg-gradient-to-t from-[#001F33] via-[#001F33]/60 to-transparent" />
                          </div>
                        )}
                        
@@ -1069,22 +1082,31 @@ export default function AdminDashboard() {
                ) : (
                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
                    {tracks.map(t => (
-                     <motion.div initial={{opacity:0, y: 30}} animate={{opacity:1, y: 0}} key={t.id} className="bg-white rounded-[32px] md:rounded-[40px] shadow-sm border border-[#8B4513]/70 p-6 md:p-12 flex flex-col justify-between group md:h-96 relative overflow-hidden hover:shadow-2xl transition-all">
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-[#0EA5E9]/5 rounded-bl-full -mr-10 -mt-10 group-hover:scale-150 group-hover:bg-[#0EA5E9]/10 transition-all duration-700"></div>
+                     <motion.div initial={{opacity:0, y: 30}} animate={{opacity:1, y: 0}} key={t.id} className="bg-[#001F33] rounded-[32px] md:rounded-[40px] shadow-sm border border-white/10 p-6 md:p-12 flex flex-col justify-between group md:h-96 relative overflow-hidden hover:shadow-2xl transition-all">
+                        {t.imageUrl && (
+                           <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[inherit]">
+                             <img 
+                               src={getFileUrl(t.imageUrl)} 
+                               alt="" 
+                               className="w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-all duration-700 group-hover:scale-110" 
+                             />
+                             <div className="absolute inset-0 bg-gradient-to-t from-[#001F33] via-[#001F33]/60 to-transparent" />
+                           </div>
+                         )}
                         <div className="relative z-10">
                           <div className="flex justify-between items-start mb-6">
-                             <div className="h-14 w-14 bg-[#001F33] rounded-2xl flex items-center justify-center text-[#0EA5E9] shadow-lg shadow-[#001F33]/20"><Film size={28}/></div>
+                             <div className="h-14 w-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-[#0EA5E9] shadow-lg"><Film size={28}/></div>
                              <div className="flex gap-2">
-                                <Button onClick={() => { setEditingTrack(t); setNewTrack({...t}); setIsAddingTrack(true); }} variant="ghost" size="icon" className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-full"><Pencil size={20}/></Button>
-                                <Button onClick={() => triggerDelete("Eliminar Trilha", `Tens a certeza que queres apagar a trilha ${t.title}?`, () => deleteTrack(t.id))} variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 rounded-full"><Trash2 size={24}/></Button>
+                                <Button onClick={() => { setEditingTrack(t); setNewTrack({ ...t, hasCertificate: t.hasCertificate ?? true, duration: t.duration ?? "" }); setIsAddingTrack(true); }} variant="ghost" size="icon" className="text-[#0EA5E9] hover:bg-white/10 rounded-full"><Pencil size={20}/></Button>
+                                <Button onClick={() => triggerDelete("Eliminar Trilha", `Tens a certeza que queres apagar a trilha ${t.title}?`, () => deleteTrack(t.id))} variant="ghost" size="icon" className="text-red-400 hover:bg-red-500/10 rounded-full"><Trash2 size={24}/></Button>
                              </div>
                           </div>
-                          <h3 className="text-3xl font-display uppercase text-[#001F33] mb-6 tracking-tight leading-none">{t.title}</h3>
-                          <p className="text-sm font-bold text-[#001F33]/85 mb-8 line-clamp-3 leading-relaxed">{t.description}</p>
+                           <h3 className="text-3xl font-display uppercase text-white mb-6 tracking-tight leading-none">{t.title}</h3>
+                           <p className="text-sm font-bold text-white/70 mb-8 line-clamp-3 leading-relaxed">{t.description}</p>
                         </div>
                         <Button 
                           onClick={() => { setSelectedTrack(t); fetchModules(t.id); }} 
-                          className="bg-[#001F33] text-white uppercase font-bold text-xs px-10 h-14 rounded-full shadow-2xl shadow-[#001F33]/30 active:scale-95 transition-all relative z-10 border-2 border-transparent hover:border-[#0EA5E9]"
+                          className="bg-[#0EA5E9] text-white uppercase font-bold text-xs px-10 h-14 rounded-full shadow-2xl shadow-[#0EA5E9]/30 active:scale-95 transition-all relative z-10 border-2 border-transparent hover:bg-white hover:text-[#001F33]"
                         >
                           Gerir Conteúdo
                         </Button>
@@ -1228,6 +1250,10 @@ export default function AdminDashboard() {
                   <SelectContent><SelectItem value="emprego">Emprego</SelectItem><SelectItem value="estagio">Estágio</SelectItem><SelectItem value="bolsa">Bolsa de Estudo</SelectItem></SelectContent>
                 </Select>
               </div>
+              <div className="col-span-2 space-y-2">
+                <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Imagem de Capa (Link URL)</label>
+                <Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.imageUrl || ""} onChange={e => setNewOpportunity({...newOpportunity, imageUrl: e.target.value})} placeholder="Ex: https://images.unsplash.com/photo-..." />
+              </div>
               <div className="col-span-2 space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Descritivo da Vaga</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[140px] rounded-3xl font-bold p-6 focus:ring-[#0EA5E9]" value={newOpportunity.description} onChange={e => setNewOpportunity({...newOpportunity, description: e.target.value})} placeholder="Quais são as responsabilidades e o que procuro?" /></div>
               <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Candidatura (URL/Email)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.link} onChange={e => setNewOpportunity({...newOpportunity, link: e.target.value})} placeholder="Onde o jovem clica?" /></div>
               <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Fecho Candidaturas</label><Input type="date" className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.deadline} onChange={e => setNewOpportunity({...newOpportunity, deadline: e.target.value})} /></div>
@@ -1243,6 +1269,33 @@ export default function AdminDashboard() {
               <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Nome da Jornada</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8 text-lg" value={newTrack.title} onChange={e => setNewTrack({...newTrack, title: e.target.value})} placeholder="Ex: Domínio Financeiro" /></div>
               <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Explicação Curta</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[120px] rounded-3xl font-bold p-8" value={newTrack.description} onChange={e => setNewTrack({...newTrack, description: e.target.value})} placeholder="O que o jovem vai atingir com isto?" /></div>
               <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Capa (Caminho da Imagem)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newTrack.imageUrl} onChange={e => setNewTrack({...newTrack, imageUrl: e.target.value})} placeholder="/assets/img/trilha-1.jpg" /></div>
+              
+              <div className="grid grid-cols-2 gap-6 pt-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Duração (Total)</label>
+                  <Input 
+                    className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" 
+                    value={newTrack.duration || ""} 
+                    onChange={e => setNewTrack({...newTrack, duration: e.target.value})} 
+                    placeholder="Ex: 12 Horas" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Certificado</label>
+                  <Select 
+                    value={newTrack.hasCertificate ? "sim" : "nao"} 
+                    onValueChange={(val) => setNewTrack({...newTrack, hasCertificate: val === "sim"})}
+                  >
+                    <SelectTrigger className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sim">Sim, Disponível</SelectItem>
+                      <SelectItem value="nao">Não Incluído</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
             <DialogFooter><Button onClick={handleSaveTrack} className="bg-[#0EA5E9] text-white uppercase font-bold text-xs w-full h-16 rounded-3xl shadow-2xl shadow-[#0EA5E9]/30 hover:bg-[#001F33] transition-all tracking-[0.3em]">{editingTrack ? 'Atualizar Trilha' : 'Lançar Trilha'}</Button></DialogFooter>
           </DialogContent>
@@ -1373,7 +1426,7 @@ export default function AdminDashboard() {
              <div className="flex flex-wrap gap-4">
                 {viewUser?.cvUrl ? (
                   <Button asChild className="bg-[#0EA5E9] hover:bg-[#001F33] text-white uppercase font-bold text-[10px] tracking-widest rounded-xl">
-                    <a href={viewUser.cvUrl} target="_blank" rel="noreferrer">
+                    <a href={getFileUrl(viewUser.cvUrl)} target="_blank" rel="noreferrer">
                       <ExternalLink size={14} className="mr-2" /> Visualizar Currículo PDF
                     </a>
                   </Button>

@@ -12,6 +12,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const getFileUrl = (url: string) => {
+  if (!url) return "";
+  if (url.startsWith("http") || url.startsWith("blob:") || url.startsWith("/")) return url;
+  return `/attached_assets/${url}`;
+};
+
 export default function OpportunitiesPage() {
   const [location, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
@@ -113,8 +119,14 @@ export default function OpportunitiesPage() {
                   key={op.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-all group flex flex-col md:flex-row gap-6 justify-between items-start md:items-center"
+                  className="bg-white overflow-hidden rounded-3xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-all group flex flex-col md:flex-row gap-0 md:gap-6 justify-between items-start md:items-center"
                 >
+                  {op.imageUrl && (
+                    <div className="w-full md:w-32 h-32 shrink-0 overflow-hidden">
+                       <img src={getFileUrl(op.imageUrl)} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                  )}
+                  <div className={`p-6 sm:p-8 flex-1 w-full ${!op.imageUrl ? 'bg-white' : ''}`}>
                   <div className="flex-1 w-full">
                     <div className="flex items-center gap-2 mb-3">
                       <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border ${
@@ -137,8 +149,9 @@ export default function OpportunitiesPage() {
                         <a href={op.link} target="_blank">Candidatar Agora</a>
                       </Button>
                     )}
-                  </div>
-                </motion.div>
+                    </div>
+                    </div>
+                  </motion.div>
               ))}
             </div>
           )}

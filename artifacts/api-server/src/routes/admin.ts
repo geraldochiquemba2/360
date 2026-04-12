@@ -107,6 +107,7 @@ adminRouter.post("/opportunities", async (req, res) => {
       description: data.description,
       requirements: data.requirements,
       link: data.link,
+      imageUrl: data.imageUrl,
       deadline: data.deadline ? new Date(data.deadline) : null,
     }).returning();
     
@@ -130,6 +131,7 @@ adminRouter.patch("/opportunities/:id", async (req, res) => {
       description: data.description,
       requirements: data.requirements,
       link: data.link,
+      imageUrl: data.imageUrl,
       deadline: data.deadline ? new Date(data.deadline) : null,
     }).where(eq(opportunitiesTable.id, id));
     
@@ -167,7 +169,9 @@ adminRouter.post("/tracks", async (req, res) => {
     const [newTrack] = await db.insert(tracksTable).values({
       title: req.body.title,
       description: req.body.description,
-      imageUrl: req.body.imageUrl
+      imageUrl: req.body.imageUrl,
+      duration: req.body.duration,
+      hasCertificate: req.body.hasCertificate !== undefined ? req.body.hasCertificate : true
     }).returning();
     return res.status(201).json(newTrack);
   } catch (err) {
@@ -179,12 +183,14 @@ adminRouter.patch("/tracks/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const id = parseInt(req.params.id);
-    const { title, description, imageUrl, isActive } = req.body;
+    const { title, description, imageUrl, isActive, duration, hasCertificate } = req.body;
     
     await db.update(tracksTable).set({
       title,
       description,
       imageUrl,
+      duration,
+      hasCertificate,
       isActive: isActive !== undefined ? isActive : undefined
     }).where(eq(tracksTable.id, id));
     

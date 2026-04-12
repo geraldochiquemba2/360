@@ -2,11 +2,19 @@ import { CandidateSidebar } from "@/components/layout/CandidateSidebar";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Briefcase, MapPin, Building2, Calendar, ExternalLink, GraduationCap, Award, LayoutDashboard, LogOut, Users, MessageSquare, Menu, X } from "lucide-react";
+import { Briefcase, MapPin, Building2, Calendar, ExternalLink, GraduationCap, Award, LayoutDashboard, LogOut, Users, MessageSquare, Menu, X, Sparkles, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+
+const getFileUrl = (url: string) => {
+  if (!url) return "";
+  if (url.startsWith("http") || url.startsWith("blob:") || url.startsWith("/")) return url;
+  return `/attached_assets/${url}`;
+};
 
 export default function CandidateDashboard() {
   const [location, setLocation] = useLocation();
+  const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -76,6 +84,35 @@ export default function CandidateDashboard() {
   const handleLogout = () => {
     localStorage.clear();
     setLocation("/");
+  };
+
+  const handleStartTrack = async (trackId: number) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+       toast({ title: "Erro de Autenticação", description: "Faz login novamente.", variant: "destructive" });
+       setLocation("/auth/login");
+       return;
+    }
+
+    try {
+      const response = await fetch(`/api/tracks/${trackId}/start`, {
+        method: "POST",
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setLocation(`/career-tracks/viewer/${trackId}`);
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        toast({ 
+          title: "Não foi possível iniciar", 
+          description: errData.error || "Tenta novamente mais tarde.", 
+          variant: "destructive" 
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao iniciar trilha", err);
+      toast({ title: "Erro de Conexão", description: "Verifica a tua internet.", variant: "destructive" });
+    }
   };
 
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
@@ -162,8 +199,14 @@ export default function CandidateDashboard() {
                       key={op.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-6 justify-between items-start md:items-center"
+                      className="bg-white p-0 overflow-hidden rounded-2xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-0 md:gap-6 justify-between items-start md:items-center"
                     >
+                      {op.imageUrl && (
+                        <div className="w-full md:w-32 h-32 shrink-0 overflow-hidden">
+                           <img src={getFileUrl(op.imageUrl)} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                      )}
+                      <div className={`p-4 sm:p-8 flex-1 w-full ${!op.imageUrl ? 'bg-white' : ''}`}>
                       <div className="flex-1 w-full">
                         <div className="flex items-center gap-2 mb-2">
                           <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${
@@ -186,6 +229,7 @@ export default function CandidateDashboard() {
                             <a href={op.link} target="_blank">Candidate-se</a>
                           </Button>
                         )}
+                        </div>
                       </div>
                     </motion.div>
                   ))}
@@ -216,26 +260,33 @@ export default function CandidateDashboard() {
                         <motion.div 
                           key={track.id}
                           whileHover={{ scale: 1.02 }}
-                          className="bg-[#001F33] rounded-2xl overflow-hidden shadow-xl group border border-white/5"
+                          className="bg-[#001F33] rounded-2xl overflow-hidden shadow-2xl group border border-[#0EA5E9]/20 shadow-[#0EA5E9]/5 hover:border-[#0EA5E9]/40 hover:shadow-[#0EA5E9]/20 transition-all duration-300"
                         >
-                          <div className="h-32 bg-gray-800 relative">
+                          <div className="h-32 bg-[#001F33] relative">
                             {track.imageUrl ? (
-                              <img src={track.imageUrl} alt={track.title} className="w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
+                              <img src={getFileUrl(track.imageUrl)} alt={track.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-all duration-500 scale-105 group-hover:scale-110" />
                             ) : (
                               <div className="w-full h-full flex items-start justify-center pt-8 opacity-40 group-hover:opacity-60 transition-opacity">
                                  <GraduationCap size={48} className="text-white" />
                               </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#001F33] to-transparent" />
+                            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#001F33] to-transparent" />
                           </div>
-                          <div className="p-6">
+                          <div className="p-6 bg-[#001F33] -mt-1 relative z-10">
                             <h3 className="text-lg font-display uppercase text-white mb-2">{track.title}</h3>
                             <p className="text-sm text-white/50 line-clamp-2 h-10 mb-4">{track.description}</p>
-                            <Link href="/career-tracks">
-                              <Button className="w-full bg-[#0EA5E9] hover:bg-white hover:text-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-10">
-                                Começar Agora
-                              </Button>
-                            </Link>
+                            <div className="flex items-center gap-4 mb-6 text-[10px] font-black uppercase tracking-widest text-[#0EA5E9]">
+                               <span className="flex items-center"><Clock size={12} className="mr-1.5" /> {track.duration || 'Flexível'}</span>
+                               {track.hasCertificate !== false && (
+                                 <span className="flex items-center"><Award size={12} className="mr-1.5" /> Certificado</span>
+                               )}
+                            </div>
+                             <Button 
+                               onClick={() => handleStartTrack(track.id)}
+                               className="w-full bg-[#0EA5E9] hover:bg-white hover:text-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-10"
+                             >
+                               Começar Agora
+                             </Button>
                           </div>
                         </motion.div>
                       ))}

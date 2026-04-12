@@ -324,7 +324,7 @@ export default function TopicView() {
              </div>
 
              {/* Content Column */}
-             <div className="flex-1 w-full">
+             <div className="flex-1 w-full md:pr-16">
                <span className="text-[10px] font-bold uppercase text-[#0EA5E9] tracking-widest block mb-4">Título do Tópico</span>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-display uppercase tracking-tight text-[#001F33] mb-10 leading-tight pr-0 md:pr-24">
                  {topic.title}

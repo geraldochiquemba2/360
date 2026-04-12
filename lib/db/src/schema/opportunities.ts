@@ -11,6 +11,7 @@ export const opportunitiesTable = pgTable("opportunities", {
   requirements: text("requirements"),
   link: text("link"),
   deadline: timestamp("deadline"),
+  imageUrl: text("image_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
