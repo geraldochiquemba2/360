@@ -14,16 +14,27 @@ import {
   X,
   Trash2,
   Reply,
-  EyeOff,
-  ShieldAlert
+  Eye, EyeOff,
+  ShieldAlert,
+  ThumbsUp,
+  ThumbsDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+
+const getYouTubeVideoId = (url: string) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
 
 export default function TopicView() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,8 +42,10 @@ export default function TopicView() {
   const [location, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
   const [topicData, setTopicData] = useState<any>(null);
+  const [filterType, setFilterType] = useState<'recentes' | 'populares' | 'respondidos'>('recentes');
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<{ id: number; name: string } | null>(null);
+  const [visibleReplies, setVisibleReplies] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -103,12 +116,33 @@ export default function TopicView() {
     }
   };
 
-  const handleLike = async () => {
+  const handleReaction = async (type: 'like' | 'dislike') => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`/api/forum/topics/${id}/like`, {
+      const response = await fetch(`/api/forum/topics/${id}/reaction`, {
         method: "POST",
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ type })
+      });
+      if (response.ok) fetchTopicDetails();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCommentReaction = async (commentId: number, type: 'like' | 'dislike') => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`/api/forum/comments/${commentId}/reaction`, {
+        method: "POST",
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ type })
       });
       if (response.ok) fetchTopicDetails();
     } catch (err) {
@@ -143,6 +177,24 @@ export default function TopicView() {
     }
   };
 
+  const handleUnhideComment = async (commentId: number) => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`/api/forum/comments/${commentId}/unhide`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (response.ok) {
+        toast({ title: "Comentário Restaurado", description: "O comentário voltou a estar visível." });
+        fetchTopicDetails();
+      } else {
+        toast({ title: "Erro", description: "Não tens permissão para desocultar." });
+      }
+    } catch (err) {
+      toast({ title: "Falha ao desocultar", description: "Tente novamente." });
+    }
+  };
+
   const handleHideComment = async () => {
     if (!hideModalConfig.commentId || !hideModalConfig.hideReason.trim()) return;
     const token = localStorage.getItem("token");
@@ -164,15 +216,46 @@ export default function TopicView() {
     }
   };
 
+  const handleShowMoreReplies = (parentId: number, total: number) => {
+    setVisibleReplies(prev => ({
+      ...prev,
+      [parentId]: Math.min((prev[parentId] || 1) + 5, total)
+    }));
+  };
+
+  const handleHideReplies = (parentId: number) => {
+    setVisibleReplies(prev => ({
+      ...prev,
+      [parentId]: 1
+    }));
+  };
+
   const handleLogout = () => { localStorage.clear(); setLocation("/"); };
 
-  if (loading) return <div className="min-h-screen bg-[#F5F0E8] flex items-center justify-center font-display text-2xl uppercase tracking-tighter text-[#001F33]/20">Carregando discussão...</div>;
+  const getSortedComments = () => {
+    if (!topicData?.comments) return [];
+    let parentComments = topicData.comments.filter((c: any) => !c.parentId);
+    if (filterType === 'recentes') {
+      parentComments.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } else if (filterType === 'populares') {
+      parentComments.sort((a: any, b: any) => ((b.likesCount || 0) - (b.dislikesCount || 0)) - ((a.likesCount || 0) - (a.dislikesCount || 0)));
+    } else if (filterType === 'respondidos') {
+      parentComments.sort((a: any, b: any) => {
+         const aReplies = topicData.comments.filter((c: any) => c.parentId === a.id).length;
+         const bReplies = topicData.comments.filter((c: any) => c.parentId === b.id).length;
+         return bReplies - aReplies;
+      });
+    }
+    return parentComments;
+  };
+
+  if (loading) return <div className="min-h-screen bg-[#EBDCC6] flex items-center justify-center font-display text-2xl uppercase tracking-tighter text-[#001F33]/20">Carregando discussão...</div>;
   if (!topicData) return null;
 
-  const { topic, comments, likes } = topicData;
+  const { topic, comments } = topicData;
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] flex font-sans text-[#001F33]">
+    <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33]">
       {/* Sidebar - Shared */}
       
       <AnimatePresence>
@@ -187,7 +270,14 @@ export default function TopicView() {
         )}
       </AnimatePresence>
 
-      <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+      {user?.role === 'admin' ? (
+        <AdminSidebar 
+          currentTab="forum" 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+        />
+      ) : (
+        <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div className="p-8 border-b border-white/10 relative flex items-center justify-between">
           <img src="/assets/logo.png" className="h-14 w-auto object-contain" alt="Logo" />
           <Button 
@@ -222,6 +312,7 @@ export default function TopicView() {
           </Button>
         </div>
       </aside>
+      )}
 
       {/* Main Content */}
       <main className="flex-1 md:ml-72 p-6 sm:p-10">
@@ -243,75 +334,144 @@ export default function TopicView() {
           </button>
         </Link>
 
-        <div className="max-w-4xl mx-auto space-y-10">
+        <div className="max-w-4xl mx-auto space-y-6 pb-80">
           {/* Main Topic Header */}
-          <div className="bg-white p-6 sm:p-12 rounded-[32px] sm:rounded-[48px] shadow-sm border border-[#8B4513]/50 relative overflow-hidden">
+          <div className="bg-white p-6 sm:py-8 sm:px-12 rounded-[32px] sm:rounded-[48px] shadow-sm border-4 border-[#8B4513]/40 relative overflow-hidden flex flex-col md:flex-row gap-8">
              {/* Category Tag */}
-             <div className="absolute top-6 right-6 sm:top-8 sm:right-12 px-6 py-2 bg-[#0EA5E9]/10 text-[#0EA5E9] rounded-full text-[10px] font-black uppercase tracking-widest">
+             <div className="absolute top-6 right-6 sm:top-8 sm:right-12 px-6 py-2 bg-[#0EA5E9]/30 text-[#0EA5E9] border-4 border-[#0EA5E9]/50 rounded-full text-[10px] font-black uppercase tracking-widest z-10 shadow-md">
                {topic.category.toUpperCase()}
              </div>
 
-             <div className="flex items-center gap-4 mb-8">
-               <div className="h-12 w-12 bg-[#F5F0E8] rounded-2xl flex items-center justify-center text-[#0EA5E9] font-black text-lg">
+             {/* Author Sidebar Column */}
+             <div className="md:w-[200px] shrink-0 flex flex-col items-center sm:items-start md:items-center text-center sm:text-left md:text-center md:border-r-4 border-[#8B4513]/40 md:pr-8 md:justify-center md:py-8">
+               <span className="text-[10px] font-black uppercase text-[#0EA5E9] tracking-widest block mb-4">Criador do Tópico</span>
+               <div className="h-20 w-20 sm:h-24 sm:w-24 bg-[#EBDCC6] rounded-[2rem] flex items-center justify-center text-[#0EA5E9] font-black text-3xl sm:text-4xl mb-4">
                  {topic.authorName?.charAt(0).toUpperCase()}
                </div>
-               <div>
-                 <p className="text-sm font-black text-[#001F33] uppercase">{topic.authorName}</p>
-                 <p className="text-[10px] font-bold text-[#001F33]/80 tracking-widest">{new Date(topic.createdAt).toLocaleString()}</p>
-               </div>
+               <p className="text-sm font-black text-[#001F33] uppercase">{topic.authorName}</p>
+               <p className="text-[10px] font-bold text-[#001F33]/80 tracking-widest mt-1 mb-8">{new Date(topic.createdAt).toLocaleString()}</p>
              </div>
 
-             <h1 className="text-4xl md:text-5xl font-display uppercase tracking-tight text-[#001F33] mb-8 leading-tight">
-               {topic.title}
-             </h1>
-             
-             <p className="text-lg text-[#001F33]/90 font-bold leading-relaxed mb-12">
-               {topic.content}
-             </p>
+             {/* Content Column */}
+             <div className="flex-1 w-full">
+               <span className="text-[10px] font-black uppercase text-[#0EA5E9] tracking-widest block mb-4">Título do Tópico</span>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-display uppercase tracking-tight text-[#001F33] mb-10 leading-tight pr-0 md:pr-24">
+                 {topic.title}
+               </h1>
+               
+               <span className="text-[10px] font-black uppercase text-[#0EA5E9] tracking-widest block mb-4 mt-8">Conteúdo da Discussão</span>
+                <p className="text-lg text-[#001F33] font-bold leading-relaxed mb-8 whitespace-pre-wrap">
+                 {topic.content}
+               </p>
 
-             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-10 border-t border-[#8B4513]/50">
-               <div className="flex items-center gap-4">
-                 <Button 
-                   onClick={handleLike}
-                   variant="ghost" 
-                   className={`h-14 px-8 rounded-full gap-3 ${likes.some((l: any) => l.userId === user?.id) ? 'bg-red-50 text-red-500 hover:bg-red-100' : 'bg-[#F5F0E8] text-[#001F33]/60 hover:bg-[#F5F0E8]/80'}`}
-                 >
-                   <Heart className={`h-5 w-5 ${likes.some((l: any) => l.userId === user?.id) ? 'fill-current' : ''}`} />
-                   <span className="text-xs font-black uppercase tracking-widest">{likes.length < 1 ? 'Gostar' : `${likes.length} Gostos`}</span>
-                 </Button>
-                 
-                 {likes.length > 0 && (
-                   <div className="flex -space-x-3 items-center">
-                     {likes.slice(0, 3).map((l: any, i: number) => (
-                       <div key={i} className="h-10 w-10 rounded-full bg-[#001F33] border-4 border-white flex items-center justify-center text-[10px] font-black text-white">
-                         {l.userName.charAt(0)}
-                       </div>
-                     ))}
-                     {likes.length > 3 && <span className="pl-6 text-[10px] font-black text-[#001F33]/80 tracking-widest">+{likes.length - 3} OUTROS</span>}
-                   </div>
-                 )}
-               </div>
-               <div className="flex items-center gap-3 text-[#001F33]/80">
-                 <MessageCircle size={20} />
-                 <span className="text-xs font-black uppercase tracking-widest">{comments.length} Respostas</span>
+               {(topic.imageUrl || topic.videoUrl) && (
+                 <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                   {topic.imageUrl && (
+                     <div className="rounded-[2rem] overflow-hidden border-4 border-[#8B4513]/40 shadow-md">
+                       <img src={topic.imageUrl} alt={topic.title} className="w-full h-auto aspect-video object-cover hover:scale-[1.02] transition-transform duration-500" />
+                     </div>
+                   )}
+
+                   {topic.videoUrl && getYouTubeVideoId(topic.videoUrl) && (
+                     <div className="rounded-[2rem] overflow-hidden border-4 border-[#8B4513]/40 shadow-md aspect-video bg-[#001F33]">
+                       <iframe
+                         width="100%"
+                         height="100%"
+                         src={`https://www.youtube.com/embed/${getYouTubeVideoId(topic.videoUrl)}`}
+                         title="YouTube video player"
+                         frameBorder="0"
+                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                         allowFullScreen
+                       ></iframe>
+                     </div>
+                   )}
+                 </div>
+               )}
+
+               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-8 border-t-4 border-[#8B4513]/40">
+                 <div className="flex flex-wrap items-center gap-2">
+                   <Button 
+                     onClick={() => handleReaction('like')}
+                     variant="ghost" 
+                     className={`h-12 px-4 sm:px-6 rounded-full gap-2 transition-all ${topic.userReaction === 'like' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border-2 border-[#0EA5E9]/30 shadow-sm' : 'bg-[#EBDCC6] text-[#001F33]/60 hover:bg-[#EBDCC6]/80 hover:text-[#0EA5E9]'}`}
+                   >
+                     <ThumbsUp className={`h-4 w-4 sm:h-5 sm:w-5 ${topic.userReaction === 'like' ? 'fill-current' : ''}`} />
+                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">{topic.likesCount || 0} Gostos</span>
+                   </Button>
+
+                   <Button 
+                     onClick={() => handleReaction('dislike')}
+                     variant="ghost" 
+                     className={`h-12 px-4 sm:px-6 rounded-full gap-2 transition-all ${topic.userReaction === 'dislike' ? 'bg-red-50 text-red-600 border-2 border-red-200 shadow-sm' : 'bg-[#EBDCC6] text-[#001F33]/60 hover:bg-[#EBDCC6]/80 hover:text-red-600'}`}
+                   >
+                     <ThumbsDown className={`h-4 w-4 sm:h-5 sm:w-5 ${topic.userReaction === 'dislike' ? 'fill-current' : ''}`} />
+                     <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">{topic.dislikesCount || 0} </span>
+                   </Button>
+                   
+                   {topic.likers && topic.likers.length > 0 && (
+                     <DropdownMenu>
+                       <DropdownMenuTrigger asChild>
+                         <Button variant="ghost" className="h-12 px-4 rounded-full text-[10px] font-black uppercase text-[#0EA5E9] border-2 border-[#0EA5E9]/20 tracking-widest ml-4 hover:bg-[#0EA5E9]/10">
+                           Ver pessoas que gostaram
+                         </Button>
+                       </DropdownMenuTrigger>
+                       <DropdownMenuContent className="w-56 rounded-2xl border-4 border-[#8B4513]/40 shadow-xl bg-white p-2">
+                         {topic.likers.map((l: any, i: number) => (
+                           <DropdownMenuItem key={i} className="text-xs font-bold text-[#001F33] p-3 rounded-xl hover:bg-[#EBDCC6] focus:bg-[#EBDCC6] cursor-pointer outline-none">
+                             {l.name}
+                           </DropdownMenuItem>
+                         ))}
+                       </DropdownMenuContent>
+                     </DropdownMenu>
+                   )}
+                 </div>
+                 <div className="flex items-center gap-3 text-[#001F33]/90 group shrink-0">
+                   <MessageCircle size={20} className="group-hover:text-[#0EA5E9] transition-colors" />
+                   <span className="text-xs font-black uppercase tracking-widest">{comments.length} Respostas</span>
+                 </div>
                </div>
              </div>
           </div>
 
           {/* Comments Section */}
-          <div className="space-y-6">
-            <h3 className="text-[10px] font-black uppercase text-[#001F33]/80 tracking-[0.2em] ml-12">Respostas da Comunidade</h3>
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 ml-0 sm:ml-12 mb-6">
+              <h3 className="text-[10px] font-black uppercase text-[#001F33]/90 tracking-[0.2em]">Respostas da Comunidade</h3>
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
+                <Button 
+                  onClick={() => setFilterType('recentes')}
+                  variant="ghost" 
+                  className={`h-8 rounded-full text-[10px] font-black uppercase tracking-widest px-4 transition-all ${filterType === 'recentes' ? 'bg-[#001F33] text-white shadow-md' : 'bg-white text-[#001F33]/60 hover:bg-[#EBDCC6]'}`}
+                >
+                  Mais Recentes
+                </Button>
+                <Button 
+                  onClick={() => setFilterType('populares')}
+                  variant="ghost" 
+                  className={`h-8 rounded-full text-[10px] font-black uppercase tracking-widest px-4 transition-all ${filterType === 'populares' ? 'bg-[#001F33] text-white shadow-md' : 'bg-white text-[#001F33]/60 hover:bg-[#EBDCC6]'}`}
+                >
+                  Populares
+                </Button>
+                <Button 
+                  onClick={() => setFilterType('respondidos')}
+                  variant="ghost" 
+                  className={`h-8 rounded-full text-[10px] font-black uppercase tracking-widest px-4 transition-all ${filterType === 'respondidos' ? 'bg-[#001F33] text-white shadow-md' : 'bg-white text-[#001F33]/60 hover:bg-[#EBDCC6]'}`}
+                >
+                  Respondidos
+                </Button>
+              </div>
+            </div>
             
-            {comments.filter((c: any) => !c.parentId).map((comment: any, idx: number) => (
+            {getSortedComments().map((comment: any, idx: number) => (
               <div key={comment.id} className="space-y-4">
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.1 }}
-                  className="bg-white p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] shadow-sm border border-[#8B4513]/50 relative z-10"
+                  className="bg-white p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] shadow-sm border-4 border-[#8B4513]/40 relative z-10"
                 >
                   {comment.isHidden ? (
-                    <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#F5F0E8]/50 p-6 rounded-2xl border border-red-500/20">
+                    <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#EBDCC6]/50 p-6 rounded-2xl border-4 border-red-500/40">
                       <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
                         <ShieldAlert className="h-6 w-6 text-red-500" />
                       </div>
@@ -319,7 +479,19 @@ export default function TopicView() {
                         <h4 className="text-sm font-black text-red-600 uppercase tracking-widest mb-1">Comentário Ocultado</h4>
                         <p className="text-xs font-bold text-[#001F33]/60">Por um administrador. Motivo: <span className="font-extrabold text-[#001F33]/90">{comment.hideReason}</span></p>
                       </div>
-                      {(user?.role === 'admin' || comment.authorId === user?.id) && (
+                      
+                      {user?.role === 'admin' && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleUnhideComment(comment.id)}
+                          className="text-green-600 hover:bg-green-50 rounded-full h-10 w-10 shrink-0"
+                          title="Desocultar"
+                        >
+                          <Eye size={16} />
+                        </Button>
+                      )}
+{(user?.role === 'admin' || comment.authorId === user?.id) && (
                         <Button 
                           variant="ghost" 
                           size="icon"
@@ -335,26 +507,44 @@ export default function TopicView() {
                     </div>
                   ) : (
                     <>
-                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 bg-[#F5F0E8] rounded-xl flex items-center justify-center text-[#0EA5E9] font-black text-xs">
+                      <div className="h-10 w-10 bg-[#EBDCC6] rounded-xl flex items-center justify-center text-[#0EA5E9] font-black text-xs">
                         {comment.authorName?.charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <p className="text-xs font-black text-[#001F33] uppercase">{comment.authorName}</p>
-                        <p className="text-[10px] font-bold text-[#001F33]/80 tracking-widest">{new Date(comment.createdAt).toLocaleString()}</p>
+                        <p className="text-[10px] font-bold text-[#001F33]/90 tracking-widest">{new Date(comment.createdAt).toLocaleString()}</p>
                       </div>
                     </div>
                     
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                      <Button 
+                        onClick={() => handleCommentReaction(comment.id, 'like')}
+                        variant="ghost" 
+                        className={`h-8 px-3 transition-all rounded-full gap-2 ${comment.userReaction === 'like' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border-2 border-[#0EA5E9]/30' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-[#0EA5E9]'}`}
+                      >
+                        <ThumbsUp className={`h-3 w-3 sm:h-4 sm:w-4 ${comment.userReaction === 'like' ? 'fill-current' : ''}`} />
+                        <span className="text-[10px] font-black">{comment.likesCount || 0}</span>
+                      </Button>
+
+                      <Button 
+                        onClick={() => handleCommentReaction(comment.id, 'dislike')}
+                        variant="ghost" 
+                        className={`h-8 px-3 transition-all rounded-full gap-2 ${comment.userReaction === 'dislike' ? 'bg-red-50 text-red-600 border-2 border-red-200' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-red-600'}`}
+                      >
+                        <ThumbsDown className={`h-3 w-3 sm:h-4 sm:w-4 ${comment.userReaction === 'dislike' ? 'fill-current' : ''}`} />
+                        <span className="text-[10px] font-black">{comment.dislikesCount || 0}</span>
+                      </Button>
+
                       {user?.role === 'admin' && (
                         <Button 
                           variant="ghost" 
                           size="icon"
                           onClick={() => setHideModalConfig({ isOpen: true, commentId: comment.id, hideReason: "" })}
-                          className="text-orange-500 hover:bg-orange-50 rounded-full h-10 w-10 shrink-0"
+                          className="text-orange-500 hover:bg-orange-50 rounded-full h-8 w-8 sm:h-10 sm:w-10 shrink-0 ml-2"
                         >
-                          <EyeOff size={16} />
+                          <EyeOff size={14} className="sm:w-4 sm:h-4" />
                         </Button>
                       )}
                       
@@ -365,9 +555,9 @@ export default function TopicView() {
                           setReplyingTo({ id: comment.id, name: comment.authorName });
                           document.getElementById('reply-textarea')?.focus();
                         }}
-                        className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-full h-10 px-4 text-[10px] font-black uppercase tracking-widest"
+                        className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-full h-8 sm:h-10 px-3 sm:px-4 text-[10px] font-black uppercase tracking-widest ml-1"
                       >
-                        <Reply size={14} className="mr-2" /> Responder
+                        <Reply size={14} className="mr-1 sm:mr-2" /> <span className="hidden sm:inline">Responder</span>
                       </Button>
                       
                       {(user?.role === 'admin' || comment.authorId === user?.id) && (
@@ -381,9 +571,9 @@ export default function TopicView() {
                             variant: "destructive",
                             onConfirm: () => handleDeleteComment(comment.id)
                           })}
-                          className="text-red-500 hover:bg-red-50 rounded-full h-10 w-10 shrink-0"
+                          className="text-red-500 hover:bg-red-50 rounded-full h-8 w-8 sm:h-10 sm:w-10 shrink-0"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={14} className="sm:w-4 sm:h-4" />
                         </Button>
                       )}
                     </div>
@@ -396,24 +586,43 @@ export default function TopicView() {
                 </motion.div>
 
                 {/* Respostas Aninhadas (Filhos) */}
-                {comments.filter((child: any) => child.parentId === comment.id).length > 0 && (
-                  <div className="pl-8 sm:pl-16 space-y-4 relative">
-                    <div className="absolute left-8 top-0 bottom-12 w-0.5 bg-[#8B4513]/20 z-0"></div>
-                    {comments.filter((child: any) => child.parentId === comment.id).map((child: any) => (
-                      <motion.div 
+                {(() => {
+                  const children = comments.filter((child: any) => child.parentId === comment.id);
+                  if (children.length === 0 || comment.isHidden) return null;
+                  
+                  const visibleCount = visibleReplies[comment.id] || 1;
+                  const visibleChildren = children.slice(0, visibleCount);
+                  
+                  return (
+                    <div className="pl-8 sm:pl-16 space-y-4 relative mt-4">
+                      <div className="absolute left-8 top-0 bottom-12 w-1.5 bg-[#8B4513]/40 z-0 rounded-full"></div>
+                      {visibleChildren.map((child: any) => (
+                        <motion.div 
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         key={child.id}
-                        className="bg-white/80 p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] shadow-sm border border-[#8B4513]/30 relative z-10"
+                        className="bg-white/80 p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] shadow-sm border-4 border-[#8B4513]/40 relative z-10"
                       >
                         {child.isHidden ? (
-                          <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#F5F0E8]/50 p-4 rounded-2xl border border-red-500/20">
+                          <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#EBDCC6]/50 p-4 rounded-2xl border-4 border-red-500/40">
                             <ShieldAlert className="h-5 w-5 text-red-500 shrink-0" />
                             <div className="flex-1 text-center sm:text-left">
                               <h4 className="text-xs font-black text-red-600 uppercase tracking-widest">Resposta Ocultada</h4>
                               <p className="text-[10px] font-bold text-[#001F33]/60">{child.hideReason}</p>
                             </div>
-                            {(user?.role === 'admin' || child.authorId === user?.id) && (
+                            
+                            {user?.role === 'admin' && (
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => handleUnhideComment(child.id)}
+                                className="text-green-600 hover:bg-green-50 rounded-full h-8 w-8 shrink-0"
+                                title="Desocultar"
+                              >
+                                <Eye size={14} />
+                              </Button>
+                            )}
+{(user?.role === 'admin' || child.authorId === user?.id) && (
                               <Button variant="ghost" size="icon" onClick={() => {
                                 setConfirmConfig({ isOpen: true, title: "Apagar Permanentemente?", description: "Irreversível.", variant: "destructive", onConfirm: () => handleDeleteComment(child.id) })
                               }} className="text-red-500 hover:bg-red-50 rounded-full h-8 w-8 shrink-0"><Trash2 size={14} /></Button>
@@ -423,17 +632,35 @@ export default function TopicView() {
                           <>
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center gap-3">
-                                <div className="h-8 w-8 bg-[#F5F0E8] rounded-xl flex items-center justify-center text-[#0EA5E9] font-black text-xs">
+                                <div className="h-8 w-8 bg-[#EBDCC6] rounded-xl flex items-center justify-center text-[#0EA5E9] font-black text-xs">
                                   {child.authorName?.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
                                   <p className="text-xs font-black text-[#001F33] uppercase">{child.authorName}</p>
-                                  <p className="text-[10px] font-bold text-[#001F33]/80 tracking-widest">{new Date(child.createdAt).toLocaleString()}</p>
+                                  <p className="text-[10px] font-bold text-[#001F33]/90 tracking-widest">{new Date(child.createdAt).toLocaleString()}</p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-1 sm:gap-2">
+                                <Button 
+                                  onClick={() => handleCommentReaction(child.id, 'like')}
+                                  variant="ghost" 
+                                  className={`h-8 px-3 transition-all rounded-full gap-2 ${child.userReaction === 'like' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border-2 border-[#0EA5E9]/30' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-[#0EA5E9]'}`}
+                                >
+                                  <ThumbsUp className={`h-3 w-3 ${child.userReaction === 'like' ? 'fill-current' : ''}`} />
+                                  <span className="text-[10px] font-black">{child.likesCount || 0}</span>
+                                </Button>
+                                
+                                <Button 
+                                  onClick={() => handleCommentReaction(child.id, 'dislike')}
+                                  variant="ghost" 
+                                  className={`h-8 px-3 transition-all rounded-full gap-2 ${child.userReaction === 'dislike' ? 'bg-red-50 text-red-600 border-2 border-red-200' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-red-600'}`}
+                                >
+                                  <ThumbsDown className={`h-3 w-3 ${child.userReaction === 'dislike' ? 'fill-current' : ''}`} />
+                                  <span className="text-[10px] font-black">{child.dislikesCount || 0}</span>
+                                </Button>
+
                                 {user?.role === 'admin' && (
-                                  <Button variant="ghost" size="icon" onClick={() => setHideModalConfig({ isOpen: true, commentId: child.id, hideReason: "" })} className="text-orange-500 hover:bg-orange-50 rounded-full h-8 w-8 shrink-0">
+                                  <Button variant="ghost" size="icon" onClick={() => setHideModalConfig({ isOpen: true, commentId: child.id, hideReason: "" })} className="text-orange-500 hover:bg-orange-50 rounded-full h-8 w-8 shrink-0 ml-2">
                                     <EyeOff size={14} />
                                   </Button>
                                 )}
@@ -450,37 +677,65 @@ export default function TopicView() {
                           </>
                         )}
                       </motion.div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                      
+                      {children.length > 1 && (
+                        <div className="flex items-center gap-4 mt-4">
+                          {visibleCount < children.length && (
+                            <Button 
+                              variant="ghost" 
+                              onClick={() => handleShowMoreReplies(comment.id, children.length)}
+                              className="text-[#0EA5E9] font-black uppercase text-[10px] tracking-widest hover:bg-[#0EA5E9]/10 rounded-full h-8 px-4 border-4 border-[#0EA5E9]/40 shadow-sm"
+                            >
+                              Ver Mais ({children.length - visibleCount})
+                            </Button>
+                          )}
+                          {visibleCount > 1 && (
+                            <Button 
+                              variant="ghost" 
+                              onClick={() => handleHideReplies(comment.id)}
+                              className="text-[#001F33]/80 font-black uppercase text-[10px] tracking-widest hover:bg-[#EBDCC6] rounded-full h-8 px-4"
+                            >
+                              Ocultar Respostas
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             ))}
-
-            <div className="bg-white p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] shadow-sm border border-[#8B4513]/50 mt-12">
-              {replyingTo && (
-                <div className="bg-[#0EA5E9]/10 border border-[#0EA5E9]/20 rounded-2xl p-4 mb-4 flex items-center justify-between">
-                  <p className="text-xs font-bold text-[#001F33]/80 uppercase tracking-widest">
-                    A responder a <span className="font-black text-[#0EA5E9]">{replyingTo.name}</span>
-                  </p>
-                  <Button variant="ghost" size="sm" onClick={() => setReplyingTo(null)} className="h-6 px-3 text-[#0EA5E9] hover:bg-[#0EA5E9]/20 rounded-full text-[10px] font-black tracking-widest uppercase">
-                    Cancelar
-                  </Button>
+            <div className="fixed bottom-0 left-0 right-0 md:pl-72 p-4 sm:p-6 z-20 pointer-events-none">
+              <div className="pointer-events-auto max-w-4xl mx-auto bg-[#EBDCC6] border-4 border-[#8B4513]/40 shadow-[0_-10px_40px_rgba(0,0,0,0.15)] rounded-[32px] sm:rounded-[40px] p-3 sm:p-4 pb-3">
+                {replyingTo && (
+                  <div className="bg-white border-2 border-[#0EA5E9]/20 rounded-2xl p-3 sm:p-4 mb-4 flex items-center justify-between shadow-sm">
+                    <p className="text-[10px] sm:text-xs font-bold text-[#001F33]/80 uppercase tracking-widest">
+                      A responder a <span className="font-black text-[#0EA5E9]">{replyingTo.name}</span>
+                    </p>
+                    <Button variant="ghost" size="sm" onClick={() => setReplyingTo(null)} className="h-6 sm:h-8 px-3 text-[#0EA5E9] hover:bg-[#0EA5E9]/20 rounded-full text-[10px] font-black tracking-widest uppercase">
+                      Cancelar
+                    </Button>
+                  </div>
+                )}
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Textarea 
+                    id="reply-textarea"
+                    className="flex-1 bg-white border-none min-h-[50px] sm:min-h-[60px] rounded-2xl p-3 sm:p-4 text-[#001F33] font-bold focus:ring-4 focus:ring-[#0EA5E9]/20 text-sm sm:text-base shadow-inner resize-none"
+                    placeholder={replyingTo ? "Escreve a tua resposta..." : "Escreve o teu comentário aqui..."}
+                    value={newComment}
+                    onChange={e => setNewComment(e.target.value)}
+                  />
+                  <div className="flex items-end justify-end">
+                    <Button 
+                      onClick={handlePostComment}
+                      className="w-full sm:w-auto bg-[#0EA5E9] text-white uppercase font-black text-[10px] sm:text-xs h-12 sm:h-[60px] px-6 rounded-2xl shadow-lg shadow-[#0EA5E9]/30 tracking-widest hover:bg-[#0284c7] hover:scale-[1.02] transition-all"
+                    >
+                      <Send className="mr-2 h-4 w-4" /> Enviar Resposta (+20 XP)
+                    </Button>
+                  </div>
                 </div>
-              )}
-              <Textarea 
-                id="reply-textarea"
-                className="bg-[#F5F0E8] border-none min-h-[120px] rounded-[32px] p-8 text-[#001F33] font-bold focus:ring-[#0EA5E9] text-base mb-6"
-                placeholder={replyingTo ? "Escreve a tua resposta..." : "Escreve o teu comentário aqui..."}
-                value={newComment}
-                onChange={e => setNewComment(e.target.value)}
-              />
-              <div className="flex justify-end">
-                <Button 
-                  onClick={handlePostComment}
-                  className="bg-[#0EA5E9] text-white uppercase font-black text-xs h-14 px-10 rounded-full shadow-lg shadow-[#0EA5E9]/20 tracking-widest"
-                >
-                  <Send className="mr-2 h-4 w-4" /> Enviar Resposta (+20 XP)
-                </Button>
               </div>
             </div>
           </div>
@@ -510,7 +765,7 @@ export default function TopicView() {
               value={hideModalConfig.hideReason} 
               onChange={e => setHideModalConfig({ ...hideModalConfig, hideReason: e.target.value })}
               placeholder="Ex: Utilização de palavras obscenas"
-              className="bg-[#F5F0E8] border-none h-14 rounded-2xl px-6 text-[#001F33] font-bold focus:ring-[#0EA5E9]"
+              className="bg-[#EBDCC6] border-none h-14 rounded-2xl px-6 text-[#001F33] font-bold focus:ring-[#0EA5E9]"
             />
           </div>
           <DialogFooter>

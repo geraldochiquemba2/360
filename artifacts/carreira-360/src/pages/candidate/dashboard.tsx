@@ -80,7 +80,7 @@ export default function CandidateDashboard() {
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] flex font-sans text-[#001F33] relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33] relative overflow-x-hidden">
       {/* Overlay para mobile */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -151,7 +151,7 @@ export default function CandidateDashboard() {
 
       {/* Content */}
       <main className="flex-1 md:ml-72 min-h-screen">
-        <header className="p-4 sm:p-8 bg-white/50 md:bg-transparent border-b md:border-none border-[#8B4513]/50 sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
+        <header className="p-4 sm:p-8 bg-white/50 md:bg-transparent border-b-2 md:border-none border-[#8B4513] sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
@@ -162,14 +162,14 @@ export default function CandidateDashboard() {
               <Menu size={24} />
             </Button>
             <div>
-              <h1 className="text-2xl md:text-4xl font-display uppercase tracking-tight">Painel do Candidato</h1>
-              <p className="text-[#001F33] font-bold mt-1 hidden md:block">Bem-vindo, {user.name}! Estas são as oportunidades para o teu perfil.</p>
+              <h1 className="text-xl sm:text-2xl md:text-4xl font-display uppercase tracking-tight truncate max-w-[180px] sm:max-w-none">Painel do Candidato</h1>
+              <p className="text-[#001F33] font-bold mt-1 hidden sm:block truncate text-xs sm:text-base">Bem-vindo, {user.name}! Estas são as oportunidades para o teu perfil.</p>
             </div>
           </div>
           
           {/* Gamification Badge - Visible in header on desktop, maybe simplified on mobile */}
-          <div className="bg-white px-4 md:px-6 py-2 md:py-4 rounded-2xl shadow-sm border border-[#8B4513]/50 flex items-center gap-3 md:gap-4 md:absolute md:right-8 md:top-8">
-            <div className="h-10 w-10 md:h-12 md:w-12 bg-[#0EA5E9] rounded-xl flex items-center justify-center text-white font-display text-xl md:text-2xl shadow-lg shadow-[#0EA5E9]/30">
+          <div className="bg-white px-3 md:px-6 py-1.5 md:py-4 rounded-xl md:rounded-2xl shadow-sm border-2 border-[#8B4513] flex items-center gap-2 md:gap-4 md:absolute md:right-8 md:top-8">
+            <div className="h-8 w-8 md:h-12 md:w-12 bg-[#0EA5E9] rounded-lg md:rounded-xl flex items-center justify-center text-white font-display text-lg md:text-2xl shadow-lg shadow-[#0EA5E9]/30">
               {stats.level}
             </div>
             <div className="hidden sm:block">
@@ -199,7 +199,7 @@ export default function CandidateDashboard() {
               {loading ? (
                 <div className="flex justify-center py-10"><div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full"></div></div>
               ) : opportunities.length === 0 ? (
-                <div className="bg-white p-12 text-center rounded-2xl shadow-sm border border-[#8B4513]/50">
+                <div className="bg-white p-12 text-center rounded-2xl shadow-sm border-2 border-[#8B4513]">
                   <p className="text-xl font-display uppercase text-[#001F33]/20">Sem vagas disponíveis agora.</p>
                 </div>
               ) : (
@@ -209,7 +209,7 @@ export default function CandidateDashboard() {
                       key={op.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border border-[#8B4513]/50 hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-6 justify-between items-center"
+                      className="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-6 justify-between items-center"
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -297,14 +297,14 @@ export default function CandidateDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#8B4513]/50">
+              <div className="bg-white p-8 rounded-2xl shadow-sm border-2 border-[#8B4513]">
                 <h3 className="text-lg font-display uppercase text-[#001F33] mb-4">Destaque de Formação</h3>
                 <div className="space-y-4">
-                  <div className="p-4 bg-[#F5F0E8] rounded-xl group hover:bg-[#0EA5E9]/10 transition-colors cursor-pointer">
+                  <div className="p-4 bg-[#EBDCC6] rounded-xl group hover:bg-[#0EA5E9]/10 transition-colors cursor-pointer">
                     <p className="text-[10px] font-bold uppercase text-[#0EA5E9]">Curso Recomendado</p>
                     <h4 className="font-bold uppercase text-sm mt-1">Liderança em Ambientes Digitais</h4>
                   </div>
-                  <div className="p-4 bg-[#F5F0E8] rounded-xl group hover:bg-[#0EA5E9]/10 transition-colors cursor-pointer">
+                  <div className="p-4 bg-[#EBDCC6] rounded-xl group hover:bg-[#0EA5E9]/10 transition-colors cursor-pointer">
                     <p className="text-[10px] font-bold uppercase text-[#F97316]">Trilha Gratuita</p>
                     <h4 className="font-bold uppercase text-sm mt-1">Domínio de Soft Skills 2026</h4>
                   </div>

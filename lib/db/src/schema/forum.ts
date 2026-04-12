@@ -8,6 +8,8 @@ export const forumTopicsTable = pgTable("forum_topics", {
   title: text("title").notNull(),
   content: text("content").notNull(),
   category: text("category").notNull(), // 'geral', 'duvidas', 'carreira', 'vagas'
+  imageUrl: text("image_url"),
+  videoUrl: text("video_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -24,8 +26,10 @@ export const forumPostsTable = pgTable("forum_posts", {
 
 export const forumLikesTable = pgTable("forum_likes", {
   id: serial("id").primaryKey(),
-  topicId: integer("topic_id").notNull().references(() => forumTopicsTable.id, { onDelete: "cascade" }),
   userId: integer("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  topicId: integer("topic_id").references(() => forumTopicsTable.id, { onDelete: "cascade" }),
+  postId: integer("post_id").references(() => forumPostsTable.id, { onDelete: "cascade" }),
+  type: text("type").notNull().default("like"), // 'like', 'dislike'
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

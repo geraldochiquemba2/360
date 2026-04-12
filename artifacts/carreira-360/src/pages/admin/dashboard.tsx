@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { AdminSidebar } from "@/components/layout/AdminSidebar";
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
@@ -42,6 +43,10 @@ export default function AdminDashboard() {
   const [loadingForum, setLoadingForum] = useState(false);
   const [searchJobs, setSearchJobs] = useState("");
   const [filterJobType, setFilterJobType] = useState("all");
+  const [searchUsers, setSearchUsers] = useState("");
+  const [filterRole, setFilterRole] = useState("all");
+  const [searchMentors, setSearchMentors] = useState("");
+  const [filterMentorStatus, setFilterMentorStatus] = useState<"all" | "pendente" | "ativo" | "rejeitado">("all");
   const { toast } = useToast();
 
   // Modais de Criação/Edição
@@ -61,6 +66,7 @@ export default function AdminDashboard() {
   const [isRejectingUser, setIsRejectingUser] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [userToReject, setUserToReject] = useState<number | null>(null);
+  const [editingTopic, setEditingTopic] = useState<any>(null);
 
   // Estados de Confirmação (Substituto do confirm)
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -83,16 +89,23 @@ export default function AdminDashboard() {
   const [newModule, setNewModule] = useState({ title: "", order: 0 });
   const [newVideo, setNewVideo] = useState({ title: "", url: "", description: "", xpPoints: 100, order: 0 });
   const [newOpportunity, setNewOpportunity] = useState({ title: "", company: "", location: "", type: "emprego", description: "", requirements: "", link: "", deadline: "" });
-  const [newTopic, setNewTopic] = useState({ title: "", content: "", category: "Geral" });
+  const [newTopic, setNewTopic] = useState({ title: "", content: "", category: "Geral", imageUrl: "", videoUrl: "" });
   const [customCategory, setCustomCategory] = useState("");
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    if (tab && ["overview", "users", "jobs", "content", "mentors", "forum"].includes(tab)) {
+      setCurrentTab(tab as any);
+    }
+
     const storedStr = localStorage.getItem("user");
     const token = localStorage.getItem("token");
     if (!token || !storedStr) { setLocation("/auth/login"); return; }
     const parsedUser = JSON.parse(storedStr);
     if (parsedUser.role !== "admin") { setLocation("/"); return; }
     setUser(parsedUser);
+    
     fetchStats();
   }, [setLocation]);
 
@@ -120,6 +133,280 @@ export default function AdminDashboard() {
     else if (currentTab === "mentors") fetchMentors();
     else if (currentTab === "forum") fetchForumTopics();
   }, [currentTab]);
+
+  const filteredCandidates = candidates.filter(c => {
+    const matchesSearch = (c.name?.toLowerCase() || "").includes(searchUsers.toLowerCase()) || 
+                         (c.email?.toLowerCase() || "").includes(searchUsers.toLowerCase());
+    const matchesRole = filterRole === 'all' ? 
+                       (c.role === 'candidate' || (c.role === 'mentor' && c.status === 'ativo')) : 
+                       (filterRole === 'candidate' ? c.role === 'candidate' : c.role === 'mentor');
+    return matchesSearch && matchesRole;
+  });
+
+  const usersContent = (() => {
+    if (loadingCandidates) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[32px] border-2 border-[#8B4513] shadow-sm">
+          <div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full mb-4"></div>
+          <p className="text-xs font-black uppercase tracking-widest text-[#001F33]/50">A carregar utilizadores...</p>
+        </div>
+      );
+    }
+
+    if (filteredCandidates.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[32px] border-2 border-[#8B4513] shadow-sm text-center px-10">
+          <Users size={48} className="text-[#001F33]/10 mb-6" />
+          <h3 className="text-xl font-display uppercase text-[#001F33]">Nenhum utilizador encontrado</h3>
+          <p className="text-sm font-bold text-[#001F33]/50 mt-2">Tenta mudar o perfil ou limpar a pesquisa.</p>
+          {(searchUsers || filterRole !== 'all') && (
+            <Button 
+              variant="ghost" 
+              onClick={() => { setSearchUsers(""); setFilterRole("all"); }}
+              className="mt-6 text-[#0EA5E9] hover:bg-[#0EA5E9]/10 font-black uppercase text-[10px] tracking-widest rounded-full h-11 px-8"
+            >
+              Limpar Filtros
+            </Button>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* MOBILE CARDS - Visível até ecrãs Grandes */}
+        <div className="lg:hidden bg-white rounded-[32px] shadow-2xl overflow-hidden border-2 border-[#8B4513] divide-y-2 divide-[#8B4513]">
+          {filteredCandidates.map(c => (
+            <div key={c.id} className={`p-5 flex flex-col gap-3 ${c.status === 'pendente' ? 'bg-orange-50' : c.status === 'rejeitado' ? 'bg-red-50 opacity-60' : ''}`}>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="font-black uppercase text-sm text-[#001F33]">{c.name}</p>
+                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full mt-1 inline-block ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                    {c.role === 'mentor' ? 'Mentor' : 'Jovem'}
+                  </span>
+                </div>
+                <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full shrink-0 ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                  {c.status === 'pendente' ? 'Pendente' : c.status === 'rejeitado' ? 'Rejeitado' : 'Ativo'}
+                </span>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-[#001F33]/85 break-all">{c.email}</p>
+                <p className="text-xs font-bold text-[#F97316]">{c.phone || '---'}</p>
+              </div>
+              <div className="flex gap-4 text-xs font-bold">
+                {c.cvUrl ? (
+                  <a href={c.cvUrl} target="_blank" rel="noreferrer" className="text-[#0EA5E9] underline flex items-center gap-1 hover:text-[#F97316]"><ExternalLink size={12}/> CV</a>
+                ) : <span className="text-[#001F33]/70">Sem CV</span>}
+                {c.socialLink ? (
+                  <a href={c.socialLink} target="_blank" rel="noreferrer" className="text-blue-600 underline flex items-center gap-1 hover:text-blue-800"><ExternalLink size={12}/> LinkedIn</a>
+                ) : <span className="text-[#001F33]/70">Sem LinkedIn</span>}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-8 text-[9px] uppercase px-3 font-black border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes</Button>
+                {c.status === 'pendente' && (
+                  <>
+                    <Button onClick={() => handleUpdateStatus(c.id, 'ativo')} size="sm" className="h-8 bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-3 shadow-sm">Aprovar</Button>
+                    <Button onClick={() => { setUserToReject(c.id); setIsRejectingUser(true); }} size="sm" variant="destructive" className="h-8 font-bold text-[9px] uppercase px-3 shadow-sm">Rejeitar</Button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* DESKTOP TABLE - Visível apenas em ecrãs XL */}
+        <div className="hidden lg:block overflow-x-auto bg-white rounded-[32px] shadow-2xl border-2 border-[#8B4513]">
+          <div className="min-w-[1000px]">
+            <table className="w-full text-left">
+              <thead className="bg-[#001F33] text-white uppercase text-[10px] font-black tracking-widest">
+                <tr className="h-16">
+                  <th className="px-10 whitespace-nowrap">Candidato / Perfil</th>
+                  <th className="px-10 whitespace-nowrap">E-mail / Contacto</th>
+                  <th className="px-10 whitespace-nowrap">Mídia (CV / LinkedIn)</th>
+                  <th className="px-10 whitespace-nowrap text-center">Estado / Ação</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y-2 divide-[#8B4513]">
+                {filteredCandidates.map(c => (
+                  <tr key={c.id} className={`hover:bg-[#EBDCC6]/50 h-24 group transition-colors ${c.status === 'pendente' ? 'bg-orange-50' : c.status === 'rejeitado' ? 'bg-red-50 opacity-60' : ''}`}>
+                    <td className="px-10">
+                      <span className="font-black uppercase text-sm text-[#001F33] block mb-1">{c.name}</span>
+                      <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-full ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                        {c.role === 'mentor' ? 'Mentor' : 'Jovem'}
+                      </span>
+                    </td>
+                    <td className="px-10">
+                      <span className="text-xs font-bold text-[#001F33]/85 block">{c.email}</span>
+                      <span className="text-xs font-bold text-[#F97316]">{c.phone || "---"}</span>
+                    </td>
+                    <td className="px-10 text-xs font-bold">
+                      {c.cvUrl ? (
+                        <a href={c.cvUrl} target="_blank" rel="noreferrer" className="text-[#0EA5E9] hover:text-[#F97316] underline flex items-center mb-1"><ExternalLink size={12} className="mr-1" /> CV Documento</a>
+                      ) : <span className="text-[#001F33]/80 block mb-1">Sem CV</span>}
+                      {c.socialLink ? (
+                        <a href={c.socialLink} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center"><ExternalLink size={12} className="mr-1" /> LinkedIn</a>
+                      ) : <span className="text-[#001F33]/80 block">Sem Rede Social</span>}
+                    </td>
+                    <td className="px-10">
+                      <div className="flex flex-col items-center gap-2">
+                        <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                          {c.status === 'pendente' ? 'Pendente' : c.status === 'rejeitado' ? 'Rejeitado' : 'Ativo'}
+                        </span>
+                        <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-7 text-[9px] uppercase px-2 font-black border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes Completos</Button>
+                        {c.status === 'pendente' && (
+                          <div className="flex gap-2">
+                            <Button onClick={() => handleUpdateStatus(c.id, 'ativo')} size="sm" className="h-7 bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-2 shadow-sm">Aprovar</Button>
+                            <Button onClick={() => { setUserToReject(c.id); setIsRejectingUser(true); }} size="sm" variant="destructive" className="h-7 font-bold text-[9px] uppercase px-2 shadow-sm">Rejeitar</Button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  })();
+
+  const mentorsContent = (() => {
+    if (loadingMentors) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[32px] border-2 border-[#8B4513] shadow-sm">
+          <div className="animate-spin h-10 w-10 border-4 border-[#F97316] border-t-transparent rounded-full mb-4"></div>
+          <p className="text-xs font-black uppercase tracking-widest text-[#001F33]/50">A carregar mentores...</p>
+        </div>
+      );
+    }
+  
+    const filteredMentors = mentors.filter(m => {
+      const matchesSearch = (m.name || "").toLowerCase().includes(searchMentors.toLowerCase()) || 
+                           (m.email || "").toLowerCase().includes(searchMentors.toLowerCase());
+      const matchesStatus = filterMentorStatus === 'all' || m.status === filterMentorStatus;
+      return matchesSearch && matchesStatus;
+    });
+
+    if (filteredMentors.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[32px] border-2 border-[#8B4513] shadow-sm text-center px-10">
+          <UserCheck size={48} className="text-[#001F33]/10 mb-6" />
+          <h3 className="text-xl font-display uppercase text-[#001F33]">Nenhum mentor nesta categoria</h3>
+          <p className="text-sm font-bold text-[#001F33]/50 mt-2">Tenta mudar o filtro ou pesquisar por outro nome.</p>
+          {(searchMentors || filterMentorStatus !== 'all') && (
+            <Button 
+              variant="ghost" 
+              onClick={() => { setSearchMentors(""); setFilterMentorStatus("all"); }}
+              className="mt-6 text-[#F97316] hover:bg-[#F97316]/10 font-black uppercase text-[10px] tracking-widest rounded-full h-11 px-8"
+            >
+              Limpar Pesquisa
+            </Button>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="space-y-6">
+        {/* MOBILE CARDS */}
+        <div className="lg:hidden bg-white rounded-[32px] shadow-2xl overflow-hidden border-2 border-[#8B4513] divide-y-2 divide-[#8B4513]">
+          {filteredMentors.map(m => (
+            <div key={m.id} className={`p-6 flex flex-col gap-4 ${m.status === 'pendente' ? 'bg-[#F97316]/5' : ''}`}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-black uppercase text-base text-[#001F33]">{m.name}</p>
+                  <p className="text-xs font-bold text-[#001F33]/60">{m.email}</p>
+                </div>
+                <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${m.status === 'pendente' ? 'bg-orange-100 text-orange-600' : m.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                  {m.status}
+                </span>
+              </div>
+              <div className="bg-[#EBDCC6]/50 p-3 rounded-xl border border-[#8B4513]/20">
+                <p className="text-[9px] font-black uppercase text-[#001F33]/40 tracking-widest mb-1">Especialidade / Bio</p>
+                <p className="text-xs font-bold text-[#001F33]/80 line-clamp-3 leading-relaxed">{m.bio || 'Sem biografia informada'}</p>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs font-bold text-[#001F33]/50">
+                {m.expertise && (
+                  <span className="bg-[#0EA5E9]/5 text-[#0EA5E9] px-2 py-0.5 rounded border border-[#0EA5E9]/20 uppercase text-[9px] font-black">{m.expertise}</span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-[#8B4513]/20">
+                {m.status === 'pendente' && (
+                  <>
+                    <Button onClick={() => updateMentorStatus(m.id, 'ativo')} size="sm" className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-4 h-10 shadow-sm">Aprovar</Button>
+                    <Button onClick={() => updateMentorStatus(m.id, 'rejeitado')} size="sm" variant="destructive" className="flex-1 font-bold text-[9px] uppercase px-4 h-10 shadow-sm">Rejeitar</Button>
+                  </>
+                )}
+                {m.status === 'ativo' && (
+                  <Button onClick={() => updateMentorStatus(m.id, 'rejeitado')} variant="outline" size="sm" className="w-full h-10 text-[9px] border-red-200 text-red-500 hover:bg-red-50 uppercase font-black">Suspender Acesso</Button>
+                )}
+                {m.status === 'rejeitado' && (
+                  <Button onClick={() => updateMentorStatus(m.id, 'ativo')} variant="outline" size="sm" className="w-full h-10 text-[9px] border-green-200 text-green-600 hover:bg-green-50 uppercase font-black">Ativar Mentor</Button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* DESKTOP TABLE */}
+        <div className="hidden lg:block bg-white rounded-[32px] shadow-2xl overflow-hidden border-2 border-[#8B4513]">
+          <table className="w-full text-left">
+            <thead className="bg-[#001F33] text-white font-black uppercase text-[10px] tracking-widest border-b border-[#8B4513]/50">
+              <tr className="h-16">
+                <th className="px-10">Mentor / Cadastro</th>
+                <th className="px-10">Biografia & Especialidade</th>
+                <th className="px-10">Estado</th>
+                <th className="px-10 text-right">Ações de Gestão</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#8B4513]/50">
+              {filteredMentors.map(m => (
+                <tr key={m.id} className={`h-24 hover:bg-[#EBDCC6]/50 transition-colors ${m.status === 'pendente' ? 'bg-[#F97316]/5' : ''}`}>
+                  <td className="px-10">
+                    <p className="font-black uppercase text-sm text-[#001F33]">{m.name}</p>
+                    <p className="text-xs font-bold text-[#001F33]/60">{m.email}</p>
+                  </td>
+                  <td className="px-10 py-4 max-w-md">
+                    {m.expertise && (
+                      <span className="inline-block bg-[#0EA5E9]/10 text-[#0EA5E9] text-[9px] font-black uppercase px-2 py-0.5 rounded mb-1.5">{m.expertise}</span>
+                    )}
+                    <p className="text-xs font-bold text-[#001F33]/80 line-clamp-2 leading-relaxed">{m.bio || 'Sem biografia informada'}</p>
+                  </td>
+                  <td className="px-10">
+                    <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-full ${m.status === 'pendente' ? 'bg-orange-100 text-orange-600' : m.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                      {m.status}
+                    </span>
+                  </td>
+                  <td className="px-10 text-right">
+                    <div className="flex justify-end gap-2">
+                       {m.status === 'pendente' && (
+                         <>
+                           <Button onClick={() => updateMentorStatus(m.id, 'ativo')} size="sm" className="bg-green-500 hover:bg-green-600 text-white font-black text-[9px] uppercase px-4 h-10 shadow-lg shadow-green-500/10">Aprovar</Button>
+                           <Button onClick={() => updateMentorStatus(m.id, 'rejeitado')} size="sm" variant="destructive" className="font-black text-[9px] uppercase px-4 h-10 shadow-lg shadow-red-500/10">Rejeitar</Button>
+                         </>
+                       )}
+                       {m.status !== 'pendente' && (
+                         <Button 
+                           onClick={() => updateMentorStatus(m.id, m.status === 'ativo' ? 'rejeitado' : 'ativo')}
+                           variant="outline" 
+                           className={`h-10 text-[9px] font-black uppercase px-6 border-[#8B4513]/30 ${m.status === 'ativo' ? 'text-red-500 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}`}
+                         >
+                           {m.status === 'ativo' ? 'Suspender' : 'Ativar'}
+                         </Button>
+                       )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    );
+  })();
 
   const handleUpdateStatus = async (id: number, status: string, reason?: string) => {
     const token = localStorage.getItem("token");
@@ -267,20 +554,37 @@ export default function AdminDashboard() {
     }
 
     const token = localStorage.getItem("token");
+    const method = editingTopic ? "PATCH" : "POST";
+    const url = editingTopic ? `/api/forum/topics/${editingTopic.id}` : "/api/forum/topics";
+
     try {
-      const response = await fetch("/api/forum/topics", {
-        method: "POST",
+      const response = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ ...newTopic, category: finalCategory })
       });
       if (response.ok) { 
-        toast({ title: "Tópico Criado com Sucesso" }); 
+        toast({ title: editingTopic ? "Tópico Atualizado" : "Tópico Criado com Sucesso" }); 
         setIsAddingTopic(false); 
-        setNewTopic({ title: "", content: "", category: "Geral" }); 
+        setEditingTopic(null);
+        setNewTopic({ title: "", content: "", category: "Geral", imageUrl: "", videoUrl: "" }); 
         setCustomCategory("");
         fetchForumTopics(); 
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        toast({ 
+          variant: "destructive", 
+          title: editingTopic ? "Erro ao atualizar" : "Erro ao criar tópico", 
+          description: errData.error || "Ocorreu um erro inesperado." 
+        });
       }
-    } catch (err) { toast({ variant: "destructive", title: "Erro ao criar tópico" }); }
+    } catch (err) { 
+      toast({ 
+        variant: "destructive", 
+        title: "Erro de Conexão", 
+        description: "Não foi possível comunicar com o servidor." 
+      }); 
+    }
   };
 
   const handleSaveVideo = async () => {
@@ -399,7 +703,7 @@ export default function AdminDashboard() {
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] flex font-sans font-medium text-[#001F33]">
+    <div className="min-h-screen bg-[#EBDCC6] flex font-sans font-medium text-[#001F33]">
       <ConfirmModal 
         isOpen={confirmConfig.isOpen}
         onClose={() => setConfirmConfig(prev => ({...prev, isOpen: false}))}
@@ -424,50 +728,15 @@ export default function AdminDashboard() {
         )}
       </AnimatePresence>
 
-      <aside className={`fixed inset-y-0 left-0 bg-[#001F33] text-white w-72 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 z-40 flex flex-col shadow-2xl`}>
-        <div className="p-6 border-b border-white/10 flex flex-col items-center relative">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsSidebarOpen(false)}
-            className="absolute right-4 top-4 text-white/50 hover:text-white md:hidden"
-          >
-            <X size={24} />
-          </Button>
-          <img src="/assets/logo.png" alt="Carreira 360" className="h-16 w-auto object-contain mb-4" />
-          <p className="text-white/50 text-[10px] uppercase tracking-widest font-black">Centro Administrativo</p>
-        </div>
-        <nav className="flex-1 py-6 px-4 space-y-3">
-          {[
-            { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
-            { id: 'users', label: 'Utilizadores', icon: Users },
-            { id: 'jobs', label: 'Vagas', icon: Briefcase },
-            { id: 'content', label: 'Trilhas', icon: BookOpen },
-            { id: 'mentors', label: 'Mentoria', icon: UserCheck },
-            { id: 'forum', label: 'Comunidade', icon: MessageSquare },
-          ].map((item) => (
-            <Button 
-              key={item.id}
-              variant="ghost" 
-              onClick={() => {
-                setCurrentTab(item.id as any);
-                setIsSidebarOpen(false);
-              }} 
-              className={`w-full justify-start ${currentTab === item.id ? 'bg-[#0EA5E9]' : 'hover:bg-white/5'} text-white uppercase font-black text-xs h-12 rounded-xl transition-all shadow-sm ${currentTab === item.id ? 'shadow-lg shadow-[#0EA5E9]/30' : ''}`}
-            >
-              <item.icon className="mr-3 h-5 w-5" /> {item.label}
-            </Button>
-          ))}
-        </nav>
-        <div className="p-6 border-t border-white/10">
-          <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase font-black text-xs h-12 rounded-xl">
-            <LogOut className="mr-3 h-5 w-5" /> Terminar Sessão
-          </Button>
-        </div>
-      </aside>
+      <AdminSidebar 
+        currentTab={currentTab} 
+        onTabChange={setCurrentTab} 
+        isSidebarOpen={isSidebarOpen} 
+        setIsSidebarOpen={setIsSidebarOpen} 
+      />
 
       <main className="flex-1 md:ml-72 min-h-screen flex flex-col min-w-0">
-        <header className="h-20 bg-white border-b border-[#8B4513]/50 flex items-center px-6 md:px-10 shadow-sm justify-between sticky top-0 z-20">
+        <header className="h-20 bg-white border-b-2 border-[#8B4513] flex items-center px-6 md:px-10 shadow-sm justify-between sticky top-0 z-20">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
@@ -477,28 +746,28 @@ export default function AdminDashboard() {
             >
               <Menu size={24} />
             </Button>
-            <h1 className="text-xl md:text-2xl font-display uppercase text-[#001F33] tracking-tight truncate">
+            <h1 className="text-lg md:text-2xl font-display uppercase text-[#001F33] tracking-tight truncate max-w-[150px] sm:max-w-none">
             {currentTab === 'overview' && 'Visão Geral'}
-            {currentTab === 'users' && 'Lista de Utilizadores'}
-            {currentTab === 'jobs' && 'Gestão de Oportunidades'}
-            {currentTab === 'content' && 'Produção de Trilhas'}
-            {currentTab === 'mentors' && 'Moderação de Mentores'}
-            {currentTab === 'forum' && 'Gestão da Comunidade'}
+            {currentTab === 'users' && 'Utilizadores'}
+            {currentTab === 'jobs' && 'Oportunidades'}
+            {currentTab === 'content' && 'Trilhas'}
+            {currentTab === 'mentors' && 'Gestão de Mentores'}
+            {currentTab === 'forum' && 'Comunidade'}
             </h1>
           </div>
           {currentTab === 'jobs' && (
-            <Button onClick={() => { setEditingOpportunity(null); setIsAddingOpportunity(true); }} className="bg-[#0EA5E9] text-white uppercase font-black text-xs px-6 h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
-              <Plus className="mr-2 h-4 w-4" /> Nova Vaga
+            <Button onClick={() => { setEditingOpportunity(null); setIsAddingOpportunity(true); }} className="bg-[#0EA5E9] text-white uppercase font-black text-[10px] sm:text-xs px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
+              <Plus className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Nova Vaga</span>
             </Button>
           )}
           {currentTab === 'content' && !selectedTrack && (
-            <Button onClick={() => { setEditingTrack(null); setIsAddingTrack(true); }} className="bg-[#0EA5E9] text-white uppercase font-black text-xs px-6 h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
-              <Plus className="mr-2 h-4 w-4" /> Nova Trilha
+            <Button onClick={() => { setEditingTrack(null); setIsAddingTrack(true); }} className="bg-[#0EA5E9] text-white uppercase font-black text-[10px] sm:text-xs px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
+              <Plus className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Nova Trilha</span>
             </Button>
           )}
           {currentTab === 'forum' && (
-            <Button onClick={() => { setNewTopic({title: "", content: "", category: "Geral"}); setIsAddingTopic(true); }} className="bg-[#0EA5E9] text-white uppercase font-black text-[10px] px-6 h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all flex items-center">
-              <Plus className="mr-2 h-4 w-4" /> Novo Tópico
+            <Button onClick={() => { setNewTopic({title: "", content: "", category: "Geral"}); setIsAddingTopic(true); }} className="bg-[#0EA5E9] text-white uppercase font-black text-[9px] sm:text-[10px] px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all flex items-center">
+              <Plus className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Novo Tópico</span>
             </Button>
           )}
         </header>
@@ -506,10 +775,10 @@ export default function AdminDashboard() {
         <div className="p-6 sm:p-10">
           {currentTab === 'overview' && (
             <div className="space-y-10">
-               <motion.div initial={{opacity:0, y: 20}} animate={{opacity:1, y: 0}} className="bg-[#001F33] p-12 rounded-[40px] text-white shadow-2xl relative overflow-hidden group">
+               <motion.div initial={{opacity:0, y: 20}} animate={{opacity:1, y: 0}} className="bg-[#001F33] p-8 sm:p-12 rounded-[32px] sm:rounded-[40px] text-white shadow-2xl relative overflow-hidden group">
                   <div className="relative z-10">
-                    <h2 className="text-6xl font-display uppercase mb-4 tracking-tighter leading-none">Gestão Central <br/><span className="text-[#0EA5E9]">Carreira 360</span></h2>
-                    <p className="text-white/70 font-medium max-w-2xl text-xl">Monitoriza o progresso dos jovens, valida mentores e mantém as oportunidades atualizadas.</p>
+                    <h2 className="text-3xl sm:text-5xl md:text-6xl font-display uppercase mb-4 tracking-tighter leading-none">Gestão Central <br/><span className="text-[#0EA5E9]">Carreira 360</span></h2>
+                    <p className="text-white/70 font-medium max-w-2xl text-base sm:text-xl">Monitoriza o progresso dos jovens, valida mentores e mantém as oportunidades atualizadas.</p>
                   </div>
                   <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-[#0EA5E9] rounded-full blur-[100px] opacity-20 group-hover:opacity-40 transition-opacity"></div>
                </motion.div>
@@ -530,115 +799,94 @@ export default function AdminDashboard() {
           )}
 
           {currentTab === 'users' && (
-            <div className="space-y-6">
-
-              {/* MOBILE CARDS - Visível até ecrãs Grandes */}
-              <div className="lg:hidden bg-white rounded-[32px] shadow-2xl overflow-hidden border border-[#8B4513]/50 divide-y divide-[#8B4513]/50">
-                {candidates
-                  .filter(c => c.role === 'candidate' || (c.role === 'mentor' && c.status === 'ativo'))
-                  .map(c => (
-                  <div key={c.id} className={`p-5 flex flex-col gap-3 ${c.status === 'pendente' ? 'bg-orange-50' : c.status === 'rejeitado' ? 'bg-red-50 opacity-60' : ''}`}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-black uppercase text-sm text-[#001F33]">{c.name}</p>
-                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full mt-1 inline-block ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
-                          {c.role === 'mentor' ? 'Mentor' : 'Jovem'}
-                        </span>
-                      </div>
-                      <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full shrink-0 ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                        {c.status === 'pendente' ? 'Pendente' : c.status === 'rejeitado' ? 'Rejeitado' : 'Ativo'}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-[#001F33]/85 break-all">{c.email}</p>
-                      <p className="text-xs font-bold text-[#F97316]">{c.phone || '---'}</p>
-                    </div>
-                    <div className="flex gap-4 text-xs font-bold">
-                      {c.cvUrl ? (
-                        <a href={c.cvUrl} target="_blank" rel="noreferrer" className="text-[#0EA5E9] underline flex items-center gap-1"><ExternalLink size={12}/> CV</a>
-                      ) : <span className="text-[#001F33]/70">Sem CV</span>}
-                      {c.socialLink ? (
-                        <a href={c.socialLink} target="_blank" rel="noreferrer" className="text-blue-600 underline flex items-center gap-1"><ExternalLink size={12}/> LinkedIn</a>
-                      ) : <span className="text-[#001F33]/70">Sem LinkedIn</span>}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-8 text-[9px] uppercase px-3 font-black border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes</Button>
-                      {c.status === 'pendente' && (
-                        <>
-                          <Button onClick={() => handleUpdateStatus(c.id, 'ativo')} size="sm" className="h-8 bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-3">Aprovar</Button>
-                          <Button onClick={() => { setUserToReject(c.id); setIsRejectingUser(true); }} size="sm" variant="destructive" className="h-8 font-bold text-[9px] uppercase px-3">Rejeitar</Button>
-                        </>
-                      )}
+            <div className="space-y-8">
+              <div className="bg-white rounded-[2.5rem] border-4 border-[#8B4513] shadow-sm overflow-hidden mb-12">
+                <div className="p-10 border-b-4 border-[#8B4513] bg-[#EBDCC6]/30">
+                  <h2 className="text-xl font-display uppercase tracking-widest text-[#001F33]">Utilizadores Registados</h2>
+                </div>
+                <div className="p-8">
+                  <div className="mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div className="relative flex-1 w-full group">
+                      <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8B4513]/30 group-focus-within:text-[#0EA5E9] transition-colors" size={20} />
+                      <Input 
+                        className="pl-16 h-16 bg-[#EBDCC6] border-4 border-[#8B4513] rounded-3xl font-bold text-[#001F33] focus:ring-4 focus:ring-[#0EA5E9]/20" 
+                        placeholder="Pesquisar por nome ou e-mail..." 
+                        value={searchUsers}
+                        onChange={e => setSearchUsers(e.target.value)}
+                      />
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {/* DESKTOP TABLE - Visível apenas em ecrãs XL */}
-              <div className="hidden lg:block overflow-x-auto bg-white rounded-[32px] shadow-2xl border border-[#8B4513]/50">
-                <div className="min-w-[1000px]">
-                  <table className="w-full text-left">
-                  <thead className="bg-[#001F33] text-white uppercase text-[10px] font-black tracking-widest">
-                    <tr className="h-16">
-                      <th className="px-10 whitespace-nowrap">Candidato / Perfil</th>
-                      <th className="px-10 whitespace-nowrap">E-mail / Contacto</th>
-                      <th className="px-10 whitespace-nowrap">Mídia (CV / LinkedIn)</th>
-                      <th className="px-10 whitespace-nowrap text-center">Estado / Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#8B4513]/50">
-                    {candidates
-                      .filter(c => c.role === 'candidate' || (c.role === 'mentor' && c.status === 'ativo'))
-                      .map(c => (
-                      <tr key={c.id} className={`hover:bg-[#F5F0E8]/50 h-24 group transition-colors ${c.status === 'pendente' ? 'bg-orange-50' : c.status === 'rejeitado' ? 'bg-red-50 opacity-60' : ''}`}>
-                        <td className="px-10">
-                          <span className="font-black uppercase text-sm text-[#001F33] block mb-1">{c.name}</span>
-                          <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-full ${c.role === 'mentor' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
-                            {c.role === 'mentor' ? 'Mentor' : 'Jovem'}
-                          </span>
-                        </td>
-                        <td className="px-10">
-                          <span className="text-xs font-bold text-[#001F33]/85 block">{c.email}</span>
-                          <span className="text-xs font-bold text-[#F97316]">{c.phone || "---"}</span>
-                        </td>
-                        <td className="px-10 text-xs font-bold">
-                          {c.cvUrl ? (
-                            <a href={c.cvUrl} target="_blank" rel="noreferrer" className="text-[#0EA5E9] hover:text-[#F97316] underline flex items-center mb-1"><ExternalLink size={12} className="mr-1" /> CV Documento</a>
-                          ) : <span className="text-[#001F33]/80 block mb-1">Sem CV</span>}
-                          {c.socialLink ? (
-                            <a href={c.socialLink} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center"><ExternalLink size={12} className="mr-1" /> LinkedIn</a>
-                          ) : <span className="text-[#001F33]/80 block">Sem Rede Social</span>}
-                        </td>
-                        <td className="px-10">
-                          <div className="flex flex-col items-center gap-2">
-                            <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${c.status === 'pendente' ? 'bg-orange-100 text-orange-600' : c.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                              {c.status === 'pendente' ? 'Pendente' : c.status === 'rejeitado' ? 'Rejeitado' : 'Ativo'}
-                            </span>
-                            <Button onClick={() => setViewUser(c)} size="sm" variant="outline" className="h-7 text-[9px] uppercase px-2 font-black border-[#001F33]/20 hover:border-[#0EA5E9] hover:text-[#0EA5E9]">Detalhes Completos</Button>
-                            {c.status === 'pendente' && (
-                              <div className="flex gap-2">
-                                <Button onClick={() => handleUpdateStatus(c.id, 'ativo')} size="sm" className="h-7 bg-green-500 hover:bg-green-600 text-white font-bold text-[9px] uppercase px-2">Aprovar</Button>
-                                <Button onClick={() => { setUserToReject(c.id); setIsRejectingUser(true); }} size="sm" variant="destructive" className="h-7 font-bold text-[9px] uppercase px-2">Rejeitar</Button>
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  {usersContent}
                 </div>
               </div>
             </div>
           )}
+          
+          {currentTab === 'mentors' && (
+            <div className="space-y-8">
+              <div className="flex flex-col md:flex-row gap-6 items-center justify-between bg-white p-6 rounded-[2.5rem] border border-[#8B4513]/50 shadow-sm relative overflow-hidden group">
+                 <div className="relative w-full md:w-96 group/search z-10">
+                   <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#001F33]/20 group-focus-within/search:text-[#F97316] transition-colors" size={20} />
+                   <Input 
+                     className="pl-16 h-16 bg-[#EBDCC6] border-none rounded-2xl font-bold text-[#001F33] focus:ring-2 focus:ring-[#F97316] shadow-inner" 
+                     placeholder="Pesquisar mentor por nome ou email..." 
+                     value={searchMentors}
+                     onChange={(e) => setSearchMentors(e.target.value)}
+                   />
+                 </div>
+                 <div className="text-right z-10">
+                    <p className="text-[10px] font-black uppercase text-[#001F33]/40 tracking-[0.3em] mb-1">Base de Mentores</p>
+                    <div className="flex items-center justify-end gap-3">
+                       <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                       <p className="text-3xl font-display text-[#001F33]">{mentors.length}</p>
+                    </div>
+                 </div>
+                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#F97316]/5 rounded-bl-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+              </div>
 
-          {currentTab === 'jobs' && (
+              {/* FILTROS DE ESTADO PERMANENTES - Alta Visibilidade */}
+              <div className="flex flex-wrap items-center gap-3 bg-[#EBDCC6]/80 p-3 rounded-[2.5rem] border-2 border-[#8B4513]/20 w-fit backdrop-blur-md shadow-inner">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setFilterMentorStatus("all")}
+                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-black tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'all' ? 'bg-[#001F33] text-white shadow-[0_8px_20px_-5px_rgba(0,31,51,0.4)] scale-105' : 'text-[#001F33]/60 hover:bg-[#001F33]/10'}`}
+                >
+                  <span className="mr-2">📋</span> Todos <span className="ml-2 opacity-50">({mentors.length})</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setFilterMentorStatus("pendente")}
+                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-black tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'pendente' ? 'bg-[#F97316] text-white shadow-[0_8px_20px_-5px_rgba(249,115,22,0.4)] scale-105' : 'text-[#F97316]/60 hover:bg-[#F97316]/10'}`}
+                >
+                  <span className="mr-2">🕒</span> Pendentes <span className="ml-2 opacity-50">({mentors.filter(m => m.status === 'pendente').length})</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setFilterMentorStatus("ativo")}
+                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-black tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'ativo' ? 'bg-green-500 text-white shadow-[0_8px_20px_-5px_rgba(34,197,94,0.4)] scale-105' : 'text-green-600/70 hover:bg-green-50'}`}
+                >
+                  <span className="mr-2">✅</span> Aprovados <span className="ml-2 opacity-50">({mentors.filter(m => m.status === 'ativo').length})</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setFilterMentorStatus("rejeitado")}
+                  className={`h-12 px-8 rounded-full text-[10px] uppercase font-black tracking-[0.2em] transition-all duration-300 ${filterMentorStatus === 'rejeitado' ? 'bg-red-500 text-white shadow-[0_8px_20px_-5px_rgba(239,68,68,0.4)] scale-105' : 'text-red-500/70 hover:bg-red-50'}`}
+                >
+                  <span className="mr-2">❌</span> Rejeitados <span className="ml-2 opacity-50">({mentors.filter(m => m.status === 'rejeitado').length})</span>
+                </Button>
+              </div>
+
+              {mentorsContent}
+            </div>
+          )}
+
+        {currentTab === 'jobs' && (
             <div className="space-y-8">
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-[2rem] border border-[#8B4513]/50 shadow-sm">
                  <div className="relative w-full md:w-96 group">
                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[#001F33]/20 group-focus-within:text-[#0EA5E9] transition-colors" size={20} />
                    <Input 
-                     className="pl-14 h-14 bg-[#F5F0E8] border-none rounded-2xl font-bold text-[#001F33] focus:ring-2 focus:ring-[#0EA5E9]" 
+                     className="pl-14 h-14 bg-[#EBDCC6] border-none rounded-2xl font-bold text-[#001F33] focus:ring-2 focus:ring-[#0EA5E9]" 
                      placeholder="Pesquisar vaga ou empresa..." 
                      value={searchJobs}
                      onChange={(e) => setSearchJobs(e.target.value)}
@@ -646,7 +894,7 @@ export default function AdminDashboard() {
                  </div>
                  <div className="w-full md:w-64">
                    <Select value={filterJobType} onValueChange={setFilterJobType}>
-                     <SelectTrigger className="h-14 bg-[#F5F0E8] border-none rounded-2xl font-black uppercase text-[10px] tracking-widest px-6 focus:ring-2 focus:ring-[#0EA5E9]">
+                     <SelectTrigger className="h-14 bg-[#EBDCC6] border-none rounded-2xl font-black uppercase text-[10px] tracking-widest px-6 focus:ring-2 focus:ring-[#0EA5E9]">
                        <SelectValue placeholder="Filtrar por Tipo" />
                      </SelectTrigger>
                      <SelectContent>
@@ -668,7 +916,7 @@ export default function AdminDashboard() {
                     return matchesSearch && matchesType;
                   })
                   .map(op => (
-                    <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} key={op.id} className="bg-white p-10 rounded-[32px] shadow-sm border border-[#8B4513]/70 relative group hover:shadow-2xl transition-all">
+                    <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} key={op.id} className="bg-white p-6 sm:p-10 rounded-[24px] sm:rounded-[32px] shadow-sm border border-[#8B4513]/70 relative group hover:shadow-2xl transition-all">
                       <div className="flex justify-between items-start mb-8">
                         <span className="bg-[#0EA5E9]/10 text-[#0EA5E9] text-[10px] font-black uppercase px-3 py-1.5 rounded-full tracking-widest">{op.type}</span>
                         <div className="flex gap-2 transition-opacity">
@@ -687,7 +935,7 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex justify-between items-center pt-8 border-t border-[#8B4513]/50">
                         <span className="text-[10px] font-black uppercase text-[#001F33]/70">Prazo: {op.deadline ? new Date(op.deadline).toLocaleDateString() : 'Indefinido'}</span>
-                        <div className="h-10 w-10 rounded-full bg-[#F5F0E8] flex items-center justify-center text-[#0EA5E9] group-hover:bg-[#0EA5E9] group-hover:text-white transition-all"><ExternalLink size={16} /></div>
+                        <div className="h-10 w-10 rounded-full bg-[#EBDCC6] flex items-center justify-center text-[#0EA5E9] group-hover:bg-[#0EA5E9] group-hover:text-white transition-all"><ExternalLink size={16} /></div>
                       </div>
                     </motion.div>
                   ))}
@@ -715,7 +963,7 @@ export default function AdminDashboard() {
                         <div key={mod.id} className="space-y-4">
                           <motion.div initial={{opacity:0, x: -20}} animate={{opacity:1, x: 0}} className="bg-white p-6 md:p-8 rounded-[24px] border border-[#8B4513]/70 flex flex-col md:flex-row justify-between items-start md:items-center shadow-sm hover:shadow-xl transition-all group gap-6">
                             <div className="flex items-center gap-4 md:gap-6">
-                               <div className="h-10 w-10 md:h-12 md:w-12 shrink-0 bg-[#F5F0E8] rounded-2xl flex items-center justify-center text-[#001F33] font-display text-xl">{mod.order + 1}</div>
+                               <div className="h-10 w-10 md:h-12 md:w-12 shrink-0 bg-[#EBDCC6] rounded-2xl flex items-center justify-center text-[#001F33] font-display text-xl">{mod.order + 1}</div>
                                <span className="font-display uppercase text-xl md:text-2xl text-[#001F33] tracking-tight">{mod.title}</span>
                             </div>
                             <div className="flex flex-wrap gap-2 md:gap-3 transition-opacity">
@@ -783,7 +1031,7 @@ export default function AdminDashboard() {
                ) : (
                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
                    {tracks.map(t => (
-                     <motion.div initial={{opacity:0, y: 30}} animate={{opacity:1, y: 0}} key={t.id} className="bg-white rounded-[32px] md:rounded-[40px] shadow-sm border border-[#8B4513]/70 p-8 md:p-12 flex flex-col justify-between group md:h-96 relative overflow-hidden hover:shadow-2xl transition-all">
+                     <motion.div initial={{opacity:0, y: 30}} animate={{opacity:1, y: 0}} key={t.id} className="bg-white rounded-[32px] md:rounded-[40px] shadow-sm border border-[#8B4513]/70 p-6 md:p-12 flex flex-col justify-between group md:h-96 relative overflow-hidden hover:shadow-2xl transition-all">
                         <div className="absolute top-0 right-0 w-40 h-40 bg-[#0EA5E9]/5 rounded-bl-full -mr-10 -mt-10 group-hover:scale-150 group-hover:bg-[#0EA5E9]/10 transition-all duration-700"></div>
                         <div className="relative z-10">
                           <div className="flex justify-between items-start mb-6">
@@ -809,113 +1057,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {currentTab === 'mentors' && (
-            <div className="space-y-6">
-              {/* VISTA MÓVEL (CARTÕES) - Visível até ecrãs Grandes */}
-              <div className="lg:hidden space-y-4">
-                {mentors
-                  .filter(m => m.status === 'pendente')
-                  .map(m => (
-                    <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} key={m.id} className="bg-white p-6 rounded-[2rem] border border-[#8B4513]/50 shadow-sm space-y-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-extrabold uppercase text-sm text-[#001F33]">{m.name}</p>
-                          <p className="text-[10px] font-bold text-[#001F33]/80">{m.email}</p>
-                        </div>
-                        <span className="text-[9px] font-black uppercase px-3 py-1 bg-amber-100 text-amber-600 rounded-full">{m.status}</span>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-black uppercase text-[#001F33]/80 tracking-widest">Especialidades</p>
-                        <p className="text-xs font-black text-[#0EA5E9] uppercase">{m.specialties}</p>
-                      </div>
-                      <div className="grid grid-cols-1 gap-2 pt-2">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => setViewUser(m)} 
-                          className="w-full text-[10px] font-black uppercase h-12 rounded-xl border-[#0EA5E9] text-[#0EA5E9]"
-                        >
-                          Ver Detalhes / CV
-                        </Button>
-                        <div className="grid grid-cols-2 gap-2">
-                          <Button 
-                            onClick={() => updateMentorStatus(m.id, 'ativo')} 
-                            className="bg-green-500 hover:bg-green-600 text-white text-[10px] font-black uppercase h-12 rounded-xl shadow-lg shadow-green-500/10"
-                          >
-                            Aprovar
-                          </Button>
-                          <Button 
-                            variant="destructive"
-                            onClick={() => {
-                              setUserToReject(m.id);
-                              setIsRejectingUser(true);
-                            }} 
-                            className="text-[10px] font-black uppercase h-12 rounded-xl"
-                          >
-                            Rejeitar
-                          </Button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                {mentors.filter(m => m.status === 'pendente').length === 0 && (
-                  <div className="bg-white p-10 rounded-[2rem] border-2 border-dashed border-[#8B4513]/20 text-center">
-                    <p className="text-sm font-bold text-[#001F33]/80 uppercase tracking-widest">Sem mentores pendentes</p>
-                  </div>
-                )}
-              </div>
 
-              {/* VISTA DESKTOP (TABELA) - Visível apenas em ecrãs XL */}
-              <div className="hidden lg:block bg-white rounded-[32px] shadow-2xl overflow-x-auto border border-[#8B4513]/50">
-                <div className="min-w-[1000px]">
-                <table className="w-full text-left">
-                  <thead className="bg-[#001F33] text-white font-black uppercase text-[10px] tracking-widest"><tr className="h-16"><th className="px-10">Mentor</th><th className="px-10">Especialidade</th><th className="px-10">Estado</th><th className="px-10 text-right">Acções de Moderação</th></tr></thead>
-                  <tbody className="divide-y divide-[#8B4513]/50">
-                    {mentors
-                      .filter(m => m.status === 'pendente')
-                      .map(m => (
-                      <tr key={m.id} className="h-20 hover:bg-[#F5F0E8]/50 transition-colors">
-                        <td className="px-10"><p className="font-extrabold uppercase text-sm text-[#001F33]">{m.name}</p><p className="text-[10px] font-bold text-[#001F33]/80">{m.email}</p></td>
-                        <td className="px-10 text-xs font-black text-[#0EA5E9] uppercase tracking-widest">{m.specialties}</td>
-                        <td className="px-10">
-                          <span className={`text-[10px] font-black uppercase px-4 py-1.5 rounded-full ${m.status === 'ativo' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>{m.status}</span>
-                        </td>
-                        <td className="px-10 text-right">
-                          <div className="flex justify-end gap-3">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => setViewUser(m)} 
-                              className="text-[10px] font-black uppercase h-10 px-4 rounded-full text-[#0EA5E9] hover:bg-[#0EA5E9]/10"
-                            >
-                              Ver Detalhes / CV
-                            </Button>
-                            <Button 
-                              onClick={() => updateMentorStatus(m.id, 'ativo')} 
-                              className="text-[10px] font-black uppercase h-10 px-6 rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20 active:scale-95 transition-all"
-                            >
-                              Aprovar
-                            </Button>
-                            <Button 
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => {
-                                setUserToReject(m.id);
-                                setIsRejectingUser(true);
-                              }} 
-                              className="text-[10px] font-black uppercase h-10 px-6 rounded-full shadow-lg shadow-red-500/20 active:scale-95 transition-all"
-                            >
-                              Rejeitar
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                </div>
-              </div>
-            </div>
-          )}
 
           {currentTab === 'forum' && (
             <div className="space-y-6">
@@ -970,7 +1112,7 @@ export default function AdminDashboard() {
                     </thead>
                     <tbody className="divide-y divide-[#8B4513]/50">
                       {forumTopics.map(t => (
-                        <tr key={t.id} className="h-20 hover:bg-[#F5F0E8]/50 transition-colors">
+                        <tr key={t.id} className="h-20 hover:bg-[#EBDCC6]/50 transition-colors">
                           <td className="pl-10 pr-4">
                             <p className="font-extrabold uppercase text-sm text-[#001F33]">{t.title}</p>
                             <p className="text-[10px] font-bold text-[#001F33]/80 tracking-widest">{new Date(t.createdAt).toLocaleDateString()}</p>
@@ -983,6 +1125,23 @@ export default function AdminDashboard() {
                           </td>
                           <td className="pr-10 pl-4 text-right">
                             <div className="flex justify-end gap-2">
+                              <Button 
+                                variant="ghost" 
+                                onClick={() => {
+                                  setEditingTopic(t);
+                                  setNewTopic({
+                                    title: t.title,
+                                    content: t.content,
+                                    category: t.category,
+                                    imageUrl: t.imageUrl || "",
+                                    videoUrl: t.videoUrl || ""
+                                  });
+                                  setIsAddingTopic(true);
+                                }}
+                                className="h-11 w-11 shrink-0 rounded-full text-amber-500 hover:bg-amber-50"
+                              >
+                                <Pencil className="h-5 w-5" />
+                              </Button>
                               <Link href={`/forum/topic/${t.id}`}>
                                 <Button 
                                   variant="ghost" 
@@ -1021,19 +1180,19 @@ export default function AdminDashboard() {
           <DialogContent className="max-w-3xl bg-white border-none shadow-2xl rounded-[40px] p-10 select-none">
             <DialogHeader><DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter">{editingOpportunity ? 'Editar Oportunidade' : 'Cadastrar Oportunidade'}</DialogTitle></DialogHeader>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 py-8">
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Cargo / Título</label><Input className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.title} onChange={e => setNewOpportunity({...newOpportunity, title: e.target.value})} placeholder="Ex: Desenvolvedor React" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Instituição / Empresa</label><Input className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.company} onChange={e => setNewOpportunity({...newOpportunity, company: e.target.value})} placeholder="Ex: Unitel" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Cidade / Província</label><Input className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.location} onChange={e => setNewOpportunity({...newOpportunity, location: e.target.value})} placeholder="Ex: Luanda, Talatona" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Cargo / Título</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.title} onChange={e => setNewOpportunity({...newOpportunity, title: e.target.value})} placeholder="Ex: Desenvolvedor React" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Instituição / Empresa</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.company} onChange={e => setNewOpportunity({...newOpportunity, company: e.target.value})} placeholder="Ex: Unitel" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Cidade / Província</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.location} onChange={e => setNewOpportunity({...newOpportunity, location: e.target.value})} placeholder="Ex: Luanda, Talatona" /></div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Natureza</label>
                 <Select value={newOpportunity.type} onValueChange={(val) => setNewOpportunity({...newOpportunity, type: val})}>
-                  <SelectTrigger className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6"><SelectValue placeholder="Tipo" /></SelectTrigger>
+                  <SelectTrigger className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6"><SelectValue placeholder="Tipo" /></SelectTrigger>
                   <SelectContent><SelectItem value="emprego">Emprego</SelectItem><SelectItem value="estagio">Estágio</SelectItem><SelectItem value="bolsa">Bolsa de Estudo</SelectItem></SelectContent>
                 </Select>
               </div>
-              <div className="col-span-2 space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Descritivo da Vaga</label><Textarea className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 min-h-[140px] rounded-3xl font-bold p-6 focus:ring-[#0EA5E9]" value={newOpportunity.description} onChange={e => setNewOpportunity({...newOpportunity, description: e.target.value})} placeholder="Quais são as responsabilidades e o que procuro?" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Candidatura (URL/Email)</label><Input className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.link} onChange={e => setNewOpportunity({...newOpportunity, link: e.target.value})} placeholder="Onde o jovem clica?" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Fecho Candidaturas</label><Input type="date" className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.deadline} onChange={e => setNewOpportunity({...newOpportunity, deadline: e.target.value})} /></div>
+              <div className="col-span-2 space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Descritivo da Vaga</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[140px] rounded-3xl font-bold p-6 focus:ring-[#0EA5E9]" value={newOpportunity.description} onChange={e => setNewOpportunity({...newOpportunity, description: e.target.value})} placeholder="Quais são as responsabilidades e o que procuro?" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Candidatura (URL/Email)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.link} onChange={e => setNewOpportunity({...newOpportunity, link: e.target.value})} placeholder="Onde o jovem clica?" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Fecho Candidaturas</label><Input type="date" className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" value={newOpportunity.deadline} onChange={e => setNewOpportunity({...newOpportunity, deadline: e.target.value})} /></div>
             </div>
             <DialogFooter className="mt-4"><Button onClick={handleSaveOpportunity} className="bg-[#001F33] text-white uppercase font-black text-xs w-full h-16 rounded-3xl shadow-2xl shadow-[#001F33]/30 hover:bg-[#0EA5E9] transition-all tracking-widest">{editingOpportunity ? 'Guardar Alterações' : 'Publicar Vaga Agora'}</Button></DialogFooter>
           </DialogContent>
@@ -1043,9 +1202,9 @@ export default function AdminDashboard() {
           <DialogContent className="max-w-xl bg-white border-none shadow-2xl rounded-[40px] p-12">
             <DialogHeader><DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter">{editingTrack ? 'Editar Trilha' : 'Nova Trilha Profissional'}</DialogTitle></DialogHeader>
             <div className="space-y-8 py-8">
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Nome da Jornada</label><Input className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8 text-lg" value={newTrack.title} onChange={e => setNewTrack({...newTrack, title: e.target.value})} placeholder="Ex: Domínio Financeiro" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Explicação Curta</label><Textarea className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 min-h-[120px] rounded-3xl font-bold p-8" value={newTrack.description} onChange={e => setNewTrack({...newTrack, description: e.target.value})} placeholder="O que o jovem vai atingir com isto?" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Capa (Caminho da Imagem)</label><Input className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newTrack.imageUrl} onChange={e => setNewTrack({...newTrack, imageUrl: e.target.value})} placeholder="/assets/img/trilha-1.jpg" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Nome da Jornada</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8 text-lg" value={newTrack.title} onChange={e => setNewTrack({...newTrack, title: e.target.value})} placeholder="Ex: Domínio Financeiro" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Explicação Curta</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[120px] rounded-3xl font-bold p-8" value={newTrack.description} onChange={e => setNewTrack({...newTrack, description: e.target.value})} placeholder="O que o jovem vai atingir com isto?" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Capa (Caminho da Imagem)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newTrack.imageUrl} onChange={e => setNewTrack({...newTrack, imageUrl: e.target.value})} placeholder="/assets/img/trilha-1.jpg" /></div>
             </div>
             <DialogFooter><Button onClick={handleSaveTrack} className="bg-[#0EA5E9] text-white uppercase font-black text-xs w-full h-16 rounded-3xl shadow-2xl shadow-[#0EA5E9]/30 hover:bg-[#001F33] transition-all tracking-[0.3em]">{editingTrack ? 'Atualizar Trilha' : 'Lançar Trilha'}</Button></DialogFooter>
           </DialogContent>
@@ -1057,7 +1216,7 @@ export default function AdminDashboard() {
             <div className="py-8 space-y-4">
                <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Nome do Módulo</label>
-                  <Input className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-16 rounded-[20px] font-black px-8 text-lg" value={newModule.title} onChange={e => setNewModule({...newModule, title: e.target.value})} placeholder="Ex: Preparação Mental" />
+                  <Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-[20px] font-black px-8 text-lg" value={newModule.title} onChange={e => setNewModule({...newModule, title: e.target.value})} placeholder="Ex: Preparação Mental" />
                </div>
             </div>
             <DialogFooter><Button onClick={handleSaveModule} className="w-full bg-[#001F33] text-white uppercase font-black text-xs h-16 rounded-3xl shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.2em]">{editingModule ? 'Actualizar Nome' : 'Confirmar Módulo'}</Button></DialogFooter>
@@ -1068,12 +1227,12 @@ export default function AdminDashboard() {
           <DialogContent className="max-w-2xl bg-white border-none shadow-2xl rounded-[40px] p-12">
             <DialogHeader><DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter">{editingVideo ? 'Editar Etapa' : 'Adicionar Etapa (Vídeo / Link)'}</DialogTitle></DialogHeader>
             <div className="py-10 space-y-8">
-               <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Título da Etapa</label><Input className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8 text-lg" value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} /></div>
+               <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Título da Etapa</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8 text-lg" value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} /></div>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Fonte do Vídeo (URL)</label><Input className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newVideo.url} onChange={e => setNewVideo({...newVideo, url: e.target.value})} /></div>
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Recompensa (XP)</label><Input type="number" className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newVideo.xpPoints} onChange={e => setNewVideo({...newVideo, xpPoints: parseInt(e.target.value)})} /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Fonte do Vídeo (URL)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newVideo.url} onChange={e => setNewVideo({...newVideo, url: e.target.value})} /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">Recompensa (XP)</label><Input type="number" className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newVideo.xpPoints} onChange={e => setNewVideo({...newVideo, xpPoints: parseInt(e.target.value)})} /></div>
                </div>
-               <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">O que o jovem deve fazer / aprender?</label><Textarea className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 min-h-[140px] rounded-[32px] font-bold p-8" value={newVideo.description} onChange={e => setNewVideo({...newVideo, description: e.target.value})} placeholder="Instruções para completar esta etapa..." /></div>
+               <div className="space-y-2"><label className="text-[10px] font-black uppercase text-[#001F33] tracking-widest ml-2">O que o jovem deve fazer / aprender?</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[140px] rounded-[32px] font-bold p-8" value={newVideo.description} onChange={e => setNewVideo({...newVideo, description: e.target.value})} placeholder="Instruções para completar esta etapa..." /></div>
             </div>
             <DialogFooter><Button onClick={handleSaveVideo} className="w-full bg-[#0EA5E9] text-white uppercase font-black text-xs h-18 rounded-[32px] shadow-2xl shadow-[#0EA5E9]/40 active:scale-95 transition-all tracking-[0.3em]">{editingVideo ? 'Guardar Etapa' : 'Vincular à Trilha'}</Button></DialogFooter>
           </DialogContent>
@@ -1087,7 +1246,7 @@ export default function AdminDashboard() {
             <div className="py-6 space-y-4">
               <p className="text-sm font-bold text-[#001F33]/85">Por favor, indique o motivo pelo qual este perfil está a ser recusado. O utilizador verá esta mensagem ao tentar fazer login.</p>
               <Textarea 
-                className="text-[#001F33] bg-[#F5F0E8] border-none min-h-[120px] rounded-2xl font-bold p-6 focus:ring-[#0EA5E9]" 
+                className="text-[#001F33] bg-[#EBDCC6] border-none min-h-[120px] rounded-2xl font-bold p-6 focus:ring-[#0EA5E9]" 
                 value={rejectionReason} 
                 onChange={e => setRejectionReason(e.target.value)} 
                 placeholder="Ex: Documentação incompleta ou perfil não ajustado às vagas atuais."
@@ -1107,7 +1266,7 @@ export default function AdminDashboard() {
       </main>
 
       <Dialog open={!!viewUser} onOpenChange={(open) => !open && setViewUser(null)}>
-        <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto bg-[#F5F0E8] border-none text-[#001F33] rounded-[32px] p-8">
+        <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto bg-[#EBDCC6] border-none text-[#001F33] rounded-[32px] p-8">
           <DialogHeader className="mb-6">
              <div className="flex items-center gap-4">
                 <div className="h-16 w-16 bg-[#0EA5E9]/10 text-[#0EA5E9] rounded-2xl flex justify-center items-center font-display text-2xl uppercase">
@@ -1129,7 +1288,7 @@ export default function AdminDashboard() {
                </span>
              </div>
              {viewUser?.status === 'rejeitado' && viewUser?.rejectionReason && (
-               <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl">
+               <div className="mt-4 p-4 bg-red-50 border-2 border-red-200 rounded-2xl">
                  <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-1">Motivo da Recusa</p>
                  <p className="text-sm font-bold text-[#001F33] italic">{viewUser.rejectionReason}</p>
                </div>
@@ -1137,19 +1296,19 @@ export default function AdminDashboard() {
           </DialogHeader>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-6 border-b border-[#001F33]/10">
-             <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+             <div className="bg-[#EBDCC6] p-4 rounded-xl border-4 border-[#8B4513]">
                <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/80">Formação Académica</p>
                <p className="font-bold text-sm mt-1">{viewUser?.formation || 'Não Especificado'}</p>
              </div>
-             <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+             <div className="bg-[#EBDCC6] p-4 rounded-xl border-4 border-[#8B4513]">
                <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/80">Área de Interesse</p>
                <p className="font-bold text-sm text-[#F97316] mt-1">{viewUser?.areaOfInterest || 'Não Especificado'}</p>
              </div>
-             <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+             <div className="bg-[#EBDCC6] p-4 rounded-xl border-4 border-[#8B4513]">
                <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/80">Nível de Experiência</p>
                <p className="font-bold text-sm capitalize mt-1">{viewUser?.experienceLevel || 'Não Especificado'}</p>
              </div>
-             <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+             <div className="bg-[#EBDCC6] p-4 rounded-xl border-4 border-[#8B4513]">
                <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/80">Localização</p>
                <p className="font-bold text-sm flex items-center gap-1 mt-1">
                   <MapPin size={14} className="text-[#0EA5E9]" />
@@ -1162,7 +1321,7 @@ export default function AdminDashboard() {
                <div className="flex flex-wrap gap-2 mt-2">
                   {viewUser?.difficulties ? (
                     viewUser.difficulties.split(',').map((dif: string) => (
-                      <span key={dif} className="bg-white px-3 py-1.5 rounded-lg text-xs font-bold border border-[#8B4513]/50">{dif.trim()}</span>
+                      <span key={dif} className="bg-white px-3 py-1.5 rounded-lg text-xs font-bold border-2 border-[#8B4513]">{dif.trim()}</span>
                     ))
                   ) : (
                     <span className="text-xs font-medium text-[#001F33]/80">Nenhuma dificuldade reportada.</span>
@@ -1198,14 +1357,20 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isAddingTopic} onOpenChange={setIsAddingTopic}>
-        <DialogContent className="max-w-xl bg-white border-none shadow-2xl rounded-[40px] p-12">
-          <DialogHeader><DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter">Novo Tópico de Comunidade</DialogTitle></DialogHeader>
+      <Dialog open={isAddingTopic} onOpenChange={(open) => {
+        setIsAddingTopic(open);
+        if (!open) {
+          setEditingTopic(null);
+          setNewTopic({ title: "", content: "", category: "Geral", imageUrl: "", videoUrl: "" });
+        }
+      }}>
+        <DialogContent className="max-w-2xl bg-white border-none shadow-2xl rounded-[40px] p-12 overflow-y-auto max-h-[90vh]">
+          <DialogHeader><DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter">{editingTopic ? 'Editar Tópico' : 'Novo Tópico de Comunidade'}</DialogTitle></DialogHeader>
           <div className="space-y-8 py-8">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Título da Discussão</label>
               <Input 
-                className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" 
+                className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" 
                 value={newTopic.title} 
                 onChange={e => setNewTopic({...newTopic, title: e.target.value})} 
                 placeholder="Sobre o que vamos conversar?" 
@@ -1214,7 +1379,7 @@ export default function AdminDashboard() {
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Conteúdo da Discussão</label>
               <Textarea 
-                className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 min-h-[140px] rounded-[32px] font-bold p-8 focus:ring-[#0EA5E9]" 
+                className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[140px] rounded-[32px] font-bold p-8 focus:ring-[#0EA5E9]" 
                 value={newTopic.content} 
                 onChange={e => setNewTopic({...newTopic, content: e.target.value})} 
                 placeholder="Descreva o seu tópico ou anúncio..." 
@@ -1223,7 +1388,7 @@ export default function AdminDashboard() {
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">Categoria</label>
               <Select value={newTopic.category} onValueChange={(val) => setNewTopic({...newTopic, category: val})}>
-                <SelectTrigger className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6">
+                <SelectTrigger className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6">
                   <SelectValue placeholder="Escolha uma Categoria" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1238,7 +1403,7 @@ export default function AdminDashboard() {
               {newTopic.category === "_new_" && (
                 <div className="mt-4 animate-in fade-in slide-in-from-top-2">
                   <Input 
-                    className="text-[#001F33] bg-[#F5F0E8] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" 
+                    className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" 
                     value={customCategory} 
                     onChange={e => setCustomCategory(e.target.value)} 
                     placeholder="Escreva a nova categoria..." 
@@ -1247,8 +1412,33 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">URL da Imagem (Opcional)</label>
+                <Input 
+                  className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" 
+                  value={newTopic.imageUrl} 
+                  onChange={e => setNewTopic({...newTopic, imageUrl: e.target.value})} 
+                  placeholder="https://exemplo.com/imagem.jpg" 
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-[#001F33] tracking-[0.2em] ml-2">URL do Vídeo (Opcional)</label>
+                <Input 
+                  className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-14 rounded-2xl font-bold px-6 focus:ring-[#0EA5E9]" 
+                  value={newTopic.videoUrl} 
+                  onChange={e => setNewTopic({...newTopic, videoUrl: e.target.value})} 
+                  placeholder="Link do YouTube..." 
+                />
+              </div>
+            </div>
           </div>
-          <DialogFooter><Button onClick={handleSaveTopic} className="bg-[#001F33] text-white uppercase font-black text-xs w-full h-16 rounded-3xl shadow-2xl shadow-[#001F33]/30 hover:bg-[#0EA5E9] transition-all tracking-widest">Criar Tópico Agora</Button></DialogFooter>
+          <DialogFooter>
+            <Button onClick={handleSaveTopic} className="w-full bg-[#001F33] text-white uppercase font-black text-xs h-16 rounded-3xl shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.2em]">
+              {editingTopic ? 'Salvar Alterações' : 'Publicar Tópico'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

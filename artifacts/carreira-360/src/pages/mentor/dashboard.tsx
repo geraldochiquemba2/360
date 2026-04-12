@@ -100,7 +100,7 @@ export default function MentorDashboard() {
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] flex font-sans text-[#001F33] relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33] relative overflow-x-hidden">
       {/* Overlay para mobile */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -152,7 +152,7 @@ export default function MentorDashboard() {
 
       {/* Main Content */}
       <main className="flex-1 md:ml-72 min-h-screen">
-        <header className="p-6 md:p-10 bg-white/50 md:bg-transparent border-b md:border-none border-[#8B4513]/50 sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
+        <header className="p-6 md:p-10 bg-white/50 md:bg-transparent border-b-2 md:border-none border-[#8B4513] sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
@@ -169,7 +169,7 @@ export default function MentorDashboard() {
           </div>
 
           <div className="flex gap-4 md:absolute md:right-10 md:top-10">
-             <div className="bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-[#8B4513]/50 flex items-center gap-3">
+             <div className="bg-white p-3 md:p-4 rounded-2xl shadow-sm border-2 border-[#8B4513] flex items-center gap-3">
                 <div className="h-8 w-8 md:h-10 md:w-10 bg-[#0EA5E9]/10 rounded-xl flex items-center justify-center text-[#0EA5E9]">
                    <Users size={18} />
                 </div>
@@ -189,7 +189,7 @@ export default function MentorDashboard() {
         {loading ? (
           <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#F97316] border-t-transparent rounded-full"></div></div>
         ) : sessions.length === 0 ? (
-          <div className="bg-white p-20 text-center rounded-[2.5rem] shadow-sm border border-[#8B4513]/50">
+          <div className="bg-white p-20 text-center rounded-[2.5rem] shadow-sm border-2 border-[#8B4513]">
             <Calendar size={64} className="mx-auto text-[#001F33]/10 mb-6" />
             <h3 className="text-xl font-display uppercase text-[#001F33]/30">Ainda não tens pedidos</h3>
             <p className="text-sm text-[#001F33]/40 mt-2">Assim que um jovem agendar contigo, a notificação irá aparecer aqui.</p>
@@ -201,10 +201,10 @@ export default function MentorDashboard() {
                 key={session.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white p-5 sm:p-8 rounded-[2rem] shadow-sm border border-[#8B4513]/50 hover:shadow-md transition-shadow flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8"
+                className="bg-white p-5 sm:p-8 rounded-[2rem] shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-shadow flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8"
               >
                 <div className="flex items-center gap-6">
-                  <div className="h-14 w-14 bg-[#F5F0E8] rounded-2xl flex items-center justify-center text-[#001F33] font-display text-xl">
+                  <div className="h-14 w-14 bg-[#EBDCC6] rounded-2xl flex items-center justify-center text-[#001F33] font-display text-xl">
                      {session.candidateName[0]}
                   </div>
                   <div>
@@ -219,7 +219,7 @@ export default function MentorDashboard() {
                   </div>
                 </div>
 
-                <div className="w-full lg:flex-1 lg:max-w-md bg-[#F5F0E8]/50 p-4 rounded-2xl">
+                <div className="w-full lg:flex-1 lg:max-w-md bg-[#EBDCC6]/50 p-4 rounded-2xl">
                    <p className="text-[10px] font-bold uppercase text-[#001F33]/30 tracking-widest mb-1">Notas do Aluno:</p>
                    <p className="text-sm text-[#001F33]/70 italic line-clamp-2">"{session.notes || 'Sem observações...'}"</p>
                 </div>
@@ -265,7 +265,7 @@ export default function MentorDashboard() {
         className="sm:max-w-md"
       >
         <div className="space-y-6 py-4">
-           <div className="p-4 bg-[#F5F0E8] rounded-2xl">
+           <div className="p-4 bg-[#EBDCC6] rounded-2xl">
               <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-widest mb-1">Candidato</p>
               <p className="font-bold text-lg uppercase">{selectedSession?.candidateName}</p>
               <p className="text-xs text-[#001F33]/50">{new Date(selectedSession?.dateTime).toLocaleString()}</p>
@@ -313,19 +313,19 @@ export default function MentorDashboard() {
              </div>
              
              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-               <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+               <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
                  <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Formação Académica</p>
                  <p className="font-bold text-sm mt-1">{viewCandidate.formation || 'Não Especificado'}</p>
                </div>
-               <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+               <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
                  <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Área de Interesse</p>
                  <p className="font-bold text-sm mt-1 text-[#F97316]">{viewCandidate.areaOfInterest || 'Não Especificado'}</p>
                </div>
-               <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+               <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
                  <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Experiência</p>
                  <p className="font-bold text-sm mt-1 capitalize">{viewCandidate.experienceLevel || 'Não Especificado'}</p>
                </div>
-               <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+               <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
                  <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40">Localização</p>
                  <p className="font-bold text-sm mt-1">
                     {viewCandidate.municipality && viewCandidate.province ? `${viewCandidate.municipality}, ${viewCandidate.province}` : 'Sem Local'}
@@ -333,12 +333,12 @@ export default function MentorDashboard() {
                </div>
              </div>
  
-             <div className="bg-[#F5F0E8] p-4 rounded-xl border border-[#8B4513]/50">
+             <div className="bg-[#EBDCC6] p-4 rounded-xl border-2 border-[#8B4513]">
                <p className="text-[10px] font-black uppercase tracking-widest text-[#001F33]/40 mb-2">Principais Dificuldades</p>
                <div className="flex flex-wrap gap-2">
                   {viewCandidate.difficulties ? (
                     viewCandidate.difficulties.split(',').map((dif: string) => (
-                      <span key={dif} className="bg-white px-2 py-1 rounded-md text-[10px] font-bold border border-[#8B4513]/50 uppercase tracking-wider">{dif.trim()}</span>
+                      <span key={dif} className="bg-white px-2 py-1 rounded-md text-[10px] font-bold border-2 border-[#8B4513] uppercase tracking-wider">{dif.trim()}</span>
                     ))
                   ) : (
                     <span className="text-xs font-medium text-[#001F33]/40">Nenhuma dificuldade reportada.</span>

@@ -345,6 +345,8 @@ adminRouter.get("/forum/topics", async (req, res) => {
       id: forumTopicsTable.id,
       title: forumTopicsTable.title,
       category: forumTopicsTable.category,
+      imageUrl: forumTopicsTable.imageUrl,
+      videoUrl: forumTopicsTable.videoUrl,
       createdAt: forumTopicsTable.createdAt,
       authorName: usersTable.name
     })

@@ -193,7 +193,7 @@ export default function Home() {
       </section>
 
       {/* 3. ESTATÍSTICAS */}
-      <section id="estatisticas" className="py-16 md:py-24 px-6 bg-[#F5F0E8] text-[#001F33] relative z-10 -mt-8">
+      <section id="estatisticas" className="py-16 md:py-24 px-6 bg-[#EBDCC6] text-[#001F33] relative z-10 -mt-8">
         <div className="max-w-[1400px] mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 50 }}
@@ -371,7 +371,7 @@ export default function Home() {
       </section>
 
       {/* 6. JORNADA */}
-      <section id="jornada" className="py-16 md:py-24 bg-[#F5F0E8] px-6 text-[#001F33]">
+      <section id="jornada" className="py-16 md:py-24 bg-[#EBDCC6] px-6 text-[#001F33]">
         <div className="max-w-[1400px] mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 40 }}
@@ -433,9 +433,9 @@ export default function Home() {
           <div className="flex flex-col gap-6 md:hidden">
             {[
               { num: "01", title: "Diagnóstico", desc: "Análise profunda do teu perfil actual. Onde estás e o que precisas.", color: "#0EA5E9", bg: "#001F33" },
-              { num: "02", title: "Reestruturação", desc: "Construção de CV, LinkedIn e carta de apresentação.", color: "#F97316", bg: "#F5F0E8" },
+              { num: "02", title: "Reestruturação", desc: "Construção de CV, LinkedIn e carta de apresentação.", color: "#F97316", bg: "#EBDCC6" },
               { num: "03", title: "Treino Prático", desc: "Simulações. Como falar, como negociar, como vender o teu valor.", color: "#0EA5E9", bg: "#001F33" },
-              { num: "04", title: "Ataque", desc: "Candidaturas cirúrgicas e acompanhamento até à inserção.", color: "#F97316", bg: "#F5F0E8" },
+              { num: "04", title: "Ataque", desc: "Candidaturas cirúrgicas e acompanhamento até à inserção.", color: "#F97316", bg: "#EBDCC6" },
             ].map((fase, i) => (
               <motion.div
                 key={i}
@@ -508,7 +508,7 @@ export default function Home() {
       </section>
 
       {/* 8. FAQ */}
-      <section className="py-16 bg-[#F5F0E8] px-6 text-[#001F33]">
+      <section className="py-16 bg-[#EBDCC6] px-6 text-[#001F33]">
         <div className="max-w-[1000px] mx-auto">
           <h2 className="text-4xl md:text-[4rem] font-display mb-8 text-center uppercase tracking-tighter">Perguntas Frequentes</h2>
           <Accordion type="single" collapsible className="w-full space-y-4">

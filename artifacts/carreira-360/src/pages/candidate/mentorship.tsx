@@ -7,6 +7,7 @@ import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/compon
 import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { AdminSidebar } from "@/components/layout/AdminSidebar";
 
 export default function MentorshipPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -91,7 +92,7 @@ export default function MentorshipPage() {
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] flex font-sans text-[#001F33]">
+    <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33]">
       {/* Sidebar */}
       
       <AnimatePresence>
@@ -106,39 +107,47 @@ export default function MentorshipPage() {
         )}
       </AnimatePresence>
 
-      <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        <div className="p-8 border-b border-white/10 relative flex items-center justify-between">
-          <img src="/assets/logo.png" className="h-14 w-auto object-contain" alt="Logo" />
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsSidebarOpen(false)}
-            className="md:hidden text-white/50 hover:text-white"
-          >
-            <X size={24} />
-          </Button>
-        </div>
-        <nav className="flex-1 p-6 space-y-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
-              <LayoutDashboard className="mr-3 h-5 w-5" /> Início
+      {user?.role === 'admin' ? (
+        <AdminSidebar 
+          currentTab="mentors" 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+        />
+      ) : (
+        <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+          <div className="p-8 border-b border-white/10 relative flex items-center justify-between">
+            <img src="/assets/logo.png" className="h-14 w-auto object-contain" alt="Logo" />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsSidebarOpen(false)}
+              className="md:hidden text-white/50 hover:text-white"
+            >
+              <X size={24} />
             </Button>
-          </Link>
-          <Button variant="ghost" className="w-full justify-start text-white bg-[#0EA5E9]/20 uppercase tracking-widest font-bold text-xs h-12">
-            <Users className="mr-3 h-5 w-5" /> Mentoria
-          </Button>
-          <Link href="/forum">
-            <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
-              <MessageSquare className="mr-3 h-5 w-5" /> Comunidade
+          </div>
+          <nav className="flex-1 p-6 space-y-4">
+            <Link href="/dashboard">
+              <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
+                <LayoutDashboard className="mr-3 h-5 w-5" /> Início
+              </Button>
+            </Link>
+            <Button variant="ghost" className="w-full justify-start text-white bg-[#0EA5E9]/20 uppercase tracking-widest font-bold text-xs h-12">
+              <Users className="mr-3 h-5 w-5" /> Mentoria
             </Button>
-          </Link>
-        </nav>
-        <div className="p-6 border-t border-white/10">
-          <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase tracking-widest font-bold text-xs">
-            <LogOut className="mr-3 h-5 w-5" /> Sair
-          </Button>
-        </div>
-      </aside>
+            <Link href="/forum">
+              <Button variant="ghost" className="w-full justify-start text-white/50 hover:bg-[#0EA5E9]/10 uppercase tracking-widest font-bold text-xs h-12">
+                <MessageSquare className="mr-3 h-5 w-5" /> Comunidade
+              </Button>
+            </Link>
+          </nav>
+          <div className="p-6 border-t border-white/10">
+            <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase tracking-widest font-bold text-xs">
+              <LogOut className="mr-3 h-5 w-5" /> Sair
+            </Button>
+          </div>
+        </aside>
+      )}
 
       {/* Content */}
       <main className="flex-1 md:ml-72 p-6 sm:p-8">
@@ -172,7 +181,7 @@ export default function MentorshipPage() {
             {loading ? (
               <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#0EA5E9] border-t-transparent rounded-full"></div></div>
             ) : mentors.length === 0 ? (
-              <div className="bg-white p-12 text-center rounded-3xl shadow-sm border border-[#8B4513]/50 italic text-[#001F33]/30">
+              <div className="bg-white p-12 text-center rounded-3xl shadow-sm border-2 border-[#8B4513] italic text-[#001F33]/30">
                 Nenhum mentor ativo de momento. Volta mais tarde!
               </div>
             ) : (
@@ -181,7 +190,7 @@ export default function MentorshipPage() {
                   <motion.div 
                     key={mentor.id}
                     whileHover={{ y: -5 }}
-                    className="bg-white rounded-3xl p-6 shadow-sm border border-[#8B4513]/50 group relative overflow-hidden"
+                    className="bg-white rounded-3xl p-6 shadow-sm border-2 border-[#8B4513] group relative overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#0EA5E9]/5 rounded-bl-full -mr-16 -mt-16 transition-all group-hover:bg-[#0EA5E9]/10" />
                     <div className="flex items-start gap-4 relative z-10">
@@ -230,7 +239,7 @@ export default function MentorshipPage() {
                     key={session.id}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="bg-white p-5 rounded-3xl shadow-sm border border-[#8B4513]/50 relative overflow-hidden"
+                    className="bg-white p-5 rounded-3xl shadow-sm border-2 border-[#8B4513] relative overflow-hidden"
                   >
                     <div className="flex justify-between items-start mb-3">
                        <p className="text-xs font-bold uppercase text-[#0EA5E9]">{session.mentorName}</p>
@@ -247,7 +256,7 @@ export default function MentorshipPage() {
                     </div>
                     
                     {session.status === 'confirmado' && (
-                      <div className="mt-4 pt-4 border-t border-[#8B4513]/50">
+                      <div className="mt-4 pt-4 border-t border-[#8B4513]">
                         <Button className="w-full bg-[#001F33] text-white text-[10px] font-bold uppercase h-9 shadow-lg shadow-[#001F33]/20" asChild>
                            <a href={session.meetingLink} target="_blank">Entrar na Chamada</a>
                         </Button>
@@ -284,7 +293,7 @@ export default function MentorshipPage() {
         <div className="space-y-6 py-4">
            <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Especialista Selecionado</label>
-              <div className="p-3 bg-[#F5F0E8] rounded-xl flex items-center gap-3">
+              <div className="p-3 bg-[#EBDCC6] rounded-xl flex items-center gap-3">
                  <div className="h-8 w-8 bg-[#0EA5E9] rounded-lg flex items-center justify-center text-white font-bold text-xs">
                     {selectedMentor?.name[0]}
                  </div>

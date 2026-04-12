@@ -219,7 +219,7 @@ export default function LoginPage() {
 
       {/* Modal de Recusa */}
       <Dialog open={isRejectedProfile} onOpenChange={setIsRejectedProfile}>
-        <DialogContent className="max-w-md bg-[#F5F0E8] border-4 border-red-500 rounded-none p-10 shadow-[16px_16px_0px_0px_rgba(239,68,68,1)]">
+        <DialogContent className="max-w-md bg-[#EBDCC6] border-4 border-red-500 rounded-none p-10 shadow-[16px_16px_0px_0px_rgba(239,68,68,1)]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-display uppercase text-red-600 tracking-tighter">Perfil Recusado</DialogTitle>
           </DialogHeader>
