@@ -146,4 +146,111 @@ mentorshipRouter.patch("/sessions/:id", requireAuth, async (req, res) => {
   }
 });
 
+// --- NOVAS ROTAS DE GESTÃO DO MENTOR ---
+
+// OBTER PERFIL DO MENTOR LOGADO
+mentorshipRouter.get("/profile", requireAuth, async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const userId = (req as any).user.id;
+
+    const [mentor] = await db.select({
+      id: mentorsTable.id,
+      bio: mentorsTable.bio,
+      specialties: mentorsTable.specialties,
+      linkedinUrl: mentorsTable.linkedinUrl,
+      imageUrl: mentorsTable.imageUrl,
+      name: usersTable.name,
+      email: usersTable.email
+    })
+    .from(mentorsTable)
+    .innerJoin(usersTable, eq(mentorsTable.userId, usersTable.id))
+    .where(eq(mentorsTable.userId, userId));
+
+    if (!mentor) return res.status(404).json({ error: "Perfil de mentor não encontrado" });
+    return res.json(mentor);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch profile" });
+  }
+});
+
+// ATUALIZAR PERFIL DO MENTOR
+mentorshipRouter.patch("/profile", requireAuth, async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const userId = (req as any).user.id;
+    const { bio, specialties, linkedinUrl } = req.body;
+
+    await db.update(mentorsTable)
+      .set({ bio, specialties, linkedinUrl })
+      .where(eq(mentorsTable.userId, userId));
+
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
+// OBTER MINHA DISPONIBILIDADE
+mentorshipRouter.get("/my-availability", requireAuth, async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const userId = (req as any).user.id;
+
+    const [mentor] = await db.select().from(mentorsTable).where(eq(mentorsTable.userId, userId));
+    if (!mentor) return res.status(403).json({ error: "Not a mentor" });
+
+    const slots = await db.select().from(availabilityTable).where(eq(availabilityTable.mentorId, mentor.id));
+    return res.json(slots);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch availability" });
+  }
+});
+
+// ADICIONAR SLOT DE DISPONIBILIDADE
+mentorshipRouter.post("/availability", requireAuth, async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const userId = (req as any).user.id;
+    const { dayOfWeek, startTime, endTime } = req.body;
+
+    const [mentor] = await db.select().from(mentorsTable).where(eq(mentorsTable.userId, userId));
+    if (!mentor) return res.status(403).json({ error: "Not a mentor" });
+
+    const [newSlot] = await db.insert(availabilityTable).values({
+      mentorId: mentor.id,
+      dayOfWeek,
+      startTime,
+      endTime
+    }).returning();
+
+    return res.status(201).json(newSlot);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to add availability" });
+  }
+});
+
+// REMOVER SLOT DE DISPONIBILIDADE
+mentorshipRouter.delete("/availability/:id", requireAuth, async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const userId = (req as any).user.id;
+    const slotId = parseInt(req.params.id);
+
+    const [mentor] = await db.select().from(mentorsTable).where(eq(mentorsTable.userId, userId));
+    if (!mentor) return res.status(403).json({ error: "Not a mentor" });
+
+    await db.delete(availabilityTable).where(
+      and(
+        eq(availabilityTable.id, slotId),
+        eq(availabilityTable.mentorId, mentor.id)
+      )
+    );
+
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to delete availability" });
+  }
+});
+
 export default mentorshipRouter;

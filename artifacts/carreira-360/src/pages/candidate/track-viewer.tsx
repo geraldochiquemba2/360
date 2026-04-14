@@ -11,7 +11,9 @@ import {
   Lock,
   ChevronRight,
   Layout,
-  Star
+  Star,
+  PanelRightClose,
+  PanelRightOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +28,7 @@ export default function TrackViewer() {
   const [activeVideo, setActiveVideo] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCurriculumOpen, setIsCurriculumOpen] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -115,7 +118,7 @@ export default function TrackViewer() {
         setIsSidebarOpen={setIsSidebarOpen} 
       />
       
-      <main className="flex-1 flex flex-col lg:flex-row h-screen overflow-hidden">
+      <main className="flex-1 md:ml-72 flex flex-col lg:flex-row min-h-screen lg:h-screen lg:overflow-hidden">
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between p-4 bg-[#001F33] text-white">
           <img src="/assets/logo.png" className="h-10 w-auto object-contain" alt="Logo" />
@@ -125,20 +128,30 @@ export default function TrackViewer() {
         </div>
 
         {/* Main Content Area - Video Player */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+        <div className="flex-1 min-w-0 overflow-y-auto p-4 md:p-8 space-y-6">
           <div className="flex items-center justify-between mb-4">
             <Link href="/career-tracks">
               <Button variant="ghost" className="text-[#001F33] font-bold uppercase text-[10px] tracking-widest gap-2 hover:bg-white/50">
-                <ChevronLeft size={16} /> Voltar para Trilhas
+                <ChevronLeft size={16} /> <span className="hidden xs:inline">Voltar para Trilhas</span>
+                <span className="xs:hidden">Voltar</span>
               </Button>
             </Link>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsCurriculumOpen(!isCurriculumOpen)}
+              className="hidden lg:flex border-[#001F33]/20 text-[#001F33] rounded-xl h-10 px-4 font-black uppercase text-[10px] tracking-widest gap-2 hover:bg-[#0EA5E9] hover:text-white hover:border-[#0EA5E9] transition-all"
+            >
+              {isCurriculumOpen ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}
+              {isCurriculumOpen ? "Ocultar Aulas" : "Ver Aulas"}
+            </Button>
             {stats && (
-               <div className="flex items-center gap-4 bg-white/40 px-6 py-2 rounded-full border border-white/20">
+               <div className="flex items-center gap-2 sm:gap-4 bg-white/40 px-4 sm:px-6 py-2 rounded-full border border-white/20">
                   <div className="flex items-center gap-2">
                     <Star size={14} className="text-[#F97316]" fill="currentColor" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#001F33]">Nível {stats.level}</span>
                   </div>
-                  <div className="h-1.5 w-24 bg-[#001F33]/20 rounded-full overflow-hidden">
+                  <div className="hidden xs:block h-1.5 w-16 sm:w-24 bg-[#001F33]/20 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-[#0EA5E9] transition-all duration-1000" 
                       style={{ width: `${(stats.xp % 500) / 5}%` }}
@@ -149,7 +162,7 @@ export default function TrackViewer() {
             )}
           </div>
 
-          <div className="bg-[#001F33] rounded-[40px] overflow-hidden shadow-2xl relative group border-8 border-white/10">
+          <div className="bg-[#001F33] rounded-3xl md:rounded-[40px] overflow-hidden shadow-2xl relative group border-4 md:border-8 border-white/10">
             {activeVideo ? (
               <div className="aspect-video w-full bg-black">
                 <iframe 
@@ -168,7 +181,7 @@ export default function TrackViewer() {
             )}
           </div>
 
-          <div className="bg-white/60 backdrop-blur-md rounded-[32px] p-8 border border-white/40 shadow-xl">
+          <div className="bg-white/60 backdrop-blur-md rounded-[28px] md:rounded-[32px] p-6 md:p-8 border border-white/40 shadow-xl">
              <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
                <div>
                   <h1 className="text-3xl md:text-4xl font-display uppercase text-[#001F33] leading-none mb-2">{activeVideo?.title}</h1>
@@ -179,7 +192,7 @@ export default function TrackViewer() {
                {activeVideo && !activeVideo.isCompleted && (
                  <Button 
                    onClick={() => handleComplete(activeVideo.id)}
-                   className="bg-[#0EA5E9] hover:bg-[#001F33] text-white font-bold uppercase text-xs tracking-[0.2em] px-10 h-14 rounded-2xl shadow-lg shadow-[#0EA5E9]/20 transition-all active:scale-95"
+                   className="w-full md:w-auto bg-[#0EA5E9] hover:bg-[#001F33] text-white font-bold uppercase text-xs tracking-[0.2em] px-10 h-14 rounded-2xl shadow-lg shadow-[#0EA5E9]/20 transition-all active:scale-95"
                  >
                    Marcar como Concluído
                  </Button>
@@ -194,9 +207,15 @@ export default function TrackViewer() {
           </div>
         </div>
 
-        {/* Sidebar - Course Curriculum */}
-        <div className="w-full lg:w-[400px] h-full bg-white border-l border-[#001F33]/10 flex flex-col shadow-2xl">
-          <div className="p-8 border-b border-[#001F33]/10 bg-[#001F33] text-white">
+        <AnimatePresence>
+          {isCurriculumOpen && (
+            <motion.div 
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "auto", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              className="w-full lg:w-[400px] lg:h-full bg-white border-t lg:border-t-0 lg:border-l border-[#001F33]/10 flex flex-col shadow-2xl shrink-0 overflow-hidden"
+            >
+          <div className="p-6 md:p-8 border-b border-[#001F33]/10 bg-[#001F33] text-white">
             <h2 className="text-xl font-display uppercase tracking-widest mb-1">{data.track.title}</h2>
             <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-white/60 mt-4">
                <span className="flex items-center gap-1.5"><Layout size={12} /> {data.modules.length} Módulos</span>
@@ -257,8 +276,10 @@ export default function TrackViewer() {
                 />
              </div>
           </div>
-        </div>
-      </main>
-    </div>
-  );
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </main>
+</div>
+);
 }

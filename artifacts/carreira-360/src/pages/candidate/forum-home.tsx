@@ -125,7 +125,7 @@ export default function ForumHome() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33]">
+    <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33] overflow-x-hidden w-full">
       {/* Sidebar - Consistent with Dashboard */}
       
       <AnimatePresence>
@@ -155,7 +155,7 @@ export default function ForumHome() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-72 p-6 sm:p-10 mt-2">
+      <main className="flex-1 md:ml-72 p-4 sm:p-10 mt-2 overflow-hidden">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
           <div className="flex items-center gap-4">
             <Button 
@@ -215,7 +215,7 @@ export default function ForumHome() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="bg-white p-6 sm:p-10 rounded-[2.5rem] border-4 border-[#8B4513] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group relative overflow-hidden"
+                    className="bg-white p-5 sm:p-10 rounded-[28px] sm:rounded-[2.5rem] border-2 sm:border-4 border-[#8B4513] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group relative overflow-hidden"
                   >
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-3">

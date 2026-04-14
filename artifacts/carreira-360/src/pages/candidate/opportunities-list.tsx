@@ -66,7 +66,7 @@ export default function OpportunitiesPage() {
         setIsSidebarOpen={setIsSidebarOpen} 
       />
 
-      <main className="md:ml-72 min-h-screen p-8 md:p-16">
+      <main className="md:ml-72 min-h-screen p-4 sm:p-10">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
           <div className="flex items-center gap-4">
             <Button 
@@ -119,14 +119,14 @@ export default function OpportunitiesPage() {
                   key={op.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white overflow-hidden rounded-3xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-all group flex flex-col md:flex-row gap-0 md:gap-6 justify-between items-start md:items-center"
+                  className="bg-white overflow-hidden rounded-2xl sm:rounded-3xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-all group flex flex-col md:flex-row gap-0 md:gap-6 justify-between items-start md:items-center"
                 >
                   {op.imageUrl && (
-                    <div className="w-full md:w-32 h-32 shrink-0 overflow-hidden">
+                    <div className="w-full md:w-32 h-24 md:h-32 shrink-0 overflow-hidden">
                        <img src={getFileUrl(op.imageUrl)} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                   )}
-                  <div className={`p-6 sm:p-8 flex-1 w-full ${!op.imageUrl ? 'bg-white' : ''}`}>
+                  <div className={`p-4 sm:p-8 flex-1 w-full ${!op.imageUrl ? 'bg-white' : ''}`}>
                   <div className="flex-1 w-full">
                     <div className="flex items-center gap-2 mb-3">
                       <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border ${

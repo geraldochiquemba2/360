@@ -5,21 +5,17 @@ import {
   Users, 
   Calendar, 
   Clock, 
-  MessageSquare, 
-  LayoutDashboard, 
-  LogOut, 
   CheckCircle2, 
   XCircle, 
   ExternalLink,
-  ClipboardList,
-  Menu,
-  X
+  Menu
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { DialogFooter } from "@/components/ui/dialog";
 import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { MentorSidebar } from "@/components/layout/MentorSidebar";
 
 export default function MentorDashboard() {
   const [location, setLocation] = useLocation();
@@ -92,15 +88,18 @@ export default function MentorDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    setLocation("/");
-  };
-
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
 
   return (
     <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33] relative overflow-x-hidden">
+      {/* Sidebar Mentor */}
+      <MentorSidebar 
+        currentTab="dashboard"
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        user={user}
+      />
+
       {/* Overlay para mobile */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -114,44 +113,8 @@ export default function MentorDashboard() {
         )}
       </AnimatePresence>
 
-      {/* Sidebar Mentor */}
-      <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 border-r border-[#F97316]/20 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        <div className="p-8 border-b border-white/10 flex flex-col items-center relative">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsSidebarOpen(false)}
-            className="absolute right-4 top-4 text-white/50 hover:text-white md:hidden"
-          >
-            <X size={24} />
-          </Button>
-          <img src="/assets/logo.png" className="h-18 w-auto object-contain mb-4" alt="Logo" />
-          <span className="px-3 py-1 bg-[#F97316]/20 text-[#F97316] rounded-full text-[10px] font-bold uppercase tracking-widest">Painel do Mentor</span>
-        </div>
-        <nav className="flex-1 p-6 space-y-4">
-          <Button variant="ghost" className="w-full justify-start text-white bg-[#F97316]/20 uppercase tracking-widest font-bold text-xs h-12">
-            <ClipboardList className="mr-3 h-5 w-5" /> Agendamentos
-          </Button>
-          <div className="pt-8 opacity-20 pointer-events-none">
-             <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4 pl-4">Configurações</p>
-             <Button variant="ghost" className="w-full justify-start text-white/50 uppercase tracking-widest font-bold text-xs h-12">
-                <Calendar className="mr-3 h-5 w-5" /> Minha Agenda
-             </Button>
-          </div>
-        </nav>
-        <div className="p-6 border-t border-white/10">
-          <div className="mb-4">
-             <p className="text-sm font-bold uppercase text-white truncate">{user.name}</p>
-             <p className="text-[10px] text-white/50 uppercase truncate">{user.email}</p>
-          </div>
-          <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase tracking-widest font-bold text-xs">
-            <LogOut className="mr-3 h-5 w-5" /> Sair
-          </Button>
-        </div>
-      </aside>
-
       {/* Main Content */}
-      <main className="flex-1 md:ml-72 min-h-screen">
+      <main className="flex-1 md:ml-72 min-h-screen p-4 sm:p-10 overflow-hidden">
         <header className="p-6 md:p-10 bg-white/50 md:bg-transparent border-b-2 md:border-none border-[#8B4513] sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex items-center justify-between md:block">
           <div className="flex items-center gap-4">
             <Button 
@@ -181,7 +144,7 @@ export default function MentorDashboard() {
           </div>
         </header>
 
-        <div className="p-6 md:p-10">
+        <div>
           <div className="md:hidden mb-8">
             <p className="text-[#001F33]/50 font-medium text-sm">Analisa e gere as solicitações dos jovens.</p>
           </div>
@@ -201,7 +164,7 @@ export default function MentorDashboard() {
                 key={session.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white p-5 sm:p-8 rounded-[2rem] shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-shadow flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8"
+                className="bg-white p-5 sm:p-8 rounded-[24px] sm:rounded-[2rem] shadow-sm border-2 sm:border-4 border-[#8B4513] hover:shadow-md transition-shadow flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8"
               >
                 <div className="flex items-center gap-6">
                   <div className="h-14 w-14 bg-[#EBDCC6] rounded-2xl flex items-center justify-center text-[#001F33] font-display text-xl">

@@ -84,7 +84,7 @@ export default function TracksListPage() {
         setIsSidebarOpen={setIsSidebarOpen} 
       />
 
-      <main className="md:ml-72 min-h-screen p-8 md:p-16">
+      <main className="md:ml-72 min-h-screen p-4 sm:p-10">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
           <div className="flex items-center gap-4">
             <Button 
@@ -111,12 +111,12 @@ export default function TracksListPage() {
              <p className="text-xl font-display uppercase text-[#001F33]/20 tracking-widest">Brevemente teremos novas trilhas para ti.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
             {tracks.map((track) => (
               <motion.div 
                 key={track.id}
                 whileHover={{ y: -8 }}
-                className="bg-[#001F33] rounded-3xl overflow-hidden shadow-2xl group border border-[#0EA5E9]/20 shadow-[#0EA5E9]/5 hover:border-[#0EA5E9]/40 hover:shadow-[#0EA5E9]/20 transition-all duration-300 flex flex-col"
+                className="bg-[#001F33] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl group border border-[#0EA5E9]/20 shadow-[#0EA5E9]/5 hover:border-[#0EA5E9]/40 hover:shadow-[#0EA5E9]/20 transition-all duration-300 flex flex-col"
               >
                 <div className="h-64 bg-[#001F33] relative">
                   {track.imageUrl ? (
@@ -132,7 +132,7 @@ export default function TracksListPage() {
                     <h3 className="text-xl font-display uppercase text-white leading-tight">{track.title}</h3>
                   </div>
                 </div>
-                <div className="p-8 flex-1 flex flex-col bg-[#001F33] -mt-1 relative z-10">
+                <div className="p-6 sm:p-8 flex-1 flex flex-col bg-[#001F33] -mt-1 relative z-10">
                   <p className="text-sm text-white/50 font-sans leading-relaxed mb-8 flex-1 line-clamp-3">
                     {track.description}
                   </p>

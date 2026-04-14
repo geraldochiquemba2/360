@@ -16,6 +16,8 @@ import TracksListPage from "@/pages/candidate/tracks-list";
 import TrackViewerPage from "@/pages/candidate/track-viewer";
 import AiPulsePage from "@/pages/candidate/ai-pulse";
 import MentorDashboard from "@/pages/mentor/dashboard";
+import MentorAvailability from "@/pages/mentor/availability";
+import MentorSettings from "@/pages/mentor/settings";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,8 @@ function Router() {
       <Route path="/forum" component={ForumHome} />
       <Route path="/forum/topic/:id" component={TopicView} />
       <Route path="/mentor" component={MentorDashboard} />
+      <Route path="/mentor/availability" component={MentorAvailability} />
+      <Route path="/mentor/settings" component={MentorSettings} />
       <Route component={NotFound} />
     </Switch>
   );

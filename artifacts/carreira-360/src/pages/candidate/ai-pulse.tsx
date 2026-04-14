@@ -49,7 +49,7 @@ export default function AiPulsePage() {
         setIsSidebarOpen={setIsSidebarOpen} 
        />
 
-      <main className="md:ml-72 min-h-screen p-8 md:p-16">
+      <main className="md:ml-72 min-h-screen p-4 sm:p-10">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
           <div className="flex items-center gap-4">
             <Button 
@@ -91,7 +91,7 @@ export default function AiPulsePage() {
             <div className="xl:col-span-2 space-y-8">
                
                {/* Core Analysis Card */}
-               <section className="bg-[#001F33] rounded-[32px] p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden group">
+               <section className="bg-[#001F33] rounded-2xl sm:rounded-[32px] p-6 sm:p-12 text-white shadow-2xl relative overflow-hidden group">
                   <div className="relative z-10">
                      <div className="flex items-center gap-4 mb-8">
                         <div className="h-16 w-16 bg-[#0EA5E9] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#0EA5E9]/20 group-hover:scale-110 transition-transform">
@@ -141,7 +141,7 @@ export default function AiPulsePage() {
 
                {/* Market Trends */}
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-white p-8 rounded-[32px] border-2 border-[#8B4513] shadow-sm">
+                  <div className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-[32px] border-2 border-[#8B4513] shadow-sm">
                      <div className="flex items-center gap-3 mb-6">
                         <TrendingUp className="text-[#F97316]" size={24} />
                         <h3 className="text-lg font-display uppercase">Tendências em Angola</h3>
@@ -160,7 +160,7 @@ export default function AiPulsePage() {
                      </ul>
                   </div>
 
-                  <div className="bg-white p-8 rounded-[32px] border-2 border-[#8B4513] shadow-sm">
+                  <div className="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-[32px] border-2 border-[#8B4513] shadow-sm">
                      <div className="flex items-center gap-3 mb-6">
                         <Lightbulb className="text-[#F97316]" size={24} />
                         <h3 className="text-lg font-display uppercase">Recomendação IA</h3>

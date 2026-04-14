@@ -123,7 +123,7 @@ export default function MentorshipPage() {
       )}
 
       {/* Content */}
-      <main className="flex-1 md:ml-72 p-6 sm:p-8">
+      <main className="flex-1 md:ml-72 p-4 sm:p-10">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
           <div className="flex items-center gap-4">
             <Button 
@@ -143,7 +143,7 @@ export default function MentorshipPage() {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 sm:gap-12">
           {/* Mentors Grid */}
           <div className="xl:col-span-2 space-y-8">
             <div className="flex items-center justify-between">
@@ -163,7 +163,7 @@ export default function MentorshipPage() {
                   <motion.div 
                     key={mentor.id}
                     whileHover={{ y: -5 }}
-                    className="bg-white rounded-3xl p-6 shadow-sm border-2 border-[#8B4513] group relative overflow-hidden"
+                    className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm border-2 border-[#8B4513] group relative overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#0EA5E9]/5 rounded-bl-full -mr-16 -mt-16 transition-all group-hover:bg-[#0EA5E9]/10" />
                     <div className="flex items-start gap-4 relative z-10">
@@ -212,7 +212,7 @@ export default function MentorshipPage() {
                     key={session.id}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="bg-white p-5 rounded-3xl shadow-sm border-2 border-[#8B4513] relative overflow-hidden"
+                    className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-sm border-2 border-[#8B4513] relative overflow-hidden"
                   >
                     <div className="flex justify-between items-start mb-3">
                        <p className="text-xs font-bold uppercase text-[#0EA5E9]">{session.mentorName}</p>

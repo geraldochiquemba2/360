@@ -256,7 +256,7 @@ export default function TopicView() {
   const { topic, comments } = topicData;
 
   return (
-    <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33]">
+    <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33] overflow-x-hidden w-full">
       {/* Sidebar - Shared */}
       
       <AnimatePresence>
@@ -286,9 +286,8 @@ export default function TopicView() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-72 p-6 sm:p-10">
-<div className="flex items-center gap-4 md:hidden mb-6">
-
+      <main className="flex-1 md:ml-72 p-4 sm:p-10 w-full overflow-hidden">
+        <div className="flex items-center gap-4 md:hidden mb-6">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -297,8 +296,9 @@ export default function TopicView() {
           >
             <Menu size={24} />
           </Button>
-<span className="font-display uppercase text-[#001F33]">Tópico</span>
-</div>
+          <span className="font-display uppercase text-[#001F33]">Tópico</span>
+        </div>
+        
         <Link href="/forum">
           <button className="flex items-center gap-2 text-[#001F33]/80 hover:text-[#0EA5E9] font-bold uppercase text-[10px] tracking-widest mb-10 transition-colors">
             <ArrowLeft size={16} /> Voltar para a Comunidade
@@ -307,15 +307,15 @@ export default function TopicView() {
 
         <div className="max-w-4xl mx-auto space-y-6 pb-80">
           {/* Main Topic Header */}
-          <div className="bg-white p-6 sm:py-8 sm:px-12 rounded-[32px] sm:rounded-[48px] shadow-sm border-4 border-[#8B4513]/40 relative overflow-hidden flex flex-col md:flex-row gap-8">
+          <div className="bg-white p-4 sm:py-8 sm:px-12 rounded-[24px] sm:rounded-[48px] shadow-sm border-2 sm:border-4 border-[#8B4513]/40 relative overflow-hidden flex flex-col md:flex-row gap-6 sm:gap-8">
              {/* Category Tag */}
              <div className="absolute top-6 right-6 sm:top-8 sm:right-12 px-6 py-2 bg-[#0EA5E9]/30 text-[#0EA5E9] border-4 border-[#0EA5E9]/50 rounded-full text-[10px] font-bold uppercase tracking-widest z-10 shadow-md">
                {topic.category.toUpperCase()}
              </div>
 
              {/* Author Sidebar Column */}
-             <div className="md:w-[200px] shrink-0 flex flex-col items-center sm:items-start md:items-center text-center sm:text-left md:text-center md:border-r-4 border-[#8B4513]/40 md:pr-8 md:justify-center md:py-8">
-               <span className="text-[10px] font-bold uppercase text-[#0EA5E9] tracking-widest block mb-4">Criador do Tópico</span>
+              <div className="w-full md:w-[200px] shrink-0 flex flex-col items-center md:items-center text-center md:border-r-4 border-[#8B4513]/40 md:pr-8 md:justify-center md:py-8">
+                <span className="text-[10px] font-bold uppercase text-[#0EA5E9] tracking-widest block mb-2 sm:mb-4">Criador do Tópico</span>
                <div className="h-20 w-20 sm:h-24 sm:w-24 bg-[#EBDCC6] rounded-[2rem] flex items-center justify-center text-[#0EA5E9] font-bold text-3xl sm:text-4xl mb-4">
                  {topic.authorName?.charAt(0).toUpperCase()}
                </div>
@@ -324,88 +324,88 @@ export default function TopicView() {
              </div>
 
              {/* Content Column */}
-             <div className="flex-1 w-full md:pr-16">
-               <span className="text-[10px] font-bold uppercase text-[#0EA5E9] tracking-widest block mb-4">Título do Tópico</span>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-display uppercase tracking-tight text-[#001F33] mb-10 leading-tight pr-0 md:pr-24">
-                 {topic.title}
-               </h1>
-               
-               <span className="text-[10px] font-bold uppercase text-[#0EA5E9] tracking-widest block mb-4 mt-8">Conteúdo da Discussão</span>
-                <p className="text-lg text-[#001F33] font-bold leading-relaxed mb-8 whitespace-pre-wrap">
-                 {topic.content}
-               </p>
+              <div className="flex-1 w-full md:pr-8">
+                <span className="text-[10px] font-bold uppercase text-[#0EA5E9] tracking-widest block mb-2 sm:mb-4">Título do Tópico</span>
+                 <h1 className="text-2xl sm:text-4xl md:text-5xl font-display uppercase tracking-tight text-[#001F33] mb-6 sm:mb-10 leading-tight pr-0 md:pr-24">
+                  {topic.title}
+                </h1>
+                
+                <span className="text-[10px] font-bold uppercase text-[#0EA5E9] tracking-widest block mb-4 mt-8">Conteúdo da Discussão</span>
+                 <p className="text-lg text-[#001F33] font-bold leading-relaxed mb-8 whitespace-pre-wrap">
+                  {topic.content}
+                </p>
 
-               {(topic.imageUrl || topic.videoUrl) && (
-                 <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                   {topic.imageUrl && (
-                     <div className="rounded-[2rem] overflow-hidden border-4 border-[#8B4513]/40 shadow-md">
-                       <img src={topic.imageUrl} alt={topic.title} className="w-full h-auto aspect-video object-cover hover:scale-[1.02] transition-transform duration-500" />
-                     </div>
-                   )}
+                {(topic.imageUrl || topic.videoUrl) && (
+                  <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    {topic.imageUrl && (
+                      <div className="rounded-[2rem] overflow-hidden border-4 border-[#8B4513]/40 shadow-md">
+                        <img src={topic.imageUrl} alt={topic.title} className="w-full h-auto aspect-video object-cover hover:scale-[1.02] transition-transform duration-500" />
+                      </div>
+                    )}
 
-                   {topic.videoUrl && getYouTubeVideoId(topic.videoUrl) && (
-                     <div className="rounded-[2rem] overflow-hidden border-4 border-[#8B4513]/40 shadow-md aspect-video bg-[#001F33]">
-                       <iframe
-                         width="100%"
-                         height="100%"
-                         src={`https://www.youtube.com/embed/${getYouTubeVideoId(topic.videoUrl)}`}
-                         title="YouTube video player"
-                         frameBorder="0"
-                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                         allowFullScreen
-                       ></iframe>
-                     </div>
-                   )}
-                 </div>
-               )}
+                    {topic.videoUrl && getYouTubeVideoId(topic.videoUrl) && (
+                      <div className="rounded-[2rem] overflow-hidden border-4 border-[#8B4513]/40 shadow-md aspect-video bg-[#001F33]">
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={`https://www.youtube.com/embed/${getYouTubeVideoId(topic.videoUrl)}`}
+                          title="YouTube video player"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-8 border-t-4 border-[#8B4513]/40">
-                 <div className="flex flex-wrap items-center gap-2">
-                   <Button 
-                     onClick={() => handleReaction('like')}
-                     variant="ghost" 
-                     className={`h-12 px-4 sm:px-6 rounded-full gap-2 transition-all ${topic.userReaction === 'like' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border-2 border-[#0EA5E9]/30 shadow-sm' : 'bg-[#EBDCC6] text-[#001F33]/60 hover:bg-[#EBDCC6]/80 hover:text-[#0EA5E9]'}`}
-                   >
-                     <ThumbsUp className={`h-4 w-4 sm:h-5 sm:w-5 ${topic.userReaction === 'like' ? 'fill-current' : ''}`} />
-                     <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">{topic.likesCount || 0} Gostos</span>
-                   </Button>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-8 border-t-4 border-[#8B4513]/40">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button 
+                      onClick={() => handleReaction('like')}
+                      variant="ghost" 
+                      className={`h-12 px-4 sm:px-6 rounded-full gap-2 transition-all ${topic.userReaction === 'like' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border-2 border-[#0EA5E9]/30 shadow-sm' : 'bg-[#EBDCC6] text-[#001F33]/60 hover:bg-[#EBDCC6]/80 hover:text-[#0EA5E9]'}`}
+                    >
+                      <ThumbsUp className={`h-4 w-4 sm:h-5 sm:w-5 ${topic.userReaction === 'like' ? 'fill-current' : ''}`} />
+                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">{topic.likesCount || 0} Gostos</span>
+                    </Button>
 
-                   <Button 
-                     onClick={() => handleReaction('dislike')}
-                     variant="ghost" 
-                     className={`h-12 px-4 sm:px-6 rounded-full gap-2 transition-all ${topic.userReaction === 'dislike' ? 'bg-red-50 text-red-600 border-2 border-red-200 shadow-sm' : 'bg-[#EBDCC6] text-[#001F33]/60 hover:bg-[#EBDCC6]/80 hover:text-red-600'}`}
-                   >
-                     <ThumbsDown className={`h-4 w-4 sm:h-5 sm:w-5 ${topic.userReaction === 'dislike' ? 'fill-current' : ''}`} />
-                     <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">{topic.dislikesCount || 0} </span>
-                   </Button>
-                   
-                   {topic.likers && topic.likers.length > 0 && (
-                     <DropdownMenu>
-                       <DropdownMenuTrigger asChild>
-                         <Button variant="ghost" className="h-12 px-4 rounded-full text-[10px] font-bold uppercase text-[#0EA5E9] border-2 border-[#0EA5E9]/20 tracking-widest ml-4 hover:bg-[#0EA5E9]/10">
-                           Ver pessoas que gostaram
-                         </Button>
-                       </DropdownMenuTrigger>
-                       <DropdownMenuContent className="w-56 rounded-2xl border-4 border-[#8B4513]/40 shadow-xl bg-white p-2">
-                         {topic.likers.map((l: any, i: number) => (
-                           <DropdownMenuItem key={i} className="text-xs font-bold text-[#001F33] p-3 rounded-xl hover:bg-[#EBDCC6] focus:bg-[#EBDCC6] cursor-pointer outline-none">
-                             {l.name}
-                           </DropdownMenuItem>
-                         ))}
-                       </DropdownMenuContent>
-                     </DropdownMenu>
-                   )}
-                 </div>
-                 <div className="flex items-center gap-3 text-[#001F33]/90 group shrink-0">
-                   <MessageCircle size={20} className="group-hover:text-[#0EA5E9] transition-colors" />
-                   <span className="text-xs font-bold uppercase tracking-widest">{comments.length} Respostas</span>
-                 </div>
-               </div>
-             </div>
-          </div>
+                    <Button 
+                      onClick={() => handleReaction('dislike')}
+                      variant="ghost" 
+                      className={`h-12 px-4 sm:px-6 rounded-full gap-2 transition-all ${topic.userReaction === 'dislike' ? 'bg-red-50 text-red-600 border-2 border-red-200 shadow-sm' : 'bg-[#EBDCC6] text-[#001F33]/60 hover:bg-[#EBDCC6]/80 hover:text-red-600'}`}
+                    >
+                      <ThumbsDown className={`h-4 w-4 sm:h-5 sm:w-5 ${topic.userReaction === 'dislike' ? 'fill-current' : ''}`} />
+                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">{topic.dislikesCount || 0} </span>
+                    </Button>
+                    
+                    {topic.likers && topic.likers.length > 0 && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-12 px-4 rounded-full text-[10px] font-bold uppercase text-[#0EA5E9] border-2 border-[#0EA5E9]/20 tracking-widest ml-4 hover:bg-[#0EA5E9]/10">
+                            Ver pessoas que gostaram
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56 rounded-2xl border-4 border-[#8B4513]/40 shadow-xl bg-white p-2">
+                          {topic.likers.map((l: any, i: number) => (
+                            <DropdownMenuItem key={i} className="text-xs font-bold text-[#001F33] p-3 rounded-xl hover:bg-[#EBDCC6] focus:bg-[#EBDCC6] cursor-pointer outline-none">
+                              {l.name}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 text-[#001F33]/90 group shrink-0">
+                    <MessageCircle size={20} className="group-hover:text-[#0EA5E9] transition-colors" />
+                    <span className="text-xs font-bold uppercase tracking-widest">{comments.length} Respostas</span>
+                  </div>
+                </div>
+              </div>
+           </div>
 
-          {/* Comments Section */}
-          <div className="space-y-4">
+           {/* Comments Section */}
+           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 ml-0 sm:ml-12 mb-6">
               <h3 className="text-[10px] font-bold uppercase text-[#001F33]/90 tracking-[0.2em]">Respostas da Comunidade</h3>
               <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
@@ -439,7 +439,7 @@ export default function TopicView() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.1 }}
-                  className="bg-white p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] shadow-sm border-4 border-[#8B4513]/40 relative z-10"
+                  className="bg-white p-4 sm:p-10 rounded-[24px] sm:rounded-[40px] shadow-sm border-[3px] sm:border-4 border-[#8B4513]/40 relative z-10"
                 >
                   {comment.isHidden ? (
                     <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#EBDCC6]/50 p-6 rounded-2xl border-4 border-red-500/40">
@@ -462,7 +462,7 @@ export default function TopicView() {
                           <Eye size={16} />
                         </Button>
                       )}
-{(user?.role === 'admin' || comment.authorId === user?.id) && (
+                      {(user?.role === 'admin' || comment.authorId === user?.id) && (
                         <Button 
                           variant="ghost" 
                           size="icon"
@@ -479,81 +479,81 @@ export default function TopicView() {
                   ) : (
                     <>
                     <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 bg-[#EBDCC6] rounded-xl flex items-center justify-center text-[#0EA5E9] font-bold text-xs">
-                        {comment.authorName?.charAt(0).toUpperCase()}
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 bg-[#EBDCC6] rounded-xl flex items-center justify-center text-[#0EA5E9] font-bold text-xs">
+                          {comment.authorName?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-[#001F33] uppercase">{comment.authorName}</p>
+                          <p className="text-[10px] font-bold text-[#001F33]/90 tracking-widest">{new Date(comment.createdAt).toLocaleString()}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs font-bold text-[#001F33] uppercase">{comment.authorName}</p>
-                        <p className="text-[10px] font-bold text-[#001F33]/90 tracking-widest">{new Date(comment.createdAt).toLocaleString()}</p>
-                      </div>
-                    </div>
                     
                       <div className="flex items-center gap-1 sm:gap-2">
-                      <Button 
-                        onClick={() => handleCommentReaction(comment.id, 'like')}
-                        variant="ghost" 
-                        className={`h-8 px-3 transition-all rounded-full gap-2 ${comment.userReaction === 'like' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border-2 border-[#0EA5E9]/30' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-[#0EA5E9]'}`}
-                      >
-                        <ThumbsUp className={`h-3 w-3 sm:h-4 sm:w-4 ${comment.userReaction === 'like' ? 'fill-current' : ''}`} />
-                        <span className="text-[10px] font-bold">{comment.likesCount || 0}</span>
-                      </Button>
+                        <Button 
+                          onClick={() => handleCommentReaction(comment.id, 'like')}
+                          variant="ghost" 
+                          className={`h-8 px-3 transition-all rounded-full gap-2 ${comment.userReaction === 'like' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border-2 border-[#0EA5E9]/30' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-[#0EA5E9]'}`}
+                        >
+                          <ThumbsUp className={`h-3 w-3 sm:h-4 sm:w-4 ${comment.userReaction === 'like' ? 'fill-current' : ''}`} />
+                          <span className="text-[10px] font-bold">{comment.likesCount || 0}</span>
+                        </Button>
 
-                      <Button 
-                        onClick={() => handleCommentReaction(comment.id, 'dislike')}
-                        variant="ghost" 
-                        className={`h-8 px-3 transition-all rounded-full gap-2 ${comment.userReaction === 'dislike' ? 'bg-red-50 text-red-600 border-2 border-red-200' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-red-600'}`}
-                      >
-                        <ThumbsDown className={`h-3 w-3 sm:h-4 sm:w-4 ${comment.userReaction === 'dislike' ? 'fill-current' : ''}`} />
-                        <span className="text-[10px] font-bold">{comment.dislikesCount || 0}</span>
-                      </Button>
+                        <Button 
+                          onClick={() => handleCommentReaction(comment.id, 'dislike')}
+                          variant="ghost" 
+                          className={`h-8 px-3 transition-all rounded-full gap-2 ${comment.userReaction === 'dislike' ? 'bg-red-50 text-red-600 border-2 border-red-200' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-red-600'}`}
+                        >
+                          <ThumbsDown className={`h-3 w-3 sm:h-4 sm:w-4 ${comment.userReaction === 'dislike' ? 'fill-current' : ''}`} />
+                          <span className="text-[10px] font-bold">{comment.dislikesCount || 0}</span>
+                        </Button>
 
-                      {user?.role === 'admin' && (
+                        {user?.role === 'admin' && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => setHideModalConfig({ isOpen: true, commentId: comment.id, hideReason: "" })}
+                            className="text-orange-500 hover:bg-orange-50 rounded-full h-8 w-8 sm:h-10 sm:w-10 shrink-0 ml-2"
+                          >
+                            <EyeOff size={14} className="sm:w-4 sm:h-4" />
+                          </Button>
+                        )}
+                        
                         <Button 
                           variant="ghost" 
-                          size="icon"
-                          onClick={() => setHideModalConfig({ isOpen: true, commentId: comment.id, hideReason: "" })}
-                          className="text-orange-500 hover:bg-orange-50 rounded-full h-8 w-8 sm:h-10 sm:w-10 shrink-0 ml-2"
+                          size="sm"
+                          onClick={() => {
+                            setReplyingTo({ id: comment.id, name: comment.authorName });
+                            document.getElementById('reply-textarea')?.focus();
+                          }}
+                          className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-full h-8 sm:h-10 px-3 sm:px-4 text-[10px] font-bold uppercase tracking-widest ml-1"
                         >
-                          <EyeOff size={14} className="sm:w-4 sm:h-4" />
+                          <Reply size={14} className="mr-1 sm:mr-2" /> <span className="hidden sm:inline">Responder</span>
                         </Button>
-                      )}
-                      
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => {
-                          setReplyingTo({ id: comment.id, name: comment.authorName });
-                          document.getElementById('reply-textarea')?.focus();
-                        }}
-                        className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-full h-8 sm:h-10 px-3 sm:px-4 text-[10px] font-bold uppercase tracking-widest ml-1"
-                      >
-                        <Reply size={14} className="mr-1 sm:mr-2" /> <span className="hidden sm:inline">Responder</span>
-                      </Button>
-                      
-                      {(user?.role === 'admin' || comment.authorId === user?.id) && (
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => setConfirmConfig({
-                            isOpen: true,
-                            title: "Apagar Comentário?",
-                            description: "Esta acção é irreversível e apagará todas as respostas.",
-                            variant: "destructive",
-                            onConfirm: () => handleDeleteComment(comment.id)
-                          })}
-                          className="text-red-500 hover:bg-red-50 rounded-full h-8 w-8 sm:h-10 sm:w-10 shrink-0"
-                        >
-                          <Trash2 size={14} className="sm:w-4 sm:h-4" />
-                        </Button>
-                      )}
+                        
+                        {(user?.role === 'admin' || comment.authorId === user?.id) && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => setConfirmConfig({
+                              isOpen: true,
+                              title: "Apagar Comentário?",
+                              description: "Esta acção é irreversível e apagará todas as respostas.",
+                              variant: "destructive",
+                              onConfirm: () => handleDeleteComment(comment.id)
+                            })}
+                            className="text-red-500 hover:bg-red-50 rounded-full h-8 w-8 sm:h-10 sm:w-10 shrink-0"
+                          >
+                            <Trash2 size={14} className="sm:w-4 sm:h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <p className="text-sm md:text-base text-[#001F33]/90 font-bold leading-relaxed">
-                    {comment.content}
-                  </p>
-                  </>
-                )}
+                    <p className="text-sm md:text-base text-[#001F33]/90 font-bold leading-relaxed">
+                      {comment.content}
+                    </p>
+                    </>
+                  )}
                 </motion.div>
 
                 {/* Respostas Aninhadas (Filhos) */}
@@ -565,89 +565,89 @@ export default function TopicView() {
                   const visibleChildren = children.slice(0, visibleCount);
                   
                   return (
-                    <div className="pl-8 sm:pl-16 space-y-4 relative mt-4">
-                      <div className="absolute left-8 top-0 bottom-12 w-1.5 bg-[#8B4513]/40 z-0 rounded-full"></div>
+                    <div className="pl-4 sm:pl-16 space-y-4 relative mt-4">
+                      <div className="absolute left-4 sm:left-8 top-0 bottom-12 w-1.5 bg-[#8B4513]/40 z-0 rounded-full"></div>
                       {visibleChildren.map((child: any) => (
                         <motion.div 
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        key={child.id}
-                        className="bg-white/80 p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] shadow-sm border-4 border-[#8B4513]/40 relative z-10"
-                      >
-                        {child.isHidden ? (
-                          <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#EBDCC6]/50 p-4 rounded-2xl border-4 border-red-500/40">
-                            <ShieldAlert className="h-5 w-5 text-red-500 shrink-0" />
-                            <div className="flex-1 text-center sm:text-left">
-                              <h4 className="text-xs font-bold text-red-600 uppercase tracking-widest">Resposta Ocultada</h4>
-                              <p className="text-[10px] font-bold text-[#001F33]/60">{child.hideReason}</p>
-                            </div>
-                            
-                            {user?.role === 'admin' && (
-                              <Button 
-                                variant="ghost" 
-                                size="icon"
-                                onClick={() => handleUnhideComment(child.id)}
-                                className="text-green-600 hover:bg-green-50 rounded-full h-8 w-8 shrink-0"
-                                title="Desocultar"
-                              >
-                                <Eye size={14} />
-                              </Button>
-                            )}
-{(user?.role === 'admin' || child.authorId === user?.id) && (
-                              <Button variant="ghost" size="icon" onClick={() => {
-                                setConfirmConfig({ isOpen: true, title: "Apagar Permanentemente?", description: "Irreversível.", variant: "destructive", onConfirm: () => handleDeleteComment(child.id) })
-                              }} className="text-red-500 hover:bg-red-50 rounded-full h-8 w-8 shrink-0"><Trash2 size={14} /></Button>
-                            )}
-                          </div>
-                        ) : (
-                          <>
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center gap-3">
-                                <div className="h-8 w-8 bg-[#EBDCC6] rounded-xl flex items-center justify-center text-[#0EA5E9] font-bold text-xs">
-                                  {child.authorName?.charAt(0).toUpperCase()}
-                                </div>
-                                <div>
-                                  <p className="text-xs font-bold text-[#001F33] uppercase">{child.authorName}</p>
-                                  <p className="text-[10px] font-bold text-[#001F33]/90 tracking-widest">{new Date(child.createdAt).toLocaleString()}</p>
-                                </div>
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          key={child.id}
+                          className="bg-white/80 p-4 sm:p-8 rounded-[24px] sm:rounded-[40px] shadow-sm border-[3px] sm:border-4 border-[#8B4513]/40 relative z-10"
+                        >
+                          {child.isHidden ? (
+                            <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#EBDCC6]/50 p-4 rounded-2xl border-4 border-red-500/40">
+                              <ShieldAlert className="h-5 w-5 text-red-500 shrink-0" />
+                              <div className="flex-1 text-center sm:text-left">
+                                <h4 className="text-xs font-bold text-red-600 uppercase tracking-widest">Resposta Ocultada</h4>
+                                <p className="text-[10px] font-bold text-[#001F33]/60">{child.hideReason}</p>
                               </div>
-                              <div className="flex items-center gap-1 sm:gap-2">
+                              
+                              {user?.role === 'admin' && (
                                 <Button 
-                                  onClick={() => handleCommentReaction(child.id, 'like')}
                                   variant="ghost" 
-                                  className={`h-8 px-3 transition-all rounded-full gap-2 ${child.userReaction === 'like' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border-2 border-[#0EA5E9]/30' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-[#0EA5E9]'}`}
+                                  size="icon"
+                                  onClick={() => handleUnhideComment(child.id)}
+                                  className="text-green-600 hover:bg-green-50 rounded-full h-8 w-8 shrink-0"
+                                  title="Desocultar"
                                 >
-                                  <ThumbsUp className={`h-3 w-3 ${child.userReaction === 'like' ? 'fill-current' : ''}`} />
-                                  <span className="text-[10px] font-bold">{child.likesCount || 0}</span>
+                                  <Eye size={14} />
                                 </Button>
-                                
-                                <Button 
-                                  onClick={() => handleCommentReaction(child.id, 'dislike')}
-                                  variant="ghost" 
-                                  className={`h-8 px-3 transition-all rounded-full gap-2 ${child.userReaction === 'dislike' ? 'bg-red-50 text-red-600 border-2 border-red-200' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-red-600'}`}
-                                >
-                                  <ThumbsDown className={`h-3 w-3 ${child.userReaction === 'dislike' ? 'fill-current' : ''}`} />
-                                  <span className="text-[10px] font-bold">{child.dislikesCount || 0}</span>
-                                </Button>
+                              )}
+                              {(user?.role === 'admin' || child.authorId === user?.id) && (
+                                <Button variant="ghost" size="icon" onClick={() => {
+                                  setConfirmConfig({ isOpen: true, title: "Apagar Permanentemente?", description: "Irreversível.", variant: "destructive", onConfirm: () => handleDeleteComment(child.id) })
+                                }} className="text-red-500 hover:bg-red-50 rounded-full h-8 w-8 shrink-0"><Trash2 size={14} /></Button>
+                              )}
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="h-8 w-8 bg-[#EBDCC6] rounded-xl flex items-center justify-center text-[#0EA5E9] font-bold text-xs">
+                                    {child.authorName?.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div>
+                                    <p className="text-xs font-bold text-[#001F33] uppercase">{child.authorName}</p>
+                                    <p className="text-[10px] font-bold text-[#001F33]/90 tracking-widest">{new Date(child.createdAt).toLocaleString()}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                  <Button 
+                                    onClick={() => handleCommentReaction(child.id, 'like')}
+                                    variant="ghost" 
+                                    className={`h-8 px-3 transition-all rounded-full gap-2 ${child.userReaction === 'like' ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border-2 border-[#0EA5E9]/30' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-[#0EA5E9]'}`}
+                                  >
+                                    <ThumbsUp className={`h-3 w-3 ${child.userReaction === 'like' ? 'fill-current' : ''}`} />
+                                    <span className="text-[10px] font-bold">{child.likesCount || 0}</span>
+                                  </Button>
+                                  
+                                  <Button 
+                                    onClick={() => handleCommentReaction(child.id, 'dislike')}
+                                    variant="ghost" 
+                                    className={`h-8 px-3 transition-all rounded-full gap-2 ${child.userReaction === 'dislike' ? 'bg-red-50 text-red-600 border-2 border-red-200' : 'text-[#001F33]/60 hover:bg-[#EBDCC6] hover:text-red-600'}`}
+                                  >
+                                    <ThumbsDown className={`h-3 w-3 ${child.userReaction === 'dislike' ? 'fill-current' : ''}`} />
+                                    <span className="text-[10px] font-bold">{child.dislikesCount || 0}</span>
+                                  </Button>
 
-                                {user?.role === 'admin' && (
-                                  <Button variant="ghost" size="icon" onClick={() => setHideModalConfig({ isOpen: true, commentId: child.id, hideReason: "" })} className="text-orange-500 hover:bg-orange-50 rounded-full h-8 w-8 shrink-0 ml-2">
-                                    <EyeOff size={14} />
-                                  </Button>
-                                )}
-                                {(user?.role === 'admin' || child.authorId === user?.id) && (
-                                  <Button variant="ghost" size="icon" onClick={() => setConfirmConfig({
-                                    isOpen: true, title: "Apagar?", description: "Esta acção é irreversível.", variant: "destructive", onConfirm: () => handleDeleteComment(child.id)
-                                  })} className="text-red-500 hover:bg-red-50 rounded-full h-8 w-8 shrink-0">
-                                    <Trash2 size={14} />
-                                  </Button>
-                                )}
+                                  {user?.role === 'admin' && (
+                                    <Button variant="ghost" size="icon" onClick={() => setHideModalConfig({ isOpen: true, commentId: child.id, hideReason: "" })} className="text-orange-500 hover:bg-orange-50 rounded-full h-8 w-8 shrink-0 ml-2">
+                                      <EyeOff size={14} />
+                                    </Button>
+                                  )}
+                                  {(user?.role === 'admin' || child.authorId === user?.id) && (
+                                    <Button variant="ghost" size="icon" onClick={() => setConfirmConfig({
+                                      isOpen: true, title: "Apagar?", description: "Esta acção é irreversível.", variant: "destructive", onConfirm: () => handleDeleteComment(child.id)
+                                    })} className="text-red-500 hover:bg-red-50 rounded-full h-8 w-8 shrink-0">
+                                      <Trash2 size={14} />
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                            <p className="text-sm text-[#001F33]/90 font-bold leading-relaxed">{child.content}</p>
-                          </>
-                        )}
-                      </motion.div>
+                              <p className="text-sm text-[#001F33]/90 font-bold leading-relaxed">{child.content}</p>
+                            </>
+                          )}
+                        </motion.div>
                       ))}
                       
                       {children.length > 1 && (
@@ -656,7 +656,7 @@ export default function TopicView() {
                             <Button 
                               variant="ghost" 
                               onClick={() => handleShowMoreReplies(comment.id, children.length)}
-                              className="text-[#0EA5E9] font-bold uppercase text-[10px] tracking-widest hover:bg-[#0EA5E9]/10 rounded-full h-8 px-4 border-4 border-[#0EA5E9]/40 shadow-sm"
+                              className="text-[#0EA5E9] font-bold uppercase text-[10px] tracking-widest hover:bg-[#0EA5E9]/10 rounded-full h-8 px-4 border-2 sm:border-4 border-[#0EA5E9]/40 shadow-sm"
                             >
                               Ver Mais ({children.length - visibleCount})
                             </Button>
@@ -677,8 +677,9 @@ export default function TopicView() {
                 })()}
               </div>
             ))}
-            <div className="fixed bottom-0 left-0 right-0 md:pl-72 p-4 sm:p-6 z-20 pointer-events-none">
-              <div className="pointer-events-auto max-w-4xl mx-auto bg-[#EBDCC6] border-4 border-[#8B4513]/40 shadow-[0_-10px_40px_rgba(0,0,0,0.15)] rounded-[32px] sm:rounded-[40px] p-3 sm:p-4 pb-3">
+            
+            <div className="fixed bottom-0 left-0 right-0 md:pl-72 p-2 sm:p-6 z-20 pointer-events-none">
+              <div className="pointer-events-auto max-w-4xl mx-auto bg-[#EBDCC6] border-[3px] sm:border-4 border-[#8B4513]/40 shadow-[0_-10px_40px_rgba(0,0,0,0.15)] rounded-[24px] sm:rounded-[40px] p-2 sm:p-4 pb-2 sm:pb-3">
                 {replyingTo && (
                   <div className="bg-white border-2 border-[#0EA5E9]/20 rounded-2xl p-3 sm:p-4 mb-4 flex items-center justify-between shadow-sm">
                     <p className="text-[10px] sm:text-xs font-bold text-[#001F33]/80 uppercase tracking-widest">

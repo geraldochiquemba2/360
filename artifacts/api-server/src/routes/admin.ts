@@ -73,12 +73,30 @@ adminRouter.patch("/users/:id", async (req, res) => {
     const { status, rejectionReason } = req.body; // 'ativo' | 'rejeitado' | 'pendente'
     const id = parseInt(req.params.id);
 
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id)).limit(1);
+    if (!user) return res.status(404).json({ error: "Utilizador não encontrado" });
+
     await db.update(usersTable).set({ 
       status, 
       rejectionReason: status === 'rejeitado' ? rejectionReason : null 
     }).where(eq(usersTable.id, id));
+
+    // Se for um mentor a ser ativado, garantir que tem entrada na mentorsTable
+    if (status === 'ativo' && user.role === 'mentor') {
+      const [existingMentor] = await db.select().from(mentorsTable).where(eq(mentorsTable.userId, id)).limit(1);
+      if (!existingMentor) {
+        await db.insert(mentorsTable).values({
+          userId: id,
+          bio: "Especialista em desenvolvimento profissional e mentoria estratégica.",
+          specialties: "Carreira, Liderança, Desenvolvimento Pessoal",
+          status: "ativo"
+        });
+      }
+    }
+
     return res.json({ success: true });
   } catch (err) {
+    console.error("Update User Error:", err);
     return res.status(500).json({ error: "Erro ao atualizar status do utilizador" });
   }
 });

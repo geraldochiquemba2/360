@@ -140,7 +140,7 @@ export default function CandidateDashboard() {
         />
 
       {/* Content */}
-      <main className="md:ml-72 min-h-screen p-8 md:p-16">
+      <main className="flex-1 md:ml-72 min-h-screen p-4 sm:p-10 overflow-hidden">
         <header className="p-6 sm:p-8 bg-white/50 md:bg-transparent border-b-2 md:border-none border-[#8B4513] sticky top-0 z-20 backdrop-blur-md md:backdrop-blur-none flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <Button 
@@ -199,14 +199,14 @@ export default function CandidateDashboard() {
                       key={op.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white p-0 overflow-hidden rounded-2xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-0 md:gap-6 justify-between items-start md:items-center"
+                      className="bg-white p-0 overflow-hidden rounded-[20px] sm:rounded-2xl shadow-sm border-2 border-[#8B4513] hover:shadow-md transition-shadow group flex flex-col md:flex-row gap-0 md:gap-6 justify-between items-start md:items-center"
                     >
                       {op.imageUrl && (
                         <div className="w-full md:w-32 h-32 shrink-0 overflow-hidden">
                            <img src={getFileUrl(op.imageUrl)} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         </div>
                       )}
-                      <div className={`p-4 sm:p-8 flex-1 w-full ${!op.imageUrl ? 'bg-white' : ''}`}>
+                      <div className={`p-5 sm:p-8 flex-1 w-full ${!op.imageUrl ? 'bg-white' : ''}`}>
                       <div className="flex-1 w-full">
                         <div className="flex items-center gap-2 mb-2">
                           <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${
