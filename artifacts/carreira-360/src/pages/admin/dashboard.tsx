@@ -96,7 +96,7 @@ export default function AdminDashboard() {
     onConfirm: () => {},
   });
 
-  const [newTrack, setNewTrack] = useState({ title: "", description: "", imageUrl: "", duration: "", hasCertificate: true });
+  const [newTrack, setNewTrack] = useState({ title: "", description: "", imageUrl: "", duration: "", hasCertificate: true, category: "Geral" });
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
   const [modules, setModules] = useState<any[]>([]);
   const [currentModule, setCurrentModule] = useState<any>(null);
@@ -1097,7 +1097,7 @@ export default function AdminDashboard() {
                           <div className="flex justify-between items-start mb-6">
                              <div className="h-14 w-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-[#0EA5E9] shadow-lg"><Film size={28}/></div>
                              <div className="flex gap-2">
-                                <Button onClick={() => { setEditingTrack(t); setNewTrack({ ...t, hasCertificate: t.hasCertificate ?? true, duration: t.duration ?? "" }); setIsAddingTrack(true); }} variant="ghost" size="icon" className="text-[#0EA5E9] hover:bg-white/10 rounded-full"><Pencil size={20}/></Button>
+                                <Button onClick={() => { setEditingTrack(t); setNewTrack({ ...t, hasCertificate: t.hasCertificate ?? true, duration: t.duration ?? "", category: t.category || "Geral" }); setIsSidebarOpen(false); setIsAddingTrack(true); }} variant="ghost" size="icon" className="text-[#0EA5E9] hover:bg-white/10 rounded-full"><Pencil size={20}/></Button>
                                 <Button onClick={() => triggerDelete("Eliminar Trilha", `Tens a certeza que queres apagar a trilha ${t.title}?`, () => deleteTrack(t.id))} variant="ghost" size="icon" className="text-red-400 hover:bg-red-500/10 rounded-full"><Trash2 size={24}/></Button>
                              </div>
                           </div>
@@ -1269,6 +1269,7 @@ export default function AdminDashboard() {
               <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Nome da Jornada</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8 text-lg" value={newTrack.title} onChange={e => setNewTrack({...newTrack, title: e.target.value})} placeholder="Ex: Domínio Financeiro" /></div>
               <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Explicação Curta</label><Textarea className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 min-h-[120px] rounded-3xl font-bold p-8" value={newTrack.description} onChange={e => setNewTrack({...newTrack, description: e.target.value})} placeholder="O que o jovem vai atingir com isto?" /></div>
               <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Capa (Caminho da Imagem)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newTrack.imageUrl} onChange={e => setNewTrack({...newTrack, imageUrl: e.target.value})} placeholder="/assets/img/trilha-1.jpg" /></div>
++              <div className="space-y-2"><label className="text-[10px] font-bold uppercase text-[#001F33] tracking-[0.2em] ml-2">Categoria (Filtro)</label><Input className="text-[#001F33] bg-[#EBDCC6] border border-[#8B4513]/50 h-16 rounded-2xl font-bold px-8" value={newTrack.category} onChange={e => setNewTrack({...newTrack, category: e.target.value})} placeholder="Ex: Tecnologia, Negócios" /></div>
               
               <div className="grid grid-cols-2 gap-6 pt-4">
                 <div className="space-y-2">

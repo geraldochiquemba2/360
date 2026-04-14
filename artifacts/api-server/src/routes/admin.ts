@@ -189,6 +189,7 @@ adminRouter.post("/tracks", async (req, res) => {
       description: req.body.description,
       imageUrl: req.body.imageUrl,
       duration: req.body.duration,
+      category: req.body.category || "Geral",
       hasCertificate: req.body.hasCertificate !== undefined ? req.body.hasCertificate : true
     }).returning();
     return res.status(201).json(newTrack);
@@ -201,7 +202,7 @@ adminRouter.patch("/tracks/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const id = parseInt(req.params.id as string);
-    const { title, description, imageUrl, isActive, duration, hasCertificate } = req.body;
+    const { title, description, imageUrl, isActive, duration, hasCertificate, category } = req.body;
     
     await db.update(tracksTable).set({
       title,
@@ -209,6 +210,7 @@ adminRouter.patch("/tracks/:id", async (req, res) => {
       imageUrl,
       duration,
       hasCertificate,
+      category,
       isActive: isActive !== undefined ? isActive : undefined
     }).where(eq(tracksTable.id, id));
     

@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Drawer } from "vaul"
+import { X } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -35,7 +36,14 @@ export function ResponsiveDialog({
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
           <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[32px] border-t-2 border-[#001F33]/35 bg-[#F3E9DD] p-6 shadow-2xl focus:outline-none">
-            <div className="mx-auto mb-8 h-1.5 w-12 shrink-0 rounded-full bg-[#001F33]/10" />
+            <div className="flex justify-between items-center mb-4">
+              <div className="mx-auto h-1.5 w-12 shrink-0 rounded-full bg-[#001F33]/10 ml-[50%] -translate-x-[50%]" />
+              <Drawer.Close asChild>
+                <button className="h-10 w-10 bg-[#001F33]/5 rounded-full flex items-center justify-center text-[#001F33] active:scale-95 transition-all">
+                   <X className="h-5 w-5" />
+                </button>
+              </Drawer.Close>
+            </div>
             {(title || description) && (
               <div className="mb-6 space-y-2 text-center">
                 {title && (

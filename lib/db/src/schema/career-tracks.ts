@@ -10,6 +10,7 @@ export const tracksTable = pgTable("tracks", {
   imageUrl: text("image_url"),
   duration: text("duration"),
   hasCertificate: boolean("has_certificate").default(true),
+  category: text("category").default("Geral"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

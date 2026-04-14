@@ -156,7 +156,7 @@ export default function ForumHome() {
 
       {/* Main Content */}
       <main className="flex-1 md:ml-72 p-4 sm:p-10 mt-2 overflow-hidden">
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-6 mb-8 sm:mb-12">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
@@ -167,25 +167,25 @@ export default function ForumHome() {
               <Menu size={24} />
             </Button>
             <div>
-              <span className="text-[#0EA5E9] font-bold uppercase text-[10px] tracking-[0.3em] block mb-2">Comunidade Carreira 360</span>
-              <h1 className="text-3xl sm:text-5xl font-display uppercase tracking-tight text-[#001F33] leading-none">Muro de Discussões</h1>
+              <span className="text-[#0EA5E9] font-bold uppercase text-[8px] sm:text-[10px] tracking-[0.3em] block mb-1 sm:mb-2">Comunidade Carreira 360</span>
+              <h1 className="text-2xl sm:text-5xl font-display uppercase tracking-tight text-[#001F33] leading-none">Muro de Discussões</h1>
             </div>
           </div>
           <Button 
             onClick={() => setIsAddingTopic(true)}
-            className="bg-[#0EA5E9] text-white uppercase font-bold text-xs px-8 h-12 sm:h-14 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto"
+            className="bg-[#0EA5E9] text-white uppercase font-bold text-[10px] sm:text-xs px-6 sm:px-8 h-12 sm:h-14 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto mt-2 sm:mt-0"
           >
-            <Plus className="mr-2 h-5 w-5" /> Iniciar Discussão
+            <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> Iniciar Discussão
           </Button>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
-          {/* Categorias - Agora como Menu Suspenso */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-10">
+          {/* Categorias - Menu Lateral / Topo */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white p-6 rounded-[32px] shadow-sm border-2 border-[#8B4513]">
-              <h3 className="text-xs font-black uppercase text-[#001F33] tracking-widest mb-4 px-2">Filtrar por Categoria</h3>
+            <div className="bg-white p-5 rounded-3xl shadow-sm border border-[#001F33]/5">
+              <h3 className="text-[10px] font-black uppercase text-[#001F33] tracking-widest mb-3 px-1">Filtrar por Categoria</h3>
               <Select defaultValue={selectedCategory} onValueChange={(val) => { setSelectedCategory(val); fetchTopics(val); }}>
-                <SelectTrigger className="w-full bg-[#EBDCC6]/30 border-2 border-[#8B4513]/20 rounded-2xl h-12 text-xs font-bold uppercase tracking-widest text-[#001F33]">
+                <SelectTrigger className="w-full bg-[#EBDCC6]/30 border border-[#001F33]/10 rounded-xl h-10 text-[10px] font-bold uppercase tracking-widest text-[#001F33]">
                   <SelectValue placeholder="Categorias" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-2 border-[#8B4513] rounded-2xl shadow-xl max-h-[300px]">
@@ -193,7 +193,7 @@ export default function ForumHome() {
                     <SelectItem 
                       key={cat.id} 
                       value={cat.id}
-                      className="text-xs font-bold uppercase tracking-widest text-[#001F33] hover:bg-[#EBDCC6] cursor-pointer py-3"
+                      className="text-[10px] font-bold uppercase tracking-widest text-[#001F33] hover:bg-[#EBDCC6] cursor-pointer py-3"
                     >
                       {cat.label}
                     </SelectItem>
@@ -208,55 +208,55 @@ export default function ForumHome() {
             {loading ? (
               <div className="text-center py-20 text-[#001F33]/20 font-display text-2xl uppercase">Carregando conversas...</div>
             ) : (
-              <div className="grid gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
                 {topics.filter(t => t.title.toLowerCase().includes(search.toLowerCase())).map((t, idx) => (
                   <motion.div 
                     key={t.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="bg-white p-5 sm:p-10 rounded-[28px] sm:rounded-[2.5rem] border-2 sm:border-4 border-[#8B4513] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group relative overflow-hidden"
+                    className="bg-white p-4 sm:p-6 rounded-3xl border border-[#001F33]/5 hover:border-[#0EA5E9]/30 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group relative overflow-hidden flex flex-col h-full"
                   >
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-[#EBDCC6] rounded-full flex items-center justify-center text-[#0EA5E9] font-bold text-xs">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="h-8 w-8 sm:h-10 sm:w-10 bg-[#EBDCC6] rounded-full flex items-center justify-center text-[#0EA5E9] font-bold text-[10px] sm:text-xs">
                           {t.authorName?.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-[#001F33] uppercase">{t.authorName}</p>
-                          <p className="text-[10px] font-bold text-[#001F33]/40">{new Date(t.createdAt).toLocaleDateString()}</p>
+                          <p className="text-[10px] sm:text-xs font-black text-[#001F33] uppercase leading-tight">{t.authorName}</p>
+                          <p className="text-[8px] sm:text-[10px] font-bold text-[#001F33]">{new Date(t.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
-                      <span className={`text-[10px] font-bold uppercase px-4 py-1.5 rounded-full ${categories.find(c => c.id === t.category)?.color}`}>
+                      <span className={`text-[8px] sm:text-[10px] font-bold uppercase px-2 sm:px-4 py-1 rounded-full ${categories.find(c => c.id === t.category)?.color}`}>
                         {categories.find(c => c.id === t.category)?.label}
                       </span>
                     </div>
 
-                    <h3 className="text-2xl font-display uppercase text-[#001F33] mb-4 group-hover:text-[#0EA5E9] transition-colors">
+                    <h3 className="text-sm sm:text-xl font-display uppercase text-[#001F33] mb-2 sm:mb-3 group-hover:text-[#0EA5E9] transition-colors leading-tight line-clamp-2 min-h-[2.5rem]">
                       {t.title}
                     </h3>
-                    <p className="text-[#001F33]/60 text-sm font-medium mb-8 line-clamp-2 leading-relaxed">
+                    <p className="text-[#001F33]/80 text-[11px] sm:text-sm font-medium mb-4 sm:mb-6 line-clamp-2 leading-relaxed flex-1">
                       {t.content}
                     </p>
 
-                    <div className="flex items-center justify-between pt-8 border-t border-[#8B4513]">
-                      <div className="flex items-center gap-6">
+                    <div className="flex items-center justify-between pt-4 border-t border-[#001F33]/5">
+                      <div className="flex items-center gap-4 sm:gap-6">
                         <button 
                           onClick={() => handleLike(t.id)}
-                          className="flex items-center gap-2 text-[#001F33]/60 hover:text-red-500 transition-colors"
+                          className="flex items-center gap-1.5 sm:gap-2 text-[#001F33] hover:text-red-500 transition-colors"
                         >
-                          <Heart className={`h-5 w-5 ${t.likeCount > 0 ? 'fill-red-500 text-red-500' : ''}`} />
-                          <span className="text-xs font-bold">{t.likeCount}</span>
+                          <Heart className={`h-3.5 w-3.5 sm:h-5 sm:w-5 ${t.likeCount > 0 ? 'fill-red-500 text-red-500 border-red-500' : ''}`} />
+                          <span className="text-[10px] sm:text-xs font-bold">{t.likeCount}</span>
                         </button>
-                        <div className="flex items-center gap-2 text-[#001F33]/60">
-                          <MessageCircle className="h-5 w-5" />
-                          <span className="text-xs font-bold">{t.commentCount}</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-[#001F33]">
+                          <MessageCircle className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
+                          <span className="text-[10px] sm:text-xs font-bold">{t.commentCount}</span>
                         </div>
                       </div>
                       
                       <Link href={`/forum/topic/${t.id}`}>
-                        <Button variant="ghost" className="text-[#0EA5E9] text-[10px] font-bold uppercase tracking-widest gap-2">
-                          Ver Discussão <ChevronRight size={14} />
+                        <Button variant="ghost" className="text-[#0EA5E9] hover:text-[#001F33] text-[8px] sm:text-[10px] font-bold uppercase tracking-widest gap-1 sm:gap-2 p-0 h-auto self-end">
+                          <span className="hidden sm:inline">Ver Discussão</span> <ChevronRight size={14} />
                         </Button>
                       </Link>
                     </div>
@@ -274,55 +274,55 @@ export default function ForumHome() {
           title="Iniciar Nova Discussão"
           className="sm:max-w-2xl"
         >
-          <div className="py-4 space-y-6">
-            <div className="space-y-2">
+          <div className="py-2 sm:py-4 space-y-4 sm:space-y-6">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest ml-2">Título do Tópico</label>
               <Input 
-                className="text-[#001F33] bg-[#EBDCC6] border-none h-16 rounded-2xl font-bold px-8 text-lg" 
+                className="text-[#001F33] bg-[#EBDCC6] border-none h-12 sm:h-14 rounded-2xl font-bold px-6 sm:px-8 text-sm sm:text-base focus-visible:ring-1 focus-visible:ring-[#0EA5E9]" 
                 value={newTopic.title}
                 onChange={e => setNewTopic({...newTopic, title: e.target.value})}
                 placeholder="Ex: Como melhorar meu CV?"
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest ml-2">Categoria</label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 {categories.filter(c => c.id !== 'all').map(cat => (
                   <button
                     key={cat.id}
                     onClick={() => setNewTopic({...newTopic, category: cat.id})}
-                    className={`h-12 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${newTopic.category === cat.id ? 'bg-[#001F33] text-white shadow-lg' : 'bg-[#EBDCC6] text-[#001F33]/40'}`}
+                    className={`h-10 sm:h-12 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${newTopic.category === cat.id ? 'bg-[#001F33] text-white shadow-lg' : 'bg-[#EBDCC6] text-[#001F33]/40'}`}
                   >
                     {cat.label}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest ml-2">Conteúdo / Pergunta</label>
               <Textarea 
-                className="text-[#001F33] bg-[#EBDCC6] border-none min-h-[160px] rounded-[32px] font-bold p-8" 
+                className="text-[#001F33] bg-[#EBDCC6] border-none min-h-[100px] sm:min-h-[140px] rounded-[24px] sm:rounded-[32px] font-bold p-6 sm:p-8 text-sm focus-visible:ring-1 focus-visible:ring-[#0EA5E9]" 
                 value={newTopic.content}
                 onChange={e => setNewTopic({...newTopic, content: e.target.value})}
                 placeholder="Explica o que queres debater..."
               />
             </div>
 
-            <div className="space-y-4 pt-2">
-              <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest ml-2 block border-t border-[#8B4513]/10 pt-4">Anexos Opcionais</label>
+            <div className="space-y-3 pt-1">
+              <label className="text-[10px] font-bold uppercase text-[#001F33] tracking-widest ml-2 block border-t border-[#8B4513]/10 pt-3">Anexos Opcionais</label>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="relative">
                   <Input 
-                    className="text-[#001F33] bg-[#EBDCC6] border-none h-14 rounded-2xl font-bold px-6 text-sm" 
+                    className="text-[#001F33] bg-[#EBDCC6] border-none h-11 sm:h-12 rounded-xl font-bold px-4 text-[11px] sm:text-xs" 
                     value={newTopic.imageUrl}
                     onChange={e => setNewTopic({...newTopic, imageUrl: e.target.value})}
-                    placeholder="URL de uma Imagem"
+                    placeholder="URL da Imagem"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="relative">
                   <Input 
-                    className="text-[#001F33] bg-[#EBDCC6] border-none h-14 rounded-2xl font-bold px-6 text-sm" 
+                    className="text-[#001F33] bg-[#EBDCC6] border-none h-11 sm:h-12 rounded-xl font-bold px-4 text-[11px] sm:text-xs" 
                     value={newTopic.videoUrl}
                     onChange={e => setNewTopic({...newTopic, videoUrl: e.target.value})}
                     placeholder="Link do YouTube"
@@ -331,10 +331,10 @@ export default function ForumHome() {
               </div>
             </div>
           </div>
-          <DialogFooter className="mt-6">
+          <DialogFooter className="mt-4 sm:mt-6 pb-2">
             <Button 
               onClick={handleCreateTopic}
-              className="w-full bg-[#001F33] text-white uppercase font-bold text-xs h-18 rounded-[32px] shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.3em]"
+              className="w-full bg-[#001F33] text-white uppercase font-black text-[11px] sm:text-xs h-14 sm:h-16 rounded-[24px] sm:rounded-[32px] shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.2em] sm:tracking-[0.3em]"
             >
               Publicar Tópico (+100 XP)
             </Button>

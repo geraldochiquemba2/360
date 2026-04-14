@@ -13,14 +13,45 @@ import { requireAuth } from "../middlewares/auth";
 
 const tracksRouter = Router();
 
-// LISTAR TODAS AS TRILHAS ATIVAS
+// LISTAR CATEGORIAS DISPONÍVEIS
+tracksRouter.get("/categories", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const categories = await db.select({ 
+      category: tracksTable.category 
+    })
+    .from(tracksTable)
+    .where(eq(tracksTable.isActive, true))
+    .groupBy(tracksTable.category);
+    
+    return res.json(categories.map(c => c.category).filter(Boolean));
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch categories" });
+  }
+});
+
+// LISTAR TODAS AS TRILHAS ATIVAS (COM FILTRO OPCIONAL)
 tracksRouter.get("/", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const list = await db.select().from(tracksTable).where(eq(tracksTable.isActive, true)).orderBy(desc(tracksTable.createdAt));
+    const { category } = req.query;
+    
+    let query = db.select().from(tracksTable).where(eq(tracksTable.isActive, true));
+
+    if (category && category !== "all") {
+      query = db.select().from(tracksTable).where(
+        and(
+          eq(tracksTable.isActive, true),
+          eq(tracksTable.category, category as string)
+        )
+      );
+    }
+
+    const list = await query.orderBy(desc(tracksTable.createdAt));
     return res.json(list);
   } catch (err) {
-    return res.status(500).json({ error: "Failed to fetch tracks" });
+    console.error("Error in GET /tracks:", err);
+    return res.status(500).json({ error: (err as Error).message || "Failed to fetch tracks" });
   }
 });
 

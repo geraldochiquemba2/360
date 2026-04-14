@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, MessageSquare, Users, Briefcase, Award, LogOut, X, Sparkles } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Users, Briefcase, Award, LogOut, X, Sparkles, User } from "lucide-react";
 
 interface CandidateSidebarProps {
   currentTab: string;
@@ -17,7 +17,7 @@ export function CandidateSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen }
   };
 
   return (
-    <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-40 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+    <aside className={`w-72 bg-[#001F33] text-white flex flex-col h-screen fixed top-0 left-0 z-50 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
       <div className="p-8 border-b border-white/10 relative flex items-center justify-between">
         <img src="/assets/logo.png" className="h-16 w-auto object-contain" alt="Logo" />
         <Button 
@@ -73,6 +73,15 @@ export function CandidateSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen }
             className={`w-full justify-start ${currentTab === 'tracks' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
           >
             <Award className="mr-3 h-5 w-5" /> Trilhas
+          </Button>
+        </Link>
+        <Link href="/profile">
+          <Button 
+            variant="ghost" 
+            onClick={() => setIsSidebarOpen(false)}
+            className={`w-full justify-start ${currentTab === 'profile' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
+          >
+            <User className="mr-3 h-5 w-5" /> O Meu Perfil
           </Button>
         </Link>
         <Link href="/ai-pulse">

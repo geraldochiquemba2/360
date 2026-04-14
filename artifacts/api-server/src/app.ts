@@ -38,8 +38,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", router);
 
 // Serve project assets (CVs, images, etc.)
-app.use("/attached_assets", express.static(path.resolve(__dirname, "../../attached_assets")));
-app.use("/uploads", express.static(path.resolve(__dirname, "../../uploads")));
+app.use("/attached_assets", express.static(path.join(process.cwd(), "..", "..", "attached_assets")));
+app.use("/uploads", express.static(path.join(process.cwd(), "public", "uploads")));
 
 // Serve frontend static files from `carreira-360/dist/public`
 const frontendPath = path.resolve(__dirname, "../../carreira-360/dist/public");

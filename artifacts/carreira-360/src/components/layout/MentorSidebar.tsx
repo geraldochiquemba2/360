@@ -66,9 +66,9 @@ export function MentorSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen, use
             <Button 
               variant="ghost" 
               onClick={() => setIsSidebarOpen(false)}
-              className={`w-full justify-start ${currentTab === 'settings' ? 'bg-[#F97316]/20 text-white' : 'text-white/50 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
+              className={`w-full justify-start ${currentTab === 'profile' || currentTab === 'settings' ? 'bg-[#F97316]/20 text-white' : 'text-white/50 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
             >
-              <Settings className="mr-3 h-5 w-5" /> Configurações
+              <UserCircle className="mr-3 h-5 w-5" /> O Meu Perfil
             </Button>
           </Link>
         </div>

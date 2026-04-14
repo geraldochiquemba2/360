@@ -18,17 +18,17 @@ import AiPulsePage from "@/pages/candidate/ai-pulse";
 import MentorDashboard from "@/pages/mentor/dashboard";
 import MentorAvailability from "@/pages/mentor/availability";
 import MentorSettings from "@/pages/mentor/settings";
+import ProfileSettingsPage from "@/pages/candidate/profile";
 
 const queryClient = new QueryClient();
 
 function Router() {
   return (
     <Switch>
+      <Route path="/profile" component={ProfileSettingsPage} />
+      <Route path="/dashboard" component={CandidateDashboard} />
       <Route path="/" component={Home} />
       <Route path="/auth/login" component={LoginPage} />
-      <Route path="/auth/register" component={RegisterPage} />
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/dashboard" component={CandidateDashboard} />
       <Route path="/opportunities" component={OpportunitiesPage} />
       <Route path="/career-tracks" component={TracksListPage} />
       <Route path="/career-tracks/viewer/:id" component={TrackViewerPage} />
@@ -38,7 +38,7 @@ function Router() {
       <Route path="/forum/topic/:id" component={TopicView} />
       <Route path="/mentor" component={MentorDashboard} />
       <Route path="/mentor/availability" component={MentorAvailability} />
-      <Route path="/mentor/settings" component={MentorSettings} />
+      <Route path="/mentor/settings" component={ProfileSettingsPage} />
       <Route component={NotFound} />
     </Switch>
   );

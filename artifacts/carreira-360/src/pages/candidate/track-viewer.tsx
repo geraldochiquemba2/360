@@ -226,7 +226,7 @@ export default function TrackViewer() {
           <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-[#F8F9FA]">
             {data.modules.map((mod: any, mIdx: number) => (
               <div key={mod.id} className="space-y-3">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#001F33]/40 ml-2">Módulo {mIdx + 1}: {mod.title}</h3>
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#001F33]/80 ml-2">Módulo {mIdx + 1}: {mod.title}</h3>
                 <div className="space-y-2">
                   {data.videos
                     .filter((v: any) => v.moduleId === mod.id)
@@ -243,13 +243,13 @@ export default function TrackViewer() {
                         <div className={`h-10 w-10 shrink-0 rounded-xl flex items-center justify-center transition-all ${
                           vid.isCompleted 
                           ? 'bg-[#22C55E]/10 text-[#22C55E]' 
-                          : activeVideo?.id === vid.id ? 'bg-[#0EA5E9] text-white' : 'bg-[#001F33]/5 text-[#001F33]/40 group-hover:bg-[#001F33]/10'
+                          : activeVideo?.id === vid.id ? 'bg-[#0EA5E9] text-white' : 'bg-[#001F33]/5 text-[#001F33]/70 group-hover:bg-[#001F33]/10'
                         }`}>
                           {vid.isCompleted ? <CheckCircle2 size={20} /> : <Play size={20} />}
                         </div>
                         <div className="flex-1">
                           <p className={`text-xs font-bold leading-tight ${activeVideo?.id === vid.id ? 'text-[#001F33]' : 'text-[#001F33]/70'}`}>{vid.title}</p>
-                          <div className="flex items-center gap-3 mt-1 text-[8px] font-black uppercase tracking-widest text-[#001F33]/40">
+                          <div className="flex items-center gap-3 mt-1 text-[10px] font-black uppercase tracking-widest text-[#001F33]/70">
                              <span className="flex items-center gap-1"><Clock size={10} /> {vid.duration ? `${Math.floor(vid.duration/60)}m` : '8m'}</span>
                              <span className="flex items-center gap-1"><Star size={10} /> {vid.xpPoints} XP</span>
                           </div>
