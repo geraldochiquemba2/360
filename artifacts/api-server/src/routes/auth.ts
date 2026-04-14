@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import { LoginSchema, RegisterSchema } from "@workspace/api-zod";
 import { logger } from "../lib/logger";
 import { requireAuth } from "../middlewares/auth";
+import { sendWelcomeEmail } from "../services/emailService";
 
 import multer from "multer";
 import path from "path";
@@ -104,7 +105,6 @@ authRouter.post("/register", upload.single("cvFile"), async (req, res) => {
       municipality: result.data.municipality || null,
     }).returning();
     
-    // Se for mentor, criar entrada inicial na tabela de mentores para evitar erro 403 na gestão
     if (role === 'mentor') {
       await db.insert(mentorsTable).values({
         userId: newUser.id,
@@ -114,6 +114,9 @@ authRouter.post("/register", upload.single("cvFile"), async (req, res) => {
         status: userStatus // Segue o status do user ('pendente' ou 'ativo')
       });
     }
+
+    // Send Welcome Email (Non-blocking)
+    sendWelcomeEmail(newUser.email, newUser.name).catch(e => logger.error({ err: e }, "Failed to send welcome email"));
 
     const token = jwt.sign({ id: newUser.id, role: newUser.role, status: newUser.status }, JWT_SECRET, { expiresIn: "7d" });
 

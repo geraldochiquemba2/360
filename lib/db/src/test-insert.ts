@@ -2,6 +2,10 @@ import { db } from "./index";
 import { mentorsTable } from "./schema";
 
 async function main() {
+  if (!db) {
+    console.error("Database not initialized");
+    process.exit(1);
+  }
   console.log("Inserting mentor data for user id: 2...");
   try {
     await db.insert(mentorsTable).values({

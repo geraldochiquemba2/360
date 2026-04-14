@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { usersTable, opportunitiesTable, tracksTable, modulesTable, videosTable, mentorsTable, forumTopicsTable } from "@workspace/db";
-import { count, eq, desc, asc } from "drizzle-orm";
+import { count, eq, desc, asc, and } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "../middlewares/auth";
+import { sendBulkNotification } from "../services/emailService";
+import { logger } from "../lib/logger";
 
 const adminRouter = Router();
 
@@ -394,6 +396,38 @@ adminRouter.delete("/forum/topics/:id", async (req, res) => {
     return res.json({ success: true });
   } catch (err) {
     return res.status(500).json({ error: "Failed to delete topic" });
+  }
+});
+
+// NOTIFICAÇÕES EM MASSA
+adminRouter.post("/notifications/bulk", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database not configured" });
+    const { subject, content, targetRole } = req.body; // targetRole: 'candidato' | 'mentor' | 'todos'
+
+    let query = db.select({ email: usersTable.email }).from(usersTable).where(eq(usersTable.status, 'ativo'));
+    
+    if (targetRole === 'candidato') {
+      query = db.select({ email: usersTable.email }).from(usersTable).where(and(eq(usersTable.status, 'ativo'), eq(usersTable.role, 'candidato'))) as any;
+    } else if (targetRole === 'mentor') {
+      query = db.select({ email: usersTable.email }).from(usersTable).where(and(eq(usersTable.status, 'ativo'), eq(usersTable.role, 'mentor'))) as any;
+    }
+
+    const users = await query;
+    const emails = users.map(u => u.email);
+
+    if (emails.length === 0) {
+      return res.status(400).json({ error: "Nenhum utilizador encontrado para este critério." });
+    }
+
+    // Chamada não bloqueante para o serviço de email
+    sendBulkNotification(emails, subject, content)
+      .catch(e => logger.error({ err: e }, "Failed to send bulk notification"));
+
+    return res.json({ success: true, count: emails.length });
+  } catch (err) {
+    logger.error({ err }, "Error sending bulk notification");
+    return res.status(500).json({ error: "Erro ao enviar notificações" });
   }
 });
 

@@ -3,6 +3,8 @@ import { db } from "@workspace/db";
 import { usersTable, mentorsTable, availabilityTable, bookingsTable } from "@workspace/db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
+import { sendMentorshipRequestEmail, sendMentorshipConfirmationEmail } from "../services/emailService";
+import { logger } from "../lib/logger";
 
 const mentorshipRouter = Router();
 
@@ -56,6 +58,25 @@ mentorshipRouter.post("/book", requireAuth, async (req, res) => {
       notes,
       status: "pendente"
     }).returning();
+
+    // Notify Mentor (Non-blocking)
+    try {
+      const [mentorUser] = await db.select({
+        name: usersTable.name,
+        email: usersTable.email
+      })
+      .from(mentorsTable)
+      .innerJoin(usersTable, eq(mentorsTable.userId, usersTable.id))
+      .where(eq(mentorsTable.id, mentorId));
+
+      if (mentorUser) {
+        const [candidateUser] = await db.select().from(usersTable).where(eq(usersTable.id, candidateId));
+        sendMentorshipRequestEmail(mentorUser.email, candidateUser?.name || "Um Aluno", dateTime)
+          .catch(e => logger.error({ err: e }, "Failed to send mentor notification email"));
+      }
+    } catch (e) {
+      logger.error({ err: e }, "Error in mentorship notification logic");
+    }
 
     return res.status(201).json(newBooking);
   } catch (err) {
@@ -141,6 +162,28 @@ mentorshipRouter.patch("/sessions/:id", requireAuth, async (req, res) => {
     await db.update(bookingsTable)
       .set({ status, meetingLink })
       .where(eq(bookingsTable.id, sessionId));
+
+    // Notify Candidate on Confirmation (Non-blocking)
+    if (status === 'confirmado') {
+      try {
+        const [bookingData] = await db.select({
+          candidateEmail: usersTable.email,
+          mentorName: sql<string>`m_user.name`
+        })
+        .from(bookingsTable)
+        .innerJoin(usersTable, eq(bookingsTable.candidateId, usersTable.id))
+        .innerJoin(mentorsTable, eq(bookingsTable.mentorId, mentorsTable.id))
+        .innerJoin(sql`users as m_user`, eq(mentorsTable.userId, sql`m_user.id`))
+        .where(eq(bookingsTable.id, sessionId));
+
+        if (bookingData) {
+          sendMentorshipConfirmationEmail(bookingData.candidateEmail, bookingData.mentorName, meetingLink)
+            .catch(e => logger.error({ err: e }, "Failed to send candidate confirmation email"));
+        }
+      } catch (e) {
+        logger.error({ err: e }, "Error in mentorship confirmation notification logic");
+      }
+    }
 
     return res.json({ success: true });
   } catch (err) {
