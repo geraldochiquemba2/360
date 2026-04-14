@@ -1,66 +1,60 @@
-import React from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  title: string;
-  description: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "default" | "destructive";
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
 }
 
 export function ConfirmModal({
   isOpen,
   onClose,
   onConfirm,
-  title,
-  description,
-  confirmText = "Confirmar",
-  cancelText = "Cancelar",
-  variant = "default"
+  title = "Alterações Não Guardadas",
+  description = "Tens alterações pendentes no teu perfil. Se saíres agora, as tuas modificações serão perdidas.",
+  confirmLabel = "Sair sem guardar",
+  cancelLabel = "Continuar a editar"
 }: ConfirmModalProps) {
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="bg-white border-2 border-[#001F33]/10 text-[#001F33] rounded-3xl p-8">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-2xl font-display uppercase text-[#001F33]">
-            {title}
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-[#001F33]/70 font-medium">
-            {description}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="mt-6 flex gap-3">
-          <AlertDialogCancel onClick={onClose} className="border-[#001F33]/10 text-[#001F33]/60 uppercase font-bold text-xs h-12 rounded-xl">
-            {cancelText}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
-            className={`uppercase font-bold text-xs h-12 px-8 rounded-xl ${
-              variant === "destructive" 
-                ? "bg-red-500 hover:bg-red-600 text-white" 
-                : "bg-[#0EA5E9] hover:bg-[#001F33] text-white"
-            }`}
-          >
-            {confirmText}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ResponsiveDialog
+      isOpen={isOpen}
+      setIsOpen={(open) => !open && onClose()}
+      title={title}
+      className="sm:max-w-md"
+    >
+      <div className="flex flex-col items-center text-center py-6">
+        <div className="h-16 w-16 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 mb-4 animate-pulse">
+           <AlertTriangle size={32} />
+        </div>
+        <p className="text-sm font-medium text-[#001F33]/80 leading-relaxed px-4">
+          {description}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+        <Button 
+          variant="ghost" 
+          onClick={onClose}
+          className="uppercase tracking-widest font-black text-[10px] h-12 rounded-xl text-[#001F33]/60 hover:bg-[#001F33]/5"
+        >
+          {cancelLabel}
+        </Button>
+        <Button 
+          onClick={() => {
+            onConfirm();
+            onClose();
+          }}
+          className="bg-red-500 hover:bg-red-600 text-white uppercase tracking-widest font-black text-[10px] h-12 rounded-xl shadow-lg shadow-red-500/20"
+        >
+          {confirmLabel}
+        </Button>
+      </div>
+    </ResponsiveDialog>
   );
 }

@@ -118,7 +118,7 @@ export default function LoginPage() {
           
           <div className="bg-black/20 p-4 border border-white/10 mb-8 w-full">
             <p className="text-sm text-white/60 mb-1 uppercase tracking-widest font-bold text-left">E-mail Registo</p>
-            <p className="text-white font-medium text-left">{currentUserData?.email}</p>
+            <p className="text-white font-medium text-left lowercase">{currentUserData?.email}</p>
           </div>
 
           <p className="text-sm text-white/50 mb-6">

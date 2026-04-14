@@ -18,6 +18,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { CandidateSidebar } from "@/components/layout/CandidateSidebar";
+import { MentorSidebar } from "@/components/layout/MentorSidebar";
+import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { Menu } from "lucide-react";
 
 export default function TrackViewer() {
@@ -29,9 +31,13 @@ export default function TrackViewer() {
   const [stats, setStats] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCurriculumOpen, setIsCurriculumOpen] = useState(true);
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+
     if (trackId) {
       fetchContent();
       fetchStats();
@@ -112,11 +118,26 @@ export default function TrackViewer() {
 
   return (
     <div className="flex min-h-screen bg-[#EBDCC6]">
-      <CandidateSidebar 
-        currentTab="tracks" 
-        isSidebarOpen={isSidebarOpen} 
-        setIsSidebarOpen={setIsSidebarOpen} 
-      />
+      {user?.role === 'admin' ? (
+        <AdminSidebar 
+          currentTab="tracks" 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+        />
+      ) : user?.role === 'mentor' ? (
+        <MentorSidebar
+          currentTab="tracks"
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          user={user}
+        />
+      ) : (
+        <CandidateSidebar 
+          currentTab="tracks" 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+        />
+      )}
       
       <main className="flex-1 md:ml-72 flex flex-col lg:flex-row min-h-screen lg:h-screen lg:overflow-hidden">
         {/* Mobile Header */}
@@ -145,7 +166,7 @@ export default function TrackViewer() {
               {isCurriculumOpen ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}
               {isCurriculumOpen ? "Ocultar Aulas" : "Ver Aulas"}
             </Button>
-            {stats && (
+            {user?.role !== 'mentor' && stats && (
                <div className="flex items-center gap-2 sm:gap-4 bg-white/40 px-4 sm:px-6 py-2 rounded-full border border-white/20">
                   <div className="flex items-center gap-2">
                     <Star size={14} className="text-[#F97316]" fill="currentColor" />
@@ -182,22 +203,24 @@ export default function TrackViewer() {
           </div>
 
           <div className="bg-white/60 backdrop-blur-md rounded-[28px] md:rounded-[32px] p-6 md:p-8 border border-white/40 shadow-xl">
-             <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
-               <div>
-                  <h1 className="text-3xl md:text-4xl font-display uppercase text-[#001F33] leading-none mb-2">{activeVideo?.title}</h1>
-                  <p className="text-[10px] font-black text-[#0EA5E9] uppercase tracking-[0.3em] flex items-center gap-2">
-                    <BookOpen size={14} /> Módulo: {data.modules.find((m: any) => m.id === activeVideo?.moduleId)?.title}
+             <div className="flex flex-col lg:flex-row justify-between items-start gap-4 mb-6">
+               <div className="flex-1 min-w-0 w-full mb-2 lg:mb-0 lg:pr-4">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display uppercase text-[#001F33] leading-none mb-3 break-words hyphens-auto">{activeVideo?.title}</h1>
+                  <p className="text-[10px] font-black text-[#0EA5E9] uppercase tracking-[0.2em] flex flex-wrap items-center gap-2">
+                    <BookOpen className="shrink-0" size={14} /> <span className="truncate">Módulo: {data.modules.find((m: any) => m.id === activeVideo?.moduleId)?.title}</span>
                   </p>
                </div>
-               {activeVideo && !activeVideo.isCompleted && (
-                 <Button 
-                   onClick={() => handleComplete(activeVideo.id)}
-                   className="w-full md:w-auto bg-[#0EA5E9] hover:bg-[#001F33] text-white font-bold uppercase text-xs tracking-[0.2em] px-10 h-14 rounded-2xl shadow-lg shadow-[#0EA5E9]/20 transition-all active:scale-95"
-                 >
-                   Marcar como Concluído
-                 </Button>
+               {user?.role !== 'mentor' && activeVideo && !activeVideo.isCompleted && (
+                 <div className="w-full lg:w-auto shrink-0 flex items-start">
+                   <Button 
+                     onClick={() => handleComplete(activeVideo.id)}
+                     className="w-full lg:w-auto bg-[#0EA5E9] hover:bg-[#001F33] text-white font-black uppercase text-[10px] sm:text-xs tracking-[0.1em] sm:tracking-[0.2em] px-4 sm:px-8 h-12 sm:h-14 rounded-xl shadow-lg shadow-[#0EA5E9]/20 transition-all active:scale-95"
+                   >
+                     Marcar como Concluído
+                   </Button>
+                 </div>
                )}
-               {activeVideo?.isCompleted && (
+               {user?.role !== 'mentor' && activeVideo?.isCompleted && (
                  <div className="flex items-center gap-2 text-[#22C55E] bg-[#22C55E]/10 px-6 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest border border-[#22C55E]/20">
                    <CheckCircle2 size={18} /> Aula Finalizada
                  </div>
@@ -263,19 +286,21 @@ export default function TrackViewer() {
           </div>
 
           {/* Progress Summary Bottom Bar */}
-          <div className="p-6 bg-white border-t border-[#001F33]/10">
-             <div className="flex justify-between items-center mb-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#001F33]">Teu Progresso</span>
-                <span className="text-[10px] font-black text-[#0EA5E9]">{Math.round((data.videos.filter((v:any)=>v.isCompleted).length / data.videos.length) * 100)}%</span>
-             </div>
-             <div className="h-2 bg-[#001F33]/5 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(data.videos.filter((v:any)=>v.isCompleted).length / data.videos.length) * 100}%` }}
-                  className="h-full bg-[#0EA5E9] shadow-[0_0_10px_rgba(14,165,233,0.5)]"
-                />
-             </div>
-          </div>
+          {user?.role !== 'mentor' && (
+            <div className="p-6 bg-white border-t border-[#001F33]/10">
+               <div className="flex justify-between items-center mb-3">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#001F33]">Teu Progresso</span>
+                  <span className="text-[10px] font-black text-[#0EA5E9]">{Math.round((data.videos.filter((v:any)=>v.isCompleted).length / data.videos.length) * 100)}%</span>
+               </div>
+               <div className="h-2 bg-[#001F33]/5 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(data.videos.filter((v:any)=>v.isCompleted).length / data.videos.length) * 100}%` }}
+                    className="h-full bg-[#0EA5E9] shadow-[0_0_10px_rgba(14,165,233,0.5)]"
+                  />
+               </div>
+            </div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

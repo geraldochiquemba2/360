@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, Building2, Calendar, Clock, LayoutDashboard, MessageSquare, Users, Award, LogOut, Menu, X, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CandidateSidebar } from "@/components/layout/CandidateSidebar";
+import { MentorSidebar } from "@/components/layout/MentorSidebar";
+import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import {
   Select,
   SelectContent,
@@ -60,11 +62,26 @@ export default function OpportunitiesPage() {
 
   return (
     <div className="min-h-screen bg-[#EBDCC6] block font-sans text-[#001F33] relative overflow-x-hidden">
-      <CandidateSidebar 
-        currentTab="opportunities" 
-        isSidebarOpen={isSidebarOpen} 
-        setIsSidebarOpen={setIsSidebarOpen} 
-      />
+      {user?.role === 'admin' ? (
+        <AdminSidebar 
+          currentTab="opportunities" 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+        />
+      ) : user?.role === 'mentor' ? (
+        <MentorSidebar
+          currentTab="opportunities"
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          user={user}
+        />
+      ) : (
+        <CandidateSidebar 
+          currentTab="opportunities" 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+        />
+      )}
 
       <main className="md:ml-72 min-h-screen p-4 sm:p-10">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-6 mb-8 sm:mb-12">
@@ -175,7 +192,9 @@ export default function OpportunitiesPage() {
                     <div className="mt-auto">
                       {op.link && (
                         <Button className="w-full bg-[#001F33] hover:bg-[#0EA5E9] text-white uppercase font-bold text-[8px] sm:text-[10px] tracking-[0.1em] sm:tracking-[0.2em] h-10 sm:h-12 rounded-lg sm:rounded-xl shadow-lg shadow-[#001F33]/5 transition-all hover:-translate-y-0.5 active:scale-95" asChild>
-                          <a href={op.link} target="_blank">Candidatar</a>
+                          <a href={op.link} target="_blank">
+                            {user?.role === 'mentor' ? 'Ver Detalhes' : 'Candidatar'}
+                          </a>
                         </Button>
                       )}
                     </div>

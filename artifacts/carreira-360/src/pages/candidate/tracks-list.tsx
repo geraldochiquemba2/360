@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { GraduationCap, Clock, Award, Menu, X, Rocket, ChevronDown, Filter, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CandidateSidebar } from "@/components/layout/CandidateSidebar";
+import { MentorSidebar } from "@/components/layout/MentorSidebar";
+import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { useToast } from "@/hooks/use-toast";
 
 const getFileUrl = (url: string) => {
@@ -111,11 +113,26 @@ export default function TracksListPage() {
 
   return (
     <div className="min-h-screen bg-[#EBDCC6] block font-sans text-[#001F33] relative overflow-x-hidden">
-      <CandidateSidebar 
-        currentTab="tracks" 
-        isSidebarOpen={isSidebarOpen} 
-        setIsSidebarOpen={setIsSidebarOpen} 
-      />
+      {user?.role === 'admin' ? (
+        <AdminSidebar 
+          currentTab="tracks" 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+        />
+      ) : user?.role === 'mentor' ? (
+        <MentorSidebar
+          currentTab="tracks"
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          user={user}
+        />
+      ) : (
+        <CandidateSidebar 
+          currentTab="tracks" 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+        />
+      )}
 
       <main className="md:ml-72 min-h-screen p-4 sm:p-10">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
@@ -232,7 +249,7 @@ export default function TracksListPage() {
                          )}
                       </div>
                       <Button onClick={() => handleStartTrack(track.id)} className="w-full bg-[#0EA5E9] hover:bg-white hover:text-[#001F33] text-white uppercase font-black text-xs tracking-widest h-12 shadow-lg shadow-[#0EA5E9]/20 transition-all rounded-xl">
-                        Começar Agora
+                        {user?.role === 'mentor' ? 'Explorar Conteúdo' : 'Começar Agora'}
                       </Button>
                     </div>
                   </div>
@@ -243,19 +260,21 @@ export default function TracksListPage() {
         </div>
 
         {/* AI Suggestion Banner */}
-        <div className="mt-16 bg-gradient-to-r from-[#F97316] to-[#001F33] rounded-[40px] p-12 text-white shadow-2xl relative overflow-hidden">
-           <div className="relative z-10 max-w-xl">
-              <Rocket className="mb-6 text-white" size={40} />
-              <h2 className="text-3xl font-display uppercase mb-4 tracking-tight">Recomendação IA</h2>
-              <p className="text-white/80 font-medium mb-8 leading-relaxed">
-                Baseado no teu perfil e histórico, a nossa IA sugere que explores a trilha de **Analista Financeiro** para maximizar as tuas hipóteses no mercado.
-              </p>
-              <Button className="bg-white text-[#001F33] hover:bg-[#0EA5E9] hover:text-white uppercase font-black text-[10px] tracking-[0.2em] h-12 px-10 rounded-xl transition-all">
-                 Explorar Sugestão
-              </Button>
-           </div>
-           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
-        </div>
+        {user?.role !== 'mentor' && (
+          <div className="mt-16 bg-gradient-to-r from-[#F97316] to-[#001F33] rounded-[40px] p-12 text-white shadow-2xl relative overflow-hidden">
+             <div className="relative z-10 max-w-xl">
+                <Rocket className="mb-6 text-white" size={40} />
+                <h2 className="text-3xl font-display uppercase mb-4 tracking-tight">Recomendação IA</h2>
+                <p className="text-white/80 font-medium mb-8 leading-relaxed">
+                  Baseado no teu perfil e histórico, a nossa IA sugere que explores a trilha de **Analista Financeiro** para maximizar as tuas hipóteses no mercado.
+                </p>
+                <Button className="bg-white text-[#001F33] hover:bg-[#0EA5E9] hover:text-white uppercase font-black text-[10px] tracking-[0.2em] h-12 px-10 rounded-xl transition-all">
+                   Explorar Sugestão
+                </Button>
+             </div>
+             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
+          </div>
+        )}
       </main>
     </div>
   );

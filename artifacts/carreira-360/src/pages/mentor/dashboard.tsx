@@ -27,6 +27,10 @@ export default function MentorDashboard() {
   const [viewCandidate, setViewCandidate] = useState<any>(null);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [meetingLink, setMeetingLink] = useState("");
+  const [mentorProfile, setMentorProfile] = useState<any>(null);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("todos");
+  const [sortOrder, setSortOrder] = useState("recentes");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -42,7 +46,23 @@ export default function MentorDashboard() {
     }
     setUser(parsedUser);
     fetchSessions();
+    fetchMentorProfile();
   }, []);
+
+  const fetchMentorProfile = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/mentorship/profile", {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setMentorProfile(data);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar perfil de mentor", err);
+    }
+  };
 
   const fetchSessions = async () => {
     setLoading(true);
@@ -90,6 +110,18 @@ export default function MentorDashboard() {
 
   if (!user) return <div className="min-h-screen bg-[#001F33]"></div>;
 
+  const filteredSessions = sessions
+    .filter(s => {
+      const matchesSearch = s.candidateName?.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = filterStatus === 'todos' || s.status === filterStatus;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.dateTime).getTime();
+      const dateB = new Date(b.dateTime).getTime();
+      return sortOrder === 'recentes' ? dateB - dateA : dateA - dateB;
+    });
+
   return (
     <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33] relative overflow-x-hidden">
       {/* Sidebar Mentor */}
@@ -127,7 +159,7 @@ export default function MentorDashboard() {
             </Button>
             <div>
               <h1 className="text-2xl md:text-4xl font-display uppercase tracking-tight mb-1 md:mb-2 text-[#001F33]">Pedidos de Mentoria</h1>
-              <p className="text-[#001F33]/50 font-medium text-xs md:text-sm hidden md:block">Analisa e gere as solicitações dos jovens que procuram a tua orientação.</p>
+              <p className="text-[#001F33]/80 font-semibold text-xs md:text-sm hidden md:block">Analisa e gere as solicitações dos jovens que procuram a tua orientação.</p>
             </div>
           </div>
 
@@ -136,30 +168,83 @@ export default function MentorDashboard() {
                 <div className="h-8 w-8 md:h-10 md:w-10 bg-[#0EA5E9]/10 rounded-xl flex items-center justify-center text-[#0EA5E9]">
                    <Users size={18} />
                 </div>
-                <div>
-                   <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-widest leading-none">Sessões</p>
-                   <p className="text-lg md:text-xl font-bold">{sessions.length}</p>
-                </div>
+                 <div>
+                    <p className="text-[10px] font-black uppercase text-[#001F33]/80 tracking-widest leading-none">Sessões</p>
+                    <p className="text-lg md:text-xl font-bold">{sessions.length}</p>
+                 </div>
              </div>
           </div>
         </header>
 
+        {mentorProfile && (!mentorProfile.bio || !mentorProfile.specialties) && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-8 p-6 bg-amber-50 border-2 border-amber-200 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-4"
+          >
+             <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600">
+                   <Users size={24} />
+                </div>
+                <div>
+                   <h3 className="text-amber-900 font-bold uppercase text-xs tracking-widest">Perfil Incompleto</h3>
+                   <p className="text-amber-800/80 text-sm font-medium">Precisas de terminar o preenchimento da tua Bio e Especialidades para seres visível aos alunos.</p>
+                </div>
+             </div>
+             <Button asChild className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-[10px] uppercase tracking-widest h-10 px-6 rounded-xl">
+                <Link href="/mentor/settings">Completar Perfil</Link>
+             </Button>
+          </motion.div>
+        )}
+
         <div>
           <div className="md:hidden mb-8">
-            <p className="text-[#001F33]/50 font-medium text-sm">Analisa e gere as solicitações dos jovens.</p>
+            <p className="text-[#001F33]/80 font-semibold text-sm">Analisa e gere as solicitações dos jovens.</p>
           </div>
+
+        {/* Filter + Search Bar */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Pesquisar por nome do candidato..."
+              className="w-full h-11 pl-10 pr-4 bg-white border-2 border-[#8B4513]/20 rounded-xl text-sm font-medium text-[#001F33] placeholder:text-[#001F33]/30 outline-none focus:border-[#0EA5E9] transition-colors"
+            />
+            <svg className="absolute left-3 top-3 h-5 w-5 text-[#001F33]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <select
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value)}
+            className="h-11 px-4 bg-white border-2 border-[#8B4513]/20 rounded-xl text-xs font-black uppercase text-[#001F33] outline-none focus:border-[#0EA5E9] transition-colors"
+          >
+            <option value="todos">Todos</option>
+            <option value="pendente">Pendentes</option>
+            <option value="confirmado">Aprovados</option>
+            <option value="cancelado">Rejeitados</option>
+          </select>
+          <select
+            value={sortOrder}
+            onChange={e => setSortOrder(e.target.value)}
+            className="h-11 px-4 bg-white border-2 border-[#8B4513]/20 rounded-xl text-xs font-black uppercase text-[#001F33] outline-none focus:border-[#0EA5E9] transition-colors"
+          >
+            <option value="recentes">Mais Recentes</option>
+            <option value="antigos">Mais Antigos</option>
+          </select>
+        </div>
 
         {loading ? (
           <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#F97316] border-t-transparent rounded-full"></div></div>
-        ) : sessions.length === 0 ? (
+        ) : filteredSessions.length === 0 ? (
           <div className="bg-white p-20 text-center rounded-[2.5rem] shadow-sm border-2 border-[#8B4513]">
-            <Calendar size={64} className="mx-auto text-[#001F33]/10 mb-6" />
-            <h3 className="text-xl font-display uppercase text-[#001F33]/30">Ainda não tens pedidos</h3>
-            <p className="text-sm text-[#001F33]/40 mt-2">Assim que um jovem agendar contigo, a notificação irá aparecer aqui.</p>
+            <Calendar size={64} className="mx-auto text-[#001F33]/30 mb-6" />
+            <h3 className="text-xl font-display uppercase text-[#001F33]/90 font-bold">{sessions.length === 0 ? 'Ainda não tens pedidos' : 'Nenhum resultado encontrado'}</h3>
+            <p className="text-sm text-[#001F33]/80 mt-2 font-semibold">{sessions.length === 0 ? 'Assim que um jovem agendar contigo, a notificação irá aparecer aqui.' : 'Tenta mudar o filtro ou a pesquisa.'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {sessions.map((session) => (
+            {filteredSessions.map((session) => (
               <motion.div 
                 key={session.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -172,7 +257,7 @@ export default function MentorDashboard() {
                   </div>
                   <div>
                     <h3 className="text-lg font-display uppercase text-[#001F33] mb-1">{session.candidateName}</h3>
-                    <div className="flex items-center gap-4 text-xs font-semibold text-[#001F33]/40 mb-2">
+                    <div className="flex items-center gap-4 text-xs font-semibold text-[#001F33]/70 mb-2">
                        <span className="flex items-center"><Calendar size={14} className="mr-1.5" /> {new Date(session.dateTime).toLocaleDateString()}</span>
                        <span className="flex items-center"><Clock size={14} className="mr-1.5" /> {new Date(session.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
@@ -183,15 +268,19 @@ export default function MentorDashboard() {
                 </div>
 
                 <div className="w-full lg:flex-1 lg:max-w-md bg-[#EBDCC6]/50 p-4 rounded-2xl">
-                   <p className="text-[10px] font-bold uppercase text-[#001F33]/30 tracking-widest mb-1">Notas do Aluno:</p>
-                   <p className="text-sm text-[#001F33]/70 italic line-clamp-2">"{session.notes || 'Sem observações...'}"</p>
+                   <p className="text-[10px] font-bold uppercase text-[#001F33]/60 tracking-widest mb-1">Notas do Aluno:</p>
+                   <p className="text-sm text-[#001F33]/80 italic font-medium line-clamp-2">"{session.notes || 'Sem observações...'}"</p>
                 </div>
 
                 <div className="flex items-center gap-3 w-full lg:w-auto">
                   {session.status === 'pendente' ? (
                     <>
                       <Button 
-                        onClick={() => { setSelectedSession(session); setIsApproveModalOpen(true); }}
+                        onClick={() => { 
+                          setSelectedSession(session); 
+                          setMeetingLink(session.meetingLink || "");
+                          setIsApproveModalOpen(true); 
+                        }}
                         className="bg-[#0EA5E9] hover:bg-[#001F33] text-white uppercase font-bold text-[10px] tracking-widest h-12 px-6 rounded-xl"
                       >
                         <CheckCircle2 className="mr-2 h-4 w-4" /> Confirmar
@@ -204,12 +293,26 @@ export default function MentorDashboard() {
                         Recusar
                       </Button>
                     </>
+                  ) : session.status === 'confirmado' ? (
+                     <div className="flex flex-col gap-2 w-full lg:w-auto">
+                        <div className="px-6 py-2.5 rounded-xl border bg-green-50 border-green-200 text-green-600 flex items-center justify-center gap-2 font-bold uppercase text-[10px] tracking-widest">
+                           <CheckCircle2 size={16} /> Confirmado
+                        </div>
+                        <Button 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedSession(session);
+                            setMeetingLink(session.meetingLink || "");
+                            setIsApproveModalOpen(true);
+                          }}
+                          className="w-full text-[9px] font-bold uppercase h-8 border-[#0EA5E9]/30 text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-lg"
+                        >
+                          Ver / Editar Link
+                        </Button>
+                     </div>
                   ) : (
-                    <div className={`px-6 py-3 rounded-xl border flex items-center gap-2 font-bold uppercase text-[10px] tracking-widest ${
-                      session.status === 'confirmado' ? 'bg-green-50 border-green-200 text-green-600' : 'bg-gray-50 border-gray-100 text-gray-400'
-                    }`}>
-                      {session.status === 'confirmado' ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
-                      {session.status}
+                    <div className="px-6 py-3 rounded-xl border flex items-center justify-center gap-2 font-bold uppercase text-[10px] tracking-widest bg-gray-50 border-gray-100 text-gray-400">
+                      <XCircle size={16} /> {session.status}
                     </div>
                   )}
                 </div>
@@ -228,21 +331,21 @@ export default function MentorDashboard() {
         className="sm:max-w-md"
       >
         <div className="space-y-6 py-4">
-           <div className="p-4 bg-[#EBDCC6] rounded-2xl">
-              <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-widest mb-1">Candidato</p>
-              <p className="font-bold text-lg uppercase">{selectedSession?.candidateName}</p>
-              <p className="text-xs text-[#001F33]/50">{new Date(selectedSession?.dateTime).toLocaleString()}</p>
+           <div className="p-4 bg-[#EBDCC6] rounded-2xl border border-[#8B4513]/50">
+              <p className="text-[10px] font-bold uppercase text-[#001F33]/80 tracking-widest mb-1">Candidato</p>
+              <p className="font-black text-lg uppercase text-[#001F33]">{selectedSession?.candidateName}</p>
+              <p className="text-xs text-[#001F33]/80 font-bold">{new Date(selectedSession?.dateTime).toLocaleString()}</p>
            </div>
 
            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Link da Videochamada</label>
+              <label className="text-[10px] font-bold uppercase text-[#001F33]/80 tracking-widest">Link da Videochamada</label>
               <Input 
                  placeholder="Ex: https://meet.google.com/xxx-xxxx-xxx" 
                  value={meetingLink}
                  onChange={(e) => setMeetingLink(e.target.value)}
-                 className="h-12 border-[#8B4513]/50 rounded-xl focus:ring-2 focus:ring-[#0EA5E9]"
+                 className="h-12 border-[#8B4513]/50 rounded-xl focus:ring-2 focus:ring-[#0EA5E9] bg-white/50 text-[#001F33] font-bold"
               />
-              <p className="text-[10px] text-[#001F33]/50 font-medium">O aluno irá receber este link após a sua confirmação.</p>
+              <p className="text-[10px] text-[#001F33]/70 font-black tracking-wide">O aluno irá receber este link após a sua confirmação.</p>
            </div>
         </div>
 
@@ -250,9 +353,9 @@ export default function MentorDashboard() {
            <Button 
               onClick={() => handleUpdateStatus(selectedSession.id, 'confirmado', meetingLink)}
               disabled={!meetingLink}
-              className="w-full bg-[#0EA5E9] hover:bg-[#001F33] text-white uppercase font-bold text-xs tracking-widest h-14 shadow-lg shadow-[#0EA5E9]/30"
+              className="w-full bg-[#001F33] hover:bg-[#0EA5E9] text-white uppercase font-black text-xs tracking-widest h-14 shadow-lg shadow-[#001F33]/30 transition-all rounded-xl"
            >
-              Confirmar e Enviar Link
+              {selectedSession?.status === 'confirmado' ? 'Atualizar Link' : 'Confirmar e Enviar Link'}
            </Button>
         </DialogFooter>
       </ResponsiveDialog>
@@ -269,39 +372,41 @@ export default function MentorDashboard() {
              <div className="flex items-center justify-between border-b border-[#8B4513]/50 pb-4">
                 <div>
                    <h2 className="text-2xl font-display uppercase tracking-tight text-[#001F33]">{viewCandidate.candidateName}</h2>
-                   <p className="font-bold text-[#001F33]/50 text-xs uppercase mt-1">
-                      {viewCandidate.candidateEmail} • {viewCandidate.candidatePhone || 'Sem N.º'}
+                   <p className="font-bold text-[#001F33]/70 text-xs mt-1 flex items-center gap-1.5 flex-wrap">
+                      <span className="lowercase">{viewCandidate.candidateEmail}</span> 
+                      <span className="text-[#001F33]/40">•</span> 
+                      <span className="uppercase">{viewCandidate.candidatePhone || 'Sem N.º'}</span>
                    </p>
                 </div>
              </div>
              
              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
-                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/40">Formação Académica</p>
-                 <p className="font-bold text-sm mt-1">{viewCandidate.formation || 'Não Especificado'}</p>
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/70">Formação Académica</p>
+                 <p className="font-bold text-sm mt-1 text-[#001F33]">{viewCandidate.formation || 'Não Especificado'}</p>
                </div>
                <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
-                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/40">Área de Interesse</p>
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/70">Área de Interesse</p>
                  <p className="font-bold text-sm mt-1 text-[#F97316]">{viewCandidate.areaOfInterest || 'Não Especificado'}</p>
                </div>
                <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/40">Experiência</p>
-                 <p className="font-bold text-sm mt-1 capitalize">{viewCandidate.experienceLevel || 'Não Especificado'}</p>
+                 <p className="font-bold text-sm mt-1 capitalize text-[#001F33]">{viewCandidate.experienceLevel || 'Não Especificado'}</p>
                </div>
                <div className="bg-[#EBDCC6] p-4 rounded-xl border border-[#8B4513]/50">
                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/40">Localização</p>
-                 <p className="font-bold text-sm mt-1">
+                 <p className="font-bold text-sm mt-1 text-[#001F33]">
                     {viewCandidate.municipality && viewCandidate.province ? `${viewCandidate.municipality}, ${viewCandidate.province}` : 'Sem Local'}
                  </p>
                </div>
              </div>
  
              <div className="bg-[#EBDCC6] p-4 rounded-xl border-2 border-[#8B4513]">
-               <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/40 mb-2">Principais Dificuldades</p>
+               <p className="text-[10px] font-bold uppercase tracking-widest text-[#001F33]/60 mb-2">Principais Dificuldades</p>
                <div className="flex flex-wrap gap-2">
                   {viewCandidate.difficulties ? (
                     viewCandidate.difficulties.split(',').map((dif: string) => (
-                      <span key={dif} className="bg-white px-2 py-1 rounded-md text-[10px] font-bold border-2 border-[#8B4513] uppercase tracking-wider">{dif.trim()}</span>
+                      <span key={dif} className="bg-white px-2 py-1 rounded-md text-[10px] font-bold border-2 border-[#8B4513] uppercase tracking-wider text-[#8B4513]">{dif.trim()}</span>
                     ))
                   ) : (
                     <span className="text-xs font-medium text-[#001F33]/40">Nenhuma dificuldade reportada.</span>

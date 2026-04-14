@@ -6,14 +6,28 @@ interface CandidateSidebarProps {
   currentTab: string;
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
+  onNavigateRequest?: (href: string) => void;
 }
 
-export function CandidateSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen }: CandidateSidebarProps) {
+export function CandidateSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen, onNavigateRequest }: CandidateSidebarProps) {
   const [location, setLocation] = useLocation();
 
+  const navigate = (href: string) => {
+    setIsSidebarOpen(false);
+    if (onNavigateRequest) {
+      onNavigateRequest(href);
+    } else {
+      setLocation(href);
+    }
+  };
+
   const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "/";
+    if (onNavigateRequest) {
+      onNavigateRequest("LOGOUT");
+    } else {
+      localStorage.clear();
+      window.location.href = "/";
+    }
   };
 
   return (
@@ -30,69 +44,55 @@ export function CandidateSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen }
         </Button>
       </div>
       <nav className="flex-1 p-6 space-y-4">
-        <Link href="/dashboard">
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsSidebarOpen(false)}
-            className={`w-full justify-start ${currentTab === 'dashboard' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
-          >
-            <LayoutDashboard className="mr-3 h-5 w-5" /> Início
-          </Button>
-        </Link>
-        <Link href="/forum">
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsSidebarOpen(false)}
-            className={`w-full justify-start ${currentTab === 'forum' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
-          >
-            <MessageSquare className="mr-3 h-5 w-5" /> Comunidade
-          </Button>
-        </Link>
-        <Link href="/mentorship">
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsSidebarOpen(false)}
-            className={`w-full justify-start ${currentTab === 'mentors' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
-          >
-            <Users className="mr-3 h-5 w-5" /> Mentoria
-          </Button>
-        </Link>
-        <Link href="/opportunities">
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsSidebarOpen(false)}
-            className={`w-full justify-start ${currentTab === 'opportunities' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
-          >
-            <Briefcase className="mr-3 h-5 w-5" /> Oportunidades
-          </Button>
-        </Link>
-        <Link href="/career-tracks">
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsSidebarOpen(false)}
-            className={`w-full justify-start ${currentTab === 'tracks' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
-          >
-            <Award className="mr-3 h-5 w-5" /> Trilhas
-          </Button>
-        </Link>
-        <Link href="/profile">
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsSidebarOpen(false)}
-            className={`w-full justify-start ${currentTab === 'profile' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
-          >
-            <User className="mr-3 h-5 w-5" /> O Meu Perfil
-          </Button>
-        </Link>
-        <Link href="/ai-pulse">
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsSidebarOpen(false)}
-            className={`w-full justify-start ${currentTab === 'ai-pulse' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
-          >
-            <Sparkles className={`mr-3 h-5 w-5 ${currentTab === 'ai-pulse' ? '' : 'text-[#0EA5E9]'}`} /> Pulso IA
-          </Button>
-        </Link>
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/dashboard")}
+          className={`w-full justify-start ${currentTab === 'dashboard' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
+        >
+          <LayoutDashboard className="mr-3 h-5 w-5" /> Início
+        </Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/forum")}
+          className={`w-full justify-start ${currentTab === 'forum' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
+        >
+          <MessageSquare className="mr-3 h-5 w-5" /> Comunidade
+        </Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/mentorship")}
+          className={`w-full justify-start ${currentTab === 'mentors' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
+        >
+          <Users className="mr-3 h-5 w-5" /> Mentoria
+        </Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/opportunities")}
+          className={`w-full justify-start ${currentTab === 'opportunities' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
+        >
+          <Briefcase className="mr-3 h-5 w-5" /> Oportunidades
+        </Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/career-tracks")}
+          className={`w-full justify-start ${currentTab === 'tracks' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
+        >
+          <Award className="mr-3 h-5 w-5" /> Trilhas
+        </Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/profile")}
+          className={`w-full justify-start ${currentTab === 'profile' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
+        >
+          <User className="mr-3 h-5 w-5" /> O Meu Perfil
+        </Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/ai-pulse")}
+          className={`w-full justify-start ${currentTab === 'ai-pulse' ? 'bg-[#0EA5E9]/20 text-white' : 'text-white/50 hover:bg-[#0EA5E9]/10'} uppercase tracking-widest font-bold text-[12px] tracking-wider h-12`}
+        >
+          <Sparkles className={`mr-3 h-5 w-5 ${currentTab === 'ai-pulse' ? '' : 'text-[#0EA5E9]'}`} /> Pulso IA
+        </Button>
       </nav>
       <div className="p-6 border-t border-white/10">
         <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase tracking-widest font-bold text-xs">

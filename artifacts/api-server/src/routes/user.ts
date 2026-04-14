@@ -70,12 +70,35 @@ userRouter.patch("/profile", requireAuth, async (req, res) => {
       })
       .where(eq(usersTable.id, userId));
 
-    // Se for mentor, atualizar também a tabela de mentores
+    // Se for mentor, atualizar ou inserir na tabela de mentores (upsert manual)
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
     if (user?.role === 'mentor') {
-      await db.update(mentorsTable)
-        .set({ bio, specialties, linkedinUrl })
-        .where(eq(mentorsTable.userId, userId));
+      const [existingMentor] = await db.select().from(mentorsTable).where(eq(mentorsTable.userId, userId));
+      
+      const finalBio = bio !== undefined ? bio : (existingMentor?.bio ?? "");
+      const finalSpecialties = specialties !== undefined ? specialties : (existingMentor?.specialties ?? "");
+      const finalLinkedin = linkedinUrl !== undefined ? linkedinUrl : (socialLink !== undefined ? socialLink : (existingMentor?.linkedinUrl ?? ""));
+
+      if (existingMentor) {
+        console.log("Updating existing mentor record for user:", userId);
+        await db.update(mentorsTable)
+          .set({ 
+            bio: finalBio, 
+            specialties: finalSpecialties, 
+            linkedinUrl: finalLinkedin 
+          })
+          .where(eq(mentorsTable.userId, userId));
+      } else {
+        console.log("Creating new mentor record for user:", userId);
+        await db.insert(mentorsTable)
+          .values({ 
+            userId, 
+            bio: finalBio, 
+            specialties: finalSpecialties, 
+            linkedinUrl: finalLinkedin,
+            status: user.status 
+          });
+      }
     }
 
     return res.json({ success: true });

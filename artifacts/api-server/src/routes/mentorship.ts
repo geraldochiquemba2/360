@@ -96,9 +96,10 @@ mentorshipRouter.get("/mentor-sessions", requireAuth, async (req, res) => {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const userId = (req as any).user.id;
 
-    // Encontrar o ID de mentor deste user
-    const [mentor] = await db.select().from(mentorsTable).where(eq(mentorsTable.userId, userId));
-    if (!mentor) return res.status(403).json({ error: "Not a mentor" });
+    // Encontrar o registo de mentor deste user
+    const [mentorRecord] = await db.select().from(mentorsTable).where(eq(mentorsTable.userId, userId));
+
+    if (!mentorRecord) return res.status(403).json({ error: "Perfil de mentor não encontrado." });
 
     const sessions = await db.select({
       id: bookingsTable.id,
@@ -116,11 +117,12 @@ mentorshipRouter.get("/mentor-sessions", requireAuth, async (req, res) => {
       socialLink: usersTable.socialLink,
       dateTime: bookingsTable.dateTime,
       status: bookingsTable.status,
-      notes: bookingsTable.notes
+      notes: bookingsTable.notes,
+      meetingLink: bookingsTable.meetingLink
     })
     .from(bookingsTable)
     .innerJoin(usersTable, eq(bookingsTable.candidateId, usersTable.id))
-    .where(eq(bookingsTable.mentorId, mentor.id))
+    .where(eq(bookingsTable.mentorId, mentorRecord.id))
     .orderBy(desc(bookingsTable.dateTime));
 
     return res.json(sessions);
@@ -198,9 +200,21 @@ mentorshipRouter.get("/my-availability", requireAuth, async (req, res) => {
     const userId = (req as any).user.id;
 
     const [mentor] = await db.select().from(mentorsTable).where(eq(mentorsTable.userId, userId));
-    if (!mentor) return res.status(403).json({ error: "Not a mentor" });
+    
+    // Auto-correção
+    let mentorRecord = mentor;
+    if (!mentorRecord && (req as any).user.role === 'mentor') {
+      [mentorRecord] = await db.insert(mentorsTable).values({
+        userId,
+        bio: "",
+        specialties: "",
+        status: (req as any).user.status || 'pendente'
+      }).returning();
+    }
 
-    const slots = await db.select().from(availabilityTable).where(eq(availabilityTable.mentorId, mentor.id));
+    if (!mentorRecord) return res.status(403).json({ error: "Perfil de mentor não encontrado. Por favor, completa o teu perfil nas Definições primeiro." });
+
+    const slots = await db.select().from(availabilityTable).where(eq(availabilityTable.mentorId, mentorRecord.id));
     return res.json(slots);
   } catch (err) {
     return res.status(500).json({ error: "Failed to fetch availability" });
@@ -215,7 +229,27 @@ mentorshipRouter.post("/availability", requireAuth, async (req, res) => {
     const { dayOfWeek, startTime, endTime } = req.body;
 
     const [mentor] = await db.select().from(mentorsTable).where(eq(mentorsTable.userId, userId));
-    if (!mentor) return res.status(403).json({ error: "Not a mentor" });
+    
+    // Auto-correção: Se é mentor no papel mas não tem registo na tabela, criar skeleton
+    if (!mentor && (req as any).user.role === 'mentor') {
+      console.log("Auto-creating missing mentor record for user:", userId);
+      const [newMentor] = await db.insert(mentorsTable).values({
+        userId,
+        bio: "",
+        specialties: "",
+        status: (req as any).user.status || 'pendente'
+      }).returning();
+      
+      const [newSlot] = await db.insert(availabilityTable).values({
+        mentorId: newMentor.id,
+        dayOfWeek,
+        startTime,
+        endTime
+      }).returning();
+      return res.status(201).json(newSlot);
+    }
+
+    if (!mentor) return res.status(403).json({ error: "Perfil de mentor não encontrado. Por favor, completa o teu perfil nas Definições primeiro." });
 
     const [newSlot] = await db.insert(availabilityTable).values({
       mentorId: mentor.id,

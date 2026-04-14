@@ -1,4 +1,5 @@
 import { CandidateSidebar } from "@/components/layout/CandidateSidebar";
+import { MentorSidebar } from "@/components/layout/MentorSidebar";
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { 
@@ -95,7 +96,12 @@ export default function ForumHome() {
         body: JSON.stringify(newTopic)
       });
       if (response.ok) {
-        toast({ title: "Tópico Criado!", description: "Ganhaste +100 XP por partilhar com a comunidade." });
+        toast({ 
+          title: "Tópico Criado!", 
+          description: user?.role === 'mentor' 
+            ? "Obrigado por partilhares o teu conhecimento com a comunidade!" 
+            : "Ganhaste +100 XP por partilhar com a comunidade." 
+        });
         setIsAddingTopic(false);
         setNewTopic({ title: "", content: "", category: "cv", imageUrl: "", videoUrl: "" });
         fetchTopics();
@@ -145,6 +151,13 @@ export default function ForumHome() {
           currentTab="forum" 
           isSidebarOpen={isSidebarOpen} 
           setIsSidebarOpen={setIsSidebarOpen} 
+        />
+      ) : user?.role === 'mentor' ? (
+        <MentorSidebar
+          currentTab="forum"
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          user={user}
         />
       ) : (
         <CandidateSidebar 
@@ -336,7 +349,7 @@ export default function ForumHome() {
               onClick={handleCreateTopic}
               className="w-full bg-[#001F33] text-white uppercase font-black text-[11px] sm:text-xs h-14 sm:h-16 rounded-[24px] sm:rounded-[32px] shadow-xl hover:bg-[#0EA5E9] transition-all tracking-[0.2em] sm:tracking-[0.3em]"
             >
-              Publicar Tópico (+100 XP)
+              {user?.role === 'mentor' ? 'Publicar Discussão' : 'Publicar Tópico (+100 XP)'}
             </Button>
           </DialogFooter>
         </ResponsiveDialog>

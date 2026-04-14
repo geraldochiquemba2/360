@@ -24,6 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { CandidateSidebar } from "@/components/layout/CandidateSidebar";
 import { MentorSidebar } from "@/components/layout/MentorSidebar";
+import { ConfirmModal } from "@/components/ConfirmModal";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -34,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { angolaLocations } from "@/lib/angola-locations";
+import { formationOptions, areaOptions } from "@/lib/options";
 
 export default function ProfileSettingsPage() {
   const [location, setLocation] = useLocation();
@@ -42,6 +44,9 @@ export default function ProfileSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [initialProfile, setInitialProfile] = useState<any>(null);
+  const [pendingNav, setPendingNav] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [profile, setProfile] = useState({
@@ -74,6 +79,76 @@ export default function ProfileSettingsPage() {
     fetchProfile();
   }, []);
 
+  // Verificar alterações não guardadas
+  const isDirty = initialProfile && JSON.stringify(profile) !== JSON.stringify(initialProfile);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  const handleNavigateRequest = (href: string) => {
+    if (isDirty) {
+      setPendingNav(href);
+    } else {
+      if (href === "LOGOUT") {
+        localStorage.clear();
+        window.location.href = "/";
+      } else {
+        setLocation(href);
+      }
+    }
+  };
+
+  const confirmNavigation = () => {
+    if (!pendingNav) return;
+    if (pendingNav === "LOGOUT") {
+      localStorage.clear();
+      window.location.href = "/";
+    } else {
+      setLocation(pendingNav);
+    }
+    setPendingNav(null);
+  };
+
+  const validateProfile = (p: any, u: any) => {
+    const missing: string[] = [];
+    if (!p.name.trim()) missing.push("name");
+    if (!p.phone?.trim()) missing.push("phone");
+    if (!p.province || p.province === "Selecione") missing.push("province");
+    if (!p.municipality || p.municipality === "Selecione") missing.push("municipality");
+    if (!p.formation || p.formation === "Selecione") missing.push("formation");
+    if (!p.areaOfInterest || p.areaOfInterest === "Selecione") missing.push("areaOfInterest");
+    
+    if (u?.role === 'mentor') {
+      if (!p.specialties?.trim()) missing.push("specialties");
+      if (!p.bio?.trim()) missing.push("bio");
+      
+      const lurl = p.socialLink || p.linkedinUrl || "";
+      if (!lurl.trim() || lurl === "https://" || lurl === "https://...") {
+         missing.push("socialLink");
+      }
+    }
+
+    setErrors(missing);
+    // Só bloqueia salvamento se o Nome ou Telemóvel estiverem vazios
+    const isBlocking = !p.name.trim();
+    return { isValid: missing.length === 0, isBlocking };
+  };
+
+  // Validação em tempo real
+  useEffect(() => {
+    if (profile && user) {
+      validateProfile(profile, user);
+    }
+  }, [profile, user]);
+
   const fetchProfile = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
@@ -84,7 +159,7 @@ export default function ProfileSettingsPage() {
       if (response.ok) {
         const data = await response.json();
         console.log("Profile data received:", data); 
-        setProfile({
+        const mappedData = {
           name: data.name || data.fullname || "",
           socialLink: data.socialLink || data.social_link || "",
           cvUrl: data.cvUrl || data.cv_url || "",
@@ -97,7 +172,28 @@ export default function ProfileSettingsPage() {
           province: data.province || "",
           municipality: data.municipality || "",
           careerGoals: data.careerGoals || data.career_goals || ""
-        });
+        };
+        setProfile(mappedData);
+        setInitialProfile(mappedData);
+        
+        // Validar proativamente após carregar os dados
+        setTimeout(() => {
+          const missing: string[] = [];
+          if (!data.name?.trim()) missing.push("name");
+          if (!data.phone?.trim()) missing.push("phone");
+          if (!data.province || data.province === "Selecione") missing.push("province");
+          if (!data.municipality || data.municipality === "Selecione") missing.push("municipality");
+          if (!data.formation || data.formation === "Selecione") missing.push("formation");
+          if (!data.areaOfInterest || data.areaOfInterest === "Selecione") missing.push("areaOfInterest");
+          
+          if (data.role === 'mentor') {
+            const mp = data.mentorProfile;
+            if (!mp?.specialties?.trim()) missing.push("specialties");
+            if (!mp?.bio?.trim()) missing.push("bio");
+            if (!mp?.linkedinUrl?.trim() || mp?.linkedinUrl === "https://" || mp?.linkedinUrl === "https://...") missing.push("linkedinUrl");
+          }
+          setErrors(missing);
+        }, 100);
       } else {
         const errorData = await response.json();
         console.error("API Error:", errorData);
@@ -119,7 +215,27 @@ export default function ProfileSettingsPage() {
     }
   };
 
+
   const handleSave = async () => {
+    const { isBlocking, isValid } = validateProfile(profile, user);
+    
+    if (isBlocking) {
+      toast({ 
+        title: "Nome Obrigatório", 
+        description: "Por favor, introduz o teu nome para poderes guardar.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    if (!isValid) {
+      toast({ 
+        title: "Perfil Incompleto", 
+        description: "As alterações serão guardadas, mas o teu perfil continuará marcado como incompleto.", 
+        variant: "default" 
+      });
+    }
+
     setSaving(true);
     const token = localStorage.getItem("token");
     try {
@@ -137,12 +253,21 @@ export default function ProfileSettingsPage() {
            title: "Perfil Atualizado", 
            description: "As suas alterações foram guardadas com sucesso." 
         });
+        setInitialProfile(profile);
         const updatedUser = { ...user, name: profile.name };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
+      } else {
+        const errorData = await response.json();
+        toast({ 
+          title: "Erro ao Guardar", 
+          description: errorData.error || "Não foi possível guardar as alterações.", 
+          variant: "destructive" 
+        });
       }
     } catch (err) {
-      toast({ title: "Erro", description: "Falha ao guardar perfil.", variant: "destructive" });
+      console.error("Save error:", err);
+      toast({ title: "Erro de Ligação", description: "Falha ao comunicar com o servidor.", variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -154,6 +279,15 @@ export default function ProfileSettingsPage() {
 
     if (file.type !== "application/pdf") {
       toast({ title: "Erro", description: "Apenas ficheiros PDF são permitidos.", variant: "destructive" });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ 
+        title: "Ficheiro muito grande", 
+        description: "O tamanho máximo permitido para o Currículo é de 5MB.", 
+        variant: "destructive" 
+      });
       return;
     }
 
@@ -185,33 +319,6 @@ export default function ProfileSettingsPage() {
 
   const Sidebar = user.role === 'mentor' ? MentorSidebar : CandidateSidebar;
 
-  const formationOptions = [
-    "Ensino Médio",
-    "Técnico Médio",
-    "Frequência Universitária",
-    "Licenciatura",
-    "Mestrado/Pós-Graduação",
-    "Outro"
-  ];
-
-  const areaOptions = [
-    "Tecnologia / TI",
-    "Marketing & Design",
-    "Finanças & Gestão",
-    "Engenharia",
-    "Saúde",
-    "Direito",
-    "Recursos Humanos",
-    "Logística e Transportes",
-    "Hotelaria e Turismo",
-    "Agronegócio",
-    "Energias Renováveis",
-    "Educação e Formação",
-    "Vendas e Atendimento ao Cliente",
-    "Comunicação e Jornalismo",
-    "Outra Área"
-  ];
-
   return (
     <div className="min-h-screen bg-[#EBDCC6] flex font-sans text-[#001F33] relative overflow-x-hidden">
       <Sidebar 
@@ -219,6 +326,7 @@ export default function ProfileSettingsPage() {
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         user={user}
+        onNavigateRequest={handleNavigateRequest}
       />
 
       <AnimatePresence>
@@ -286,7 +394,7 @@ export default function ProfileSettingsPage() {
                            <Input 
                              value={profile.name} 
                              onChange={(e) => setProfile({...profile, name: e.target.value})}
-                             className="h-10 border-[#001F33]/10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9]" 
+                             className={`h-10 border-[#001F33]/10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] ${errors.includes('name') ? 'border-red-500 ring-1 ring-red-500' : ''}`} 
                            />
                         </div>
                      </div>
@@ -314,8 +422,8 @@ export default function ProfileSettingsPage() {
                               <Input 
                                 placeholder="https://" 
                                 value={profile.socialLink}
-                                onChange={(e) => setProfile({...profile, socialLink: e.target.value})}
-                                className="h-10 border-[#001F33]/10 pl-10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9]" 
+                                onChange={(e) => setProfile({...profile, socialLink: e.target.value, linkedinUrl: e.target.value})}
+                                className={`h-10 border-[#001F33]/10 pl-10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] ${errors.includes('socialLink') ? 'border-red-500 ring-1 ring-red-500' : ''}`} 
                               />
                            </div>
                         </div>
@@ -345,7 +453,7 @@ export default function ProfileSettingsPage() {
                               <Input 
                                 value={profile.phone} 
                                 onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                                className="h-10 border-[#001F33]/10 pl-10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9]" 
+                                className={`h-10 border-[#001F33]/10 pl-10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] ${errors.includes('phone') ? 'border-red-500 ring-1 ring-red-500' : ''}`} 
                               />
                            </div>
                         </div>
@@ -355,7 +463,7 @@ export default function ProfileSettingsPage() {
                               value={profile.province} 
                               onValueChange={(val) => setProfile({...profile, province: val, municipality: ""})}
                            >
-                              <SelectTrigger className="h-10 border-[#001F33]/10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] bg-white">
+                              <SelectTrigger className={`h-10 border-[#001F33]/10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] bg-white ${errors.includes('province') ? 'border-red-500 ring-1 ring-red-500' : ''}`}>
                                  <SelectValue placeholder="Selecione" />
                               </SelectTrigger>
                               <SelectContent className="bg-white border-[#001F33]/10 text-[#001F33]">
@@ -372,7 +480,7 @@ export default function ProfileSettingsPage() {
                               onValueChange={(val) => setProfile({...profile, municipality: val})}
                               disabled={!profile.province}
                            >
-                              <SelectTrigger className="h-10 border-[#001F33]/10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] bg-white">
+                              <SelectTrigger className={`h-10 border-[#001F33]/10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] bg-white ${errors.includes('municipality') ? 'border-red-500 ring-1 ring-red-500' : ''}`}>
                                  <SelectValue placeholder="Selecione" />
                               </SelectTrigger>
                               <SelectContent className="bg-white border-[#001F33]/10 text-[#001F33]">
@@ -405,7 +513,7 @@ export default function ProfileSettingsPage() {
                               value={profile.formation} 
                               onValueChange={(val) => setProfile({...profile, formation: val})}
                            >
-                              <SelectTrigger className="h-10 border-[#001F33]/10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] bg-white">
+                              <SelectTrigger className={`h-10 border-[#001F33]/10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] bg-white ${errors.includes('formation') ? 'border-red-500 ring-1 ring-red-500' : ''}`}>
                                  <SelectValue placeholder="Selecione" />
                               </SelectTrigger>
                               <SelectContent className="bg-white border-[#001F33]/10 text-[#001F33]">
@@ -421,7 +529,7 @@ export default function ProfileSettingsPage() {
                               value={profile.areaOfInterest} 
                               onValueChange={(val) => setProfile({...profile, areaOfInterest: val})}
                            >
-                              <SelectTrigger className="h-10 border-[#001F33]/10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] bg-white">
+                              <SelectTrigger className={`h-10 border-[#001F33]/10 rounded-lg font-semibold focus:ring-2 focus:ring-[#0EA5E9] bg-white ${errors.includes('areaOfInterest') ? 'border-red-500 ring-1 ring-red-500' : ''}`}>
                                  <SelectValue placeholder="Selecione" />
                               </SelectTrigger>
                               <SelectContent className="bg-white border-[#001F33]/10 text-[#001F33]">
@@ -472,7 +580,7 @@ export default function ProfileSettingsPage() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-gray-50 rounded-xl border border-dashed border-[#001F33]/10">
-                     <div className="h-12 w-12 bg-white rounded-xl flex items-center justify-center text-[#001F33]/20 shadow-inner">
+                     <div className="h-12 w-12 bg-[#0EA5E9]/10 rounded-xl flex items-center justify-center text-[#0EA5E9] shadow-sm">
                         <FileText size={24} />
                      </div>
                      <div className="flex-1 text-center sm:text-left">
@@ -499,9 +607,12 @@ export default function ProfileSettingsPage() {
                           {uploading ? "..." : (profile.cvUrl ? "Alterar" : "Carregar")}
                         </Button>
                         {profile.cvUrl && (
-                          <Button variant="ghost" asChild className="text-[#0EA5E9] text-[9px] font-black uppercase tracking-widest h-9 px-3">
-                             <a href={profile.cvUrl} target="_blank"><ExternalLink size={12} /></a>
-                          </Button>
+                           <Button variant="ghost" asChild className="text-[#0EA5E9] text-[9px] font-black uppercase tracking-widest h-9 px-3 gap-2">
+                              <a href={profile.cvUrl} target="_blank">
+                                <span>Ver CV</span>
+                                <ExternalLink size={12} />
+                              </a>
+                           </Button>
                         )}
                      </div>
                   </div>
@@ -522,47 +633,47 @@ export default function ProfileSettingsPage() {
                         <h3 className="text-base font-display uppercase text-[#001F33]">Perfil de Mentoria</h3>
                      </div>
 
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 gap-4">
                         <div className="space-y-1">
                            <label className="text-[10px] sm:text-[11px] font-black uppercase text-[#001F33] tracking-widest ml-1">Especialidades</label>
                            <Input 
                                placeholder="Tecnologia, Negócios..." 
                                value={profile.specialties}
                                onChange={(e) => setProfile({...profile, specialties: e.target.value})}
-                               className="h-10 border-[#001F33]/10 rounded-lg font-semibold" 
+                               className={`h-10 border-[#001F33]/10 rounded-lg font-semibold ${errors.includes('specialties') ? 'border-red-500 ring-1 ring-red-500' : ''}`} 
                            />
                         </div>
 
                         <div className="space-y-1">
-                           <label className="text-[10px] sm:text-[11px] font-black uppercase text-[#001F33] tracking-widest ml-1">LinkedIn URL</label>
-                           <Input 
-                             placeholder="https://..." 
-                             value={profile.linkedinUrl}
-                             onChange={(e) => setProfile({...profile, linkedinUrl: e.target.value})}
-                             className="h-10 border-[#001F33]/10 rounded-lg font-semibold" 
-                           />
-                        </div>
-
-                        <div className="md:col-span-2 space-y-1">
                            <label className="text-[10px] sm:text-[11px] font-black uppercase text-[#001F33] tracking-widest ml-1">Biografia Profissional</label>
                            <Textarea 
                                value={profile.bio}
                                onChange={(e) => setProfile({...profile, bio: e.target.value})}
-                               className="min-h-[80px] border-[#001F33]/10 rounded-xl p-3 text-sm font-medium" 
+                               className={`min-h-[80px] border-[#001F33]/10 rounded-xl p-3 text-sm font-medium ${errors.includes('bio') ? 'border-red-500 ring-1 ring-red-500' : ''}`} 
                            />
                         </div>
                      </div>
                   </motion.div>
                 )}
 
-               <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-100 rounded-xl text-green-600">
+               <div className={`flex items-center gap-3 p-4 rounded-xl border ${errors.length > 0 ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-green-50 border-green-100 text-green-600'}`}>
                   <CheckCircle size={18} />
-                  <p className="text-[10px] font-black uppercase tracking-wider">Perfil em conformidade com as diretrizes da comunidade.</p>
+                  <p className="text-[10px] font-black uppercase tracking-wider">
+                    {errors.length > 0 
+                      ? "Perfil Incompleto: Por favor preencha todos os campos obrigatórios." 
+                      : "Perfil em conformidade com as diretrizes da comunidade."}
+                  </p>
                </div>
             </div>
           )}
         </div>
       </main>
+
+      <ConfirmModal 
+        isOpen={!!pendingNav}
+        onClose={() => setPendingNav(null)}
+        onConfirm={confirmNavigation}
+      />
     </div>
   );
 }

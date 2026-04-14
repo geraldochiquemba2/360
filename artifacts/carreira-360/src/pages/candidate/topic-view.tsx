@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
+import { MentorSidebar } from "@/components/layout/MentorSidebar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -107,7 +108,12 @@ export default function TopicView() {
         body: JSON.stringify({ content: newComment, parentId: replyingTo?.id || null })
       });
       if (response.ok) {
-        toast({ title: "Comentário Publicado!", description: "Ganhaste +20 XP por participar na discussão." });
+        toast({ 
+          title: "Comentário Publicado!", 
+          description: user?.role === 'mentor' 
+            ? "Obrigado por partilhares o teu conhecimento!" 
+            : "Ganhaste +20 XP por participar na discussão." 
+        });
         setNewComment("");
         setReplyingTo(null);
         fetchTopicDetails();
@@ -276,6 +282,13 @@ export default function TopicView() {
           currentTab="forum" 
           isSidebarOpen={isSidebarOpen} 
           setIsSidebarOpen={setIsSidebarOpen} 
+        />
+      ) : user?.role === 'mentor' ? (
+        <MentorSidebar
+          currentTab="forum"
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          user={user}
         />
       ) : (
         <CandidateSidebar 
@@ -528,7 +541,7 @@ export default function TopicView() {
                           }}
                           className="text-[#0EA5E9] hover:bg-[#0EA5E9]/10 rounded-full h-8 sm:h-10 px-3 sm:px-4 text-[10px] font-bold uppercase tracking-widest ml-1"
                         >
-                          <Reply size={14} className="mr-1 sm:mr-2" /> <span className="hidden sm:inline">Responder</span>
+                          <Reply size={14} className="mr-1.5" /> <span className="text-[10px] xs:text-xs">Responder</span>
                         </Button>
                         
                         {(user?.role === 'admin' || comment.authorId === user?.id) && (
@@ -704,7 +717,7 @@ export default function TopicView() {
                       onClick={handlePostComment}
                       className="w-full sm:w-auto bg-[#0EA5E9] text-white uppercase font-bold text-[10px] sm:text-xs h-12 sm:h-[60px] px-6 rounded-2xl shadow-lg shadow-[#0EA5E9]/30 tracking-widest hover:bg-[#0284c7] hover:scale-[1.02] transition-all"
                     >
-                      <Send className="mr-2 h-4 w-4" /> Enviar Resposta (+20 XP)
+                      <Send className="mr-2 h-4 w-4" /> {user?.role === 'mentor' ? 'Enviar Resposta' : 'Enviar Resposta (+20 XP)'}
                     </Button>
                   </div>
                 </div>

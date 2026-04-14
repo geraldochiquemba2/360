@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { usersTable } from "@workspace/db";
+import { usersTable, mentorsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -63,8 +63,13 @@ authRouter.post("/register", upload.single("cvFile"), async (req, res) => {
       return res.status(400).json({ error: "Dados inválidos", details: result.error.errors });
     }
 
-    const { name, email, phone, password, role, formation, areaOfInterest, experienceLevel, careerGoals, difficulties } = result.data;
-    const socialLink = req.body.socialLink || null;
+    const { 
+      name, email, phone, password, role, formation, areaOfInterest, 
+      experienceLevel, careerGoals, difficulties, 
+      bio, specialties, linkedinUrl 
+    } = result.data;
+    
+    const socialLink = req.body.socialLink || linkedinUrl || null;
     const cvUrl = `/uploads/${req.file.filename}`;
 
     // Check if user exists
@@ -98,6 +103,17 @@ authRouter.post("/register", upload.single("cvFile"), async (req, res) => {
       province: result.data.province || null,
       municipality: result.data.municipality || null,
     }).returning();
+    
+    // Se for mentor, criar entrada inicial na tabela de mentores para evitar erro 403 na gestão
+    if (role === 'mentor') {
+      await db.insert(mentorsTable).values({
+        userId: newUser.id,
+        bio: bio || "",
+        specialties: specialties || "",
+        linkedinUrl: linkedinUrl || socialLink || null,
+        status: userStatus // Segue o status do user ('pendente' ou 'ativo')
+      });
+    }
 
     const token = jwt.sign({ id: newUser.id, role: newUser.role, status: newUser.status }, JWT_SECRET, { expiresIn: "7d" });
 

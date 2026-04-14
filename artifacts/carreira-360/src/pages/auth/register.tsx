@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { angolaLocations } from "@/lib/angola-locations";
+import { formationOptions, areaOptions, experienceLevelOptions } from "@/lib/options";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -37,6 +38,10 @@ export default function RegisterPage() {
       municipality: "",
       socialLink: "",
       cvFile: undefined as any,
+      // Mentor fields
+      bio: "",
+      specialties: "",
+      linkedinUrl: "",
     },
   });
 
@@ -60,6 +65,11 @@ export default function RegisterPage() {
       if (!formData.has("cvFile")) {
         console.error("[Register] No cvFile in FormData!");
         throw new Error("O envio do CV em PDF é obrigatório.");
+      }
+
+      const file = values.cvFile;
+      if (file && file.size > 5 * 1024 * 1024) {
+        throw new Error("O ficheiro é demasiado grande. O limite é 5MB.");
       }
 
       const response = await fetch("/api/auth/register", {
@@ -267,12 +277,9 @@ export default function RegisterPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white max-h-[300px]">
-                            <SelectItem value="Ensino Médio">Ensino Médio</SelectItem>
-                            <SelectItem value="Técnico Médio">Técnico Médio</SelectItem>
-                            <SelectItem value="Frequência Universitária">Frequência Universitária</SelectItem>
-                            <SelectItem value="Licenciatura">Licenciatura</SelectItem>
-                            <SelectItem value="Mestrado/Pós-Graduação">Mestrado/Pós-Graduação</SelectItem>
-                            <SelectItem value="Outro">Outro</SelectItem>
+                            {formationOptions.map(opt => (
+                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </FormItem>
@@ -287,21 +294,9 @@ export default function RegisterPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white max-h-[300px]">
-                            <SelectItem value="Tecnologia / TI">Tecnologia / TI</SelectItem>
-                            <SelectItem value="Marketing & Design">Marketing & Design</SelectItem>
-                            <SelectItem value="Finanças & Gestão">Finanças & Gestão</SelectItem>
-                            <SelectItem value="Engenharia">Engenharia</SelectItem>
-                            <SelectItem value="Saúde">Saúde</SelectItem>
-                            <SelectItem value="Direito">Direito</SelectItem>
-                            <SelectItem value="Recursos Humanos">Recursos Humanos</SelectItem>
-                            <SelectItem value="Logística e Transportes">Logística e Transportes</SelectItem>
-                            <SelectItem value="Hotelaria e Turismo">Hotelaria e Turismo</SelectItem>
-                            <SelectItem value="Agronegócio">Agronegócio</SelectItem>
-                            <SelectItem value="Energias Renováveis">Energias Renováveis</SelectItem>
-                            <SelectItem value="Educação e Formação">Educação e Formação</SelectItem>
-                            <SelectItem value="Vendas e Atendimento ao Cliente">Vendas e Atendimento ao Cliente</SelectItem>
-                            <SelectItem value="Comunicação e Jornalismo">Comunicação e Jornalismo</SelectItem>
-                            <SelectItem value="Outra Área">Outra Área</SelectItem>
+                            {areaOptions.map(opt => (
+                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </FormItem>
@@ -337,7 +332,7 @@ export default function RegisterPage() {
                   </div>
                   
                   <FormField control={form.control} name="experienceLevel" render={({ field }) => (
-                    <FormItem>
+                    <FormItem className={form.watch("role") === "mentor" ? "hidden" : "block"}>
                       <FormLabel className="text-[#0EA5E9] uppercase tracking-widest font-bold">Nível de Experiência</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -346,10 +341,9 @@ export default function RegisterPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-[#001F33] border-[#0EA5E9] text-white max-h-[300px]">
-                          <SelectItem value="nenhuma">Sem Experiência</SelectItem>
-                          <SelectItem value="estagio">Estágio / Junior</SelectItem>
-                          <SelectItem value="pleno">Pleno</SelectItem>
-                          <SelectItem value="senior">Sénior</SelectItem>
+                          {experienceLevelOptions.map(opt => (
+                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </FormItem>
@@ -391,24 +385,66 @@ export default function RegisterPage() {
                     )} />
                   </div>
 
-                  <div className="space-y-4">
-                    <label className="text-[#0EA5E9] uppercase tracking-widest font-bold block mb-2">Principais Dificuldades (Opcional)</label>
-                    <div className="grid grid-cols-2 gap-4">
-                      {difficultiesOptions.map(opt => (
-                        <div key={opt.id} className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={opt.id} 
-                            onCheckedChange={(checked) => {
-                              const curr = form.getValues("difficulties") as string[] || [];
-                              if (checked) form.setValue("difficulties", [...curr, opt.label]);
-                              else form.setValue("difficulties", curr.filter(i => i !== opt.label));
-                            }}
-                          />
-                          <label htmlFor={opt.id} className="text-sm font-medium uppercase tracking-tight">{opt.label}</label>
+                  {form.watch("role") === "candidato" ? (
+                    <div className="space-y-6">
+                      <FormField control={form.control} name="careerGoals" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[#0EA5E9] uppercase tracking-widest font-bold block mb-2">Meta Profissional</FormLabel>
+                          <FormControl>
+                            <Input placeholder="O que pretendes alcançar?" {...field} className="bg-white/5 border-2 border-white/20 text-white h-14 rounded-none" />
+                          </FormControl>
+                        </FormItem>
+                      )} />
+
+                      <div className="space-y-4">
+                        <label className="text-[#0EA5E9] uppercase tracking-widest font-bold block mb-2">Principais Dificuldades (Opcional)</label>
+                        <div className="grid grid-cols-2 gap-4">
+                          {difficultiesOptions.map(opt => (
+                            <div key={opt.id} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={opt.id} 
+                                onCheckedChange={(checked) => {
+                                  const curr = form.getValues("difficulties") as string[] || [];
+                                  if (checked) form.setValue("difficulties", [...curr, opt.label]);
+                                  else form.setValue("difficulties", curr.filter(i => i !== opt.label));
+                                }}
+                              />
+                              <label htmlFor={opt.id} className="text-sm font-medium uppercase tracking-tight">{opt.label}</label>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <FormField control={form.control} name="specialties" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[#0EA5E9] uppercase tracking-widest font-bold block mb-2">Especialidades (Ex: Tecnologia, Negócios)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="O que podes ensinar?" {...field} className="bg-white/5 border-2 border-white/20 text-white h-14 rounded-none" />
+                          </FormControl>
+                        </FormItem>
+                      )} />
+
+                      <FormField control={form.control} name="bio" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[#0EA5E9] uppercase tracking-widest font-bold block mb-2">Biografia Profissional</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Conta-nos um pouco sobre a tua carreira..." {...field} className="bg-white/5 border-2 border-white/20 text-white h-14 rounded-none" />
+                          </FormControl>
+                        </FormItem>
+                      )} />
+
+                      <FormField control={form.control} name="linkedinUrl" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[#0EA5E9] uppercase tracking-widest font-bold block mb-2">LinkedIn URL</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://linkedin.com/in/..." {...field} className="bg-white/5 border-2 border-white/20 text-white h-14 rounded-none" />
+                          </FormControl>
+                        </FormItem>
+                      )} />
+                    </div>
+                  )}
             </div>
 
             <div className="flex justify-end pt-8 border-t border-white/10 mt-6">

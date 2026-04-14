@@ -203,7 +203,7 @@ export default function AdminDashboard() {
                 </span>
               </div>
               <div>
-                <p className="text-xs font-bold text-[#001F33]/85 break-all">{c.email}</p>
+                <p className="text-xs font-bold text-[#001F33]/85 break-all lowercase">{c.email}</p>
                 <p className="text-xs font-bold text-[#F97316]">{c.phone || '---'}</p>
               </div>
               <div className="flex gap-4 text-xs font-bold">
@@ -249,7 +249,7 @@ export default function AdminDashboard() {
                       </span>
                     </td>
                     <td className="px-10">
-                      <span className="text-xs font-bold text-[#001F33]/85 block">{c.email}</span>
+                      <span className="text-xs font-bold text-[#001F33]/85 block lowercase">{c.email}</span>
                       <span className="text-xs font-bold text-[#F97316]">{c.phone || "---"}</span>
                     </td>
                     <td className="px-10 text-xs font-bold">
@@ -326,7 +326,7 @@ export default function AdminDashboard() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-bold uppercase text-base text-[#001F33]">{m.name}</p>
-                  <p className="text-xs font-bold text-[#001F33]/60">{m.email}</p>
+                  <p className="text-xs font-bold text-[#001F33]/60 lowercase">{m.email}</p>
                 </div>
                 <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full ${m.status === 'pendente' ? 'bg-orange-100 text-orange-600' : m.status === 'rejeitado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                   {m.status}
@@ -374,7 +374,7 @@ export default function AdminDashboard() {
                 <tr key={m.id} className={`h-24 hover:bg-[#EBDCC6]/50 transition-colors ${m.status === 'pendente' ? 'bg-[#F97316]/5' : ''}`}>
                   <td className="px-10">
                     <p className="font-bold uppercase text-sm text-[#001F33]">{m.name}</p>
-                    <p className="text-xs font-bold text-[#001F33]/60">{m.email}</p>
+                    <p className="text-xs font-bold text-[#001F33]/60 lowercase">{m.email}</p>
                   </td>
                   <td className="px-10 py-4 max-w-md">
                     {m.expertise && (
@@ -776,16 +776,19 @@ export default function AdminDashboard() {
                   </div>
                   <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-[#0EA5E9] rounded-full blur-[100px] opacity-20 group-hover:opacity-40 transition-opacity"></div>
                </motion.div>
-               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+               <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                   {[
                     { label: "Jovens", val: stats.totalJovens, icon: Users, color: "bg-[#0EA5E9]" },
                     { label: "Mentores", val: stats.totalMentores, icon: UserCheck, color: "bg-[#F97316]" },
                     { label: "Vagas", val: stats.oportunidades, icon: Briefcase, color: "bg-[#0EA5E9]" },
                     { label: "Fórum", val: "Brevemente", icon: BookOpen, color: "bg-[#F97316]" }
                   ].map((s, i) => (
-                    <motion.div initial={{opacity:0, scale:0.9}} animate={{opacity:1, scale:1}} transition={{delay: i*0.1}} key={i} className="bg-white p-4 sm:p-8 rounded-3xl shadow-sm border border-[#8B4513]/50 flex flex-col gap-2 group hover:shadow-xl transition-all">
+                    <motion.div initial={{opacity:0, scale:0.9}} animate={{opacity:1, scale:1}} transition={{delay: i*0.1}} key={i} className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-[#8B4513]/50 flex flex-col gap-2 group hover:shadow-xl transition-all">
                       <div className={`${s.color} p-4 rounded-2xl text-white w-fit shadow-lg shadow-black/10 group-hover:scale-110 transition-transform`}><s.icon size={28}/></div>
-                      <div className="mt-4"><p className="text-[10px] font-bold uppercase text-[#001F33]/80 tracking-widest leading-none mb-1">{s.label}</p><h4 className="text-3xl font-display text-[#001F33]">{s.val}</h4></div>
+                      <div className="mt-4">
+                        <p className="text-[10px] font-bold uppercase text-[#001F33]/80 tracking-widest leading-none mb-1">{s.label}</p>
+                        <h4 className="text-2xl sm:text-3xl font-display text-[#001F33] line-clamp-1">{s.val}</h4>
+                      </div>
                     </motion.div>
                   ))}
                </div>
@@ -812,7 +815,7 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* FILTROS RÁPIDOS DE ROLE */}
-                  <div className="flex flex-wrap items-center gap-3 bg-[#EBDCC6]/80 p-3 rounded-[2.5rem] border-2 border-[#8B4513]/20 w-fit backdrop-blur-md shadow-inner mb-8">
+                  <div className="flex flex-wrap items-center gap-3 bg-[#EBDCC6]/80 p-3 rounded-[2rem] sm:rounded-[2.5rem] border-2 border-[#8B4513]/20 w-full sm:w-fit backdrop-blur-md shadow-inner mb-8 overflow-x-auto no-scrollbar whitespace-nowrap">
                     <Button 
                       variant="ghost" 
                       onClick={() => setFilterRole("all")}
@@ -865,7 +868,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* FILTROS DE ESTADO PERMANENTES - Alta Visibilidade */}
-              <div className="flex flex-wrap items-center gap-3 bg-[#EBDCC6]/80 p-3 rounded-[2.5rem] border-2 border-[#8B4513]/20 w-fit backdrop-blur-md shadow-inner">
+              <div className="flex flex-wrap items-center gap-3 bg-[#EBDCC6]/80 p-3 rounded-[2rem] sm:rounded-[2.5rem] border-2 border-[#8B4513]/20 w-full sm:w-fit backdrop-blur-md shadow-inner overflow-x-auto no-scrollbar whitespace-nowrap">
                 <Button 
                   variant="ghost" 
                   onClick={() => setFilterMentorStatus("all")}
@@ -1366,8 +1369,8 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                    <DialogTitle className="text-2xl font-display uppercase tracking-tight text-[#001F33]">{viewUser?.name}</DialogTitle>
-                   <p className="font-bold text-[#001F33]/50 text-sm uppercase flex items-center gap-2 mt-1">
-                      {viewUser?.email} • {viewUser?.phone || 'Sem N.º'}
+                   <p className="font-bold text-[#001F33]/50 text-sm flex items-center gap-2 mt-1">
+                      <span className="lowercase">{viewUser?.email}</span> • <span className="uppercase">{viewUser?.phone || 'Sem N.º'}</span>
                    </p>
                 </div>
              </div>

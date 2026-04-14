@@ -21,6 +21,11 @@ export const RegisterSchema = z.object({
   province: z.string().optional(),
   municipality: z.string().optional(),
   cvFile: z.any().optional(), // Allow file objects from browser
+  
+  // Mentor specific fields
+  bio: z.string().optional(),
+  specialties: z.string().optional(),
+  linkedinUrl: z.string().optional(),
 });
 
 export type LoginRequest = z.infer<typeof LoginSchema>;

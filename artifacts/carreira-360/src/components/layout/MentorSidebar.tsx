@@ -6,7 +6,10 @@ import {
   Settings, 
   LogOut, 
   X, 
-  UserCircle 
+  UserCircle,
+  MessageSquare,
+  GraduationCap,
+  Briefcase
 } from "lucide-react";
 
 interface MentorSidebarProps {
@@ -14,14 +17,28 @@ interface MentorSidebarProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
   user: any;
+  onNavigateRequest?: (href: string) => void;
 }
 
-export function MentorSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen, user }: MentorSidebarProps) {
+export function MentorSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen, user, onNavigateRequest }: MentorSidebarProps) {
   const [location, setLocation] = useLocation();
 
+  const navigate = (href: string) => {
+    setIsSidebarOpen(false);
+    if (onNavigateRequest) {
+      onNavigateRequest(href);
+    } else {
+      setLocation(href);
+    }
+  };
+
   const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "/";
+    if (onNavigateRequest) {
+      onNavigateRequest("LOGOUT");
+    } else {
+      localStorage.clear();
+      window.location.href = "/";
+    }
   };
 
   return (
@@ -40,37 +57,57 @@ export function MentorSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen, use
       </div>
 
       <nav className="flex-1 p-6 space-y-4">
-        <Link href="/mentor">
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsSidebarOpen(false)}
-            className={`w-full justify-start ${currentTab === 'dashboard' ? 'bg-[#F97316]/20 text-white' : 'text-white/50 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
-          >
-            <ClipboardList className="mr-3 h-5 w-5" /> Agendamentos
-          </Button>
-        </Link>
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/mentor")}
+          className={`w-full justify-start ${currentTab === 'dashboard' ? 'bg-[#F97316]/20 text-white' : 'text-white/50 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
+        >
+          <ClipboardList className="mr-3 h-5 w-5" /> Agendamentos
+        </Button>
 
-        <Link href="/mentor/availability">
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsSidebarOpen(false)}
-            className={`w-full justify-start ${currentTab === 'availability' ? 'bg-[#F97316]/20 text-white' : 'text-white/50 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
-          >
-            <Calendar className="mr-3 h-5 w-5" /> Minha Agenda
-          </Button>
-        </Link>
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/mentor/availability")}
+          className={`w-full justify-start ${currentTab === 'availability' ? 'bg-[#F97316]/20 text-white' : 'text-white/50 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
+        >
+          <Calendar className="mr-3 h-5 w-5" /> Minha Agenda
+        </Button>
 
-        <div className="pt-4 mt-4 border-t border-white/5">
-           <p className="text-[10px] font-bold uppercase text-white/30 tracking-[0.2em] mb-4 pl-4">Preferências</p>
-           <Link href="/mentor/settings">
-            <Button 
+        <div className="pt-4 mt-4 border-t border-white/10">
+           <Button 
+             variant="ghost" 
+             onClick={() => navigate("/forum")}
+             className={`w-full justify-start ${currentTab === 'forum' ? 'bg-[#F97316]/20 text-white' : 'text-white/50 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
+           >
+             <MessageSquare className="mr-3 h-5 w-5" /> Comunidade
+           </Button>
+
+           <Button 
+             variant="ghost" 
+             onClick={() => navigate("/career-tracks")}
+             className={`w-full justify-start ${currentTab === 'tracks' ? 'bg-[#F97316]/20 text-white' : 'text-white/50 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
+           >
+             <GraduationCap className="mr-3 h-5 w-5" /> Trilhas
+           </Button>
+
+           <Button 
+             variant="ghost" 
+             onClick={() => navigate("/opportunities")}
+             className={`w-full justify-start ${currentTab === 'opportunities' ? 'bg-[#F97316]/20 text-white' : 'text-white/50 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
+           >
+             <Briefcase className="mr-3 h-5 w-5" /> Oportunidades
+           </Button>
+        </div>
+
+        <div className="pt-4 mt-4 border-t border-white/10">
+           <p className="text-[10px] font-bold uppercase text-white/50 tracking-[0.2em] mb-4 pl-4">Preferências</p>
+           <Button 
               variant="ghost" 
-              onClick={() => setIsSidebarOpen(false)}
-              className={`w-full justify-start ${currentTab === 'profile' || currentTab === 'settings' ? 'bg-[#F97316]/20 text-white' : 'text-white/50 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
+              onClick={() => navigate("/mentor/settings")}
+              className={`w-full justify-start ${currentTab === 'profile' || currentTab === 'settings' ? 'bg-[#F97316]/20 text-white' : 'text-white/70 hover:bg-[#F97316]/10'} uppercase tracking-widest font-bold text-[11px] h-12`}
             >
               <UserCircle className="mr-3 h-5 w-5" /> O Meu Perfil
             </Button>
-          </Link>
         </div>
       </nav>
 
@@ -81,7 +118,7 @@ export function MentorSidebar({ currentTab, isSidebarOpen, setIsSidebarOpen, use
            </div>
            <div className="overflow-hidden">
               <p className="text-xs font-bold uppercase text-white truncate">{user?.name || "Mentor"}</p>
-              <p className="text-[10px] text-white/40 uppercase truncate">{user?.email}</p>
+              <p className="text-[10px] text-white/70 uppercase truncate">{user?.email}</p>
            </div>
         </div>
         <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-[#F97316] hover:bg-[#F97316]/10 uppercase tracking-widest font-bold text-xs h-10">

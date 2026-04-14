@@ -29,9 +29,10 @@ export default function MentorAvailability() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
   // Form state
-  const [dayOfWeek, setDayOfWeek] = useState("1");
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("10:00");
+  const [dayOfWeek, setDayOfWeek] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [triedSubmit, setTriedSubmit] = useState(false);
 
   const { toast } = useToast();
 
@@ -65,6 +66,26 @@ export default function MentorAvailability() {
   };
 
   const handleAddSlot = async () => {
+    setTriedSubmit(true);
+    if (!dayOfWeek || !startTime || !endTime) {
+      toast({ 
+        title: "Campos Incompletos", 
+        description: "Por favor, define o dia, a hora de início e a hora de fim.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    // Validação básica de ordem temporal
+    if (startTime >= endTime) {
+      toast({ 
+        title: "Horário Inválido", 
+        description: "A hora de fim deve ser posterior à hora de início.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     const token = localStorage.getItem("token");
     try {
       const response = await fetch("/api/mentorship/availability", {
@@ -84,9 +105,24 @@ export default function MentorAvailability() {
         toast({ title: "Sucesso", description: "Horário adicionado à sua agenda." });
         setIsAddModalOpen(false);
         fetchAvailability();
+      } else {
+        const errorData = await response.json();
+        let errorMessage = errorData.error || "Verifica se os dados estão corretos ou se já tens esse horário definido.";
+        
+        // Mapeamento de erro técnico para amigável (fallback para servidor antigo)
+        if (errorData.error === "Not a mentor") {
+          errorMessage = "Ainda não terminaste o teu perfil de mentor. Por favor, vai a 'Meu Perfil' e guarda as tuas informações profissionais primeiro.";
+        }
+
+        toast({ 
+          title: "Não foi possível adicionar", 
+          description: errorMessage, 
+          variant: "destructive" 
+        });
       }
     } catch (err) {
-      toast({ title: "Erro", description: "Falha ao adicionar horário.", variant: "destructive" });
+      console.error("Add slot error:", err);
+      toast({ title: "Erro de Ligação", description: "Falha ao comunicar com o servidor.", variant: "destructive" });
     }
   };
 
@@ -143,7 +179,7 @@ export default function MentorAvailability() {
             </Button>
             <div>
               <h1 className="text-2xl md:text-4xl font-display uppercase tracking-tight text-[#001F33]">Minha Agenda</h1>
-              <p className="text-[#001F33]/50 font-medium text-xs md:text-sm">Define os horários em que estás disponível para mentorias.</p>
+              <p className="text-[#001F33]/70 font-medium text-xs md:text-sm">Define os horários em que estás disponível para mentorias.</p>
             </div>
           </div>
           <Button 
@@ -159,9 +195,9 @@ export default function MentorAvailability() {
              <div className="flex justify-center py-20"><div className="animate-spin h-10 w-10 border-4 border-[#F97316] border-t-transparent rounded-full"></div></div>
           ) : slots.length === 0 ? (
             <div className="bg-white p-20 text-center rounded-[2.5rem] shadow-sm border-2 border-[#8B4513]">
-              <Calendar size={64} className="mx-auto text-[#001F33]/10 mb-6" />
-              <h3 className="text-xl font-display uppercase text-[#001F33]/30">Agenda Vazia</h3>
-              <p className="text-sm text-[#001F33]/40 mt-2">Adiciona os teus horários para que os jovens possam agendar contigo.</p>
+              <Calendar size={64} className="mx-auto text-[#001F33]/30 mb-6" />
+              <h3 className="text-xl font-display uppercase text-[#001F33]/90 font-bold">Agenda Vazia</h3>
+              <p className="text-sm text-[#001F33]/80 mt-2 font-semibold">Adiciona os teus horários para que os jovens possam agendar contigo.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -177,7 +213,7 @@ export default function MentorAvailability() {
                       <Clock size={24} />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase text-[#001F33]/40 tracking-widest leading-none mb-1">{DAYS[slot.dayOfWeek]}</p>
+                      <p className="text-[10px] font-bold uppercase text-[#001F33]/70 tracking-widest leading-none mb-1">{DAYS[slot.dayOfWeek]}</p>
                       <p className="text-lg font-bold">{slot.startTime} — {slot.endTime}</p>
                     </div>
                   </div>
@@ -198,15 +234,23 @@ export default function MentorAvailability() {
 
       <ResponsiveDialog 
         isOpen={isAddModalOpen} 
-        setIsOpen={setIsAddModalOpen}
+        setIsOpen={(open) => {
+          setIsAddModalOpen(open);
+          if (!open) {
+            setTriedSubmit(false);
+            setDayOfWeek("");
+            setStartTime("");
+            setEndTime("");
+          }
+        }}
         title="Novo Horário"
         className="sm:max-w-md"
       >
         <div className="space-y-6 py-4">
            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Dia da Semana</label>
+              <label className="text-[10px] font-black uppercase text-[#001F33]/70 tracking-widest ml-1">Dia da Semana</label>
               <Select value={dayOfWeek} onValueChange={setDayOfWeek}>
-                <SelectTrigger className="h-12 border-[#8B4513]/50 rounded-xl">
+                <SelectTrigger className={`h-12 border-[#8B4513]/50 rounded-xl bg-white/50 text-[#001F33] font-bold ${triedSubmit && !dayOfWeek ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}>
                   <SelectValue placeholder="Selecione o dia" />
                 </SelectTrigger>
                 <SelectContent>
@@ -219,21 +263,21 @@ export default function MentorAvailability() {
 
            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Início</label>
+                <label className="text-[10px] font-black uppercase text-[#001F33]/70 tracking-widest ml-1">Início</label>
                 <Input 
                   type="time" 
                   value={startTime} 
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="h-12 border-[#8B4513]/50 rounded-xl"
+                  className={`h-12 border-[#8B4513]/50 rounded-xl bg-white/50 text-[#001F33] font-bold ${triedSubmit && !startTime ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase text-[#001F33]/50 tracking-widest">Fim</label>
+                <label className="text-[10px] font-black uppercase text-[#001F33]/70 tracking-widest ml-1">Fim</label>
                 <Input 
                   type="time" 
                   value={endTime} 
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="h-12 border-[#8B4513]/50 rounded-xl"
+                  className={`h-12 border-[#8B4513]/50 rounded-xl bg-white/50 text-[#001F33] font-bold ${triedSubmit && !endTime ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}
                 />
               </div>
            </div>
