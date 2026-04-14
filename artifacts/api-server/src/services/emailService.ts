@@ -1,8 +1,20 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization: only instantiate when an email is actually sent.
+// This prevents a crash on startup if RESEND_API_KEY is not configured.
+const getResendClient = (): Resend | null => {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    console.warn('[emailService] RESEND_API_KEY not set — email sending is disabled.');
+    return null;
+  }
+  return new Resend(key);
+};
 
 export const sendWelcomeEmail = async (email: string, name: string) => {
+  const resend = getResendClient();
+  if (!resend) return { success: false, error: 'Email service not configured' };
+
   try {
     const { data, error } = await resend.emails.send({
       from: 'Carreira 360 <onboarding@resend.dev>',
@@ -30,6 +42,9 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
 };
 
 export const sendMentorshipRequestEmail = async (mentorEmail: string, candidateName: string, date: string) => {
+  const resend = getResendClient();
+  if (!resend) return { success: false, error: 'Email service not configured' };
+
   try {
     const { data, error } = await resend.emails.send({
       from: 'Carreira 360 <onboarding@resend.dev>',
@@ -53,6 +68,9 @@ export const sendMentorshipRequestEmail = async (mentorEmail: string, candidateN
 };
 
 export const sendMentorshipConfirmationEmail = async (candidateEmail: string, mentorName: string, meetingLink: string) => {
+  const resend = getResendClient();
+  if (!resend) return { success: false, error: 'Email service not configured' };
+
   try {
     const { data, error } = await resend.emails.send({
       from: 'Carreira 360 <onboarding@resend.dev>',
@@ -79,9 +97,10 @@ export const sendMentorshipConfirmationEmail = async (candidateEmail: string, me
  * Envia um email para todos os utilizadores da plataforma (Bulk)
  */
 export const sendBulkNotification = async (emails: string[], subject: string, content: string) => {
+  const resend = getResendClient();
+  if (!resend) return { success: false, error: 'Email service not configured' };
+
   try {
-    // Nota: O Resend permite mandar para múltiplos recipientes ou usar batches.
-    // Para simplificar e evitar limites de batch iniciais, vamos usar o array de 'to'.
     const { data, error } = await resend.emails.send({
       from: 'Carreira 360 <onboarding@resend.dev>',
       to: emails,
