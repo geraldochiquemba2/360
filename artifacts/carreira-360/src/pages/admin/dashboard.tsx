@@ -501,7 +501,7 @@ export default function AdminDashboard() {
         toast({ title: editingTrack ? "Trilha Atualizada" : "Trilha Criada" }); 
         setIsAddingTrack(false); 
         setEditingTrack(null);
-        setNewTrack({ title: "", description: "", imageUrl: "", duration: "", hasCertificate: true }); 
+        setNewTrack({ title: "", description: "", imageUrl: "", duration: "", hasCertificate: true, category: "Geral" }); 
         fetchTracks(); 
       }
     } catch (err) { toast({ title: "Erro" }); }
@@ -704,9 +704,8 @@ export default function AdminDashboard() {
         onConfirm={confirmConfig.onConfirm}
         title={confirmConfig.title}
         description={confirmConfig.description}
-        variant={confirmConfig.variant}
-        confirmText="Confirmar"
-        cancelText="Voltar"
+        confirmLabel="Confirmar"
+        cancelLabel="Voltar"
       />
 
       {/* Overlay para mobile */}

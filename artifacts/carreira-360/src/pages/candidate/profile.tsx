@@ -325,7 +325,6 @@ export default function ProfileSettingsPage() {
         currentTab="profile"
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
-        user={user}
         onNavigateRequest={handleNavigateRequest}
       />
 

@@ -736,7 +736,6 @@ export default function TopicView() {
         }}
         title={confirmConfig.title}
         description={confirmConfig.description}
-        variant={confirmConfig.variant}
       />
 
       <Dialog open={hideModalConfig.isOpen} onOpenChange={(open) => setHideModalConfig({ ...hideModalConfig, isOpen: open })}>
