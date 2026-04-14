@@ -18,11 +18,11 @@ tracksRouter.get("/categories", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const categories = await db.select({ 
-      category: tracksTable.category 
+      category: (tracksTable as any).category 
     })
     .from(tracksTable)
-    .where(eq(tracksTable.isActive, true))
-    .groupBy(tracksTable.category);
+    .where(eq((tracksTable as any).isActive, true))
+    .groupBy((tracksTable as any).category);
     
     return res.json(categories.map(c => c.category).filter(Boolean));
   } catch (err) {
@@ -41,8 +41,8 @@ tracksRouter.get("/", async (req, res) => {
     if (category && category !== "all") {
       query = db.select().from(tracksTable).where(
         and(
-          eq(tracksTable.isActive, true),
-          eq(tracksTable.category, category as string)
+          eq((tracksTable as any).isActive, true),
+          eq((tracksTable as any).category, category as string)
         )
       );
     }
