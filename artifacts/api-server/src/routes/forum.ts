@@ -109,7 +109,7 @@ forumRouter.post("/topics", requireAuth, async (req, res) => {
 forumRouter.get("/topics/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const topicId = parseInt(req.params.id);
+    const topicId = parseInt(req.params.id as string);
 
     // Detalhes do tópico
     const [topic] = await db.select({

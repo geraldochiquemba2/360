@@ -34,7 +34,7 @@ mentorshipRouter.get("/mentors", async (req, res) => {
 mentorshipRouter.get("/mentors/:id/availability", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const mentorId = parseInt(req.params.id);
+    const mentorId = parseInt(req.params.id as string);
     const slots = await db.select().from(availabilityTable).where(eq(availabilityTable.mentorId, mentorId));
     return res.json(slots);
   } catch (err) {
@@ -235,7 +235,7 @@ mentorshipRouter.delete("/availability/:id", requireAuth, async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const userId = (req as any).user.id;
-    const slotId = parseInt(req.params.id);
+    const slotId = parseInt(req.params.id as string);
 
     const [mentor] = await db.select().from(mentorsTable).where(eq(mentorsTable.userId, userId));
     if (!mentor) return res.status(403).json({ error: "Not a mentor" });

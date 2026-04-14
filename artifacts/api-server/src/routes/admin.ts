@@ -71,7 +71,7 @@ adminRouter.patch("/users/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Banco de dados não configurado" });
     const { status, rejectionReason } = req.body; // 'ativo' | 'rejeitado' | 'pendente'
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
 
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id)).limit(1);
     if (!user) return res.status(404).json({ error: "Utilizador não encontrado" });
@@ -138,7 +138,7 @@ adminRouter.post("/opportunities", async (req, res) => {
 adminRouter.patch("/opportunities/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const data = req.body;
     
     await db.update(opportunitiesTable).set({
@@ -162,7 +162,7 @@ adminRouter.patch("/opportunities/:id", async (req, res) => {
 adminRouter.delete("/opportunities/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     await db.delete(opportunitiesTable).where(eq(opportunitiesTable.id, id));
     return res.json({ success: true });
   } catch (err) {
@@ -200,7 +200,7 @@ adminRouter.post("/tracks", async (req, res) => {
 adminRouter.patch("/tracks/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const { title, description, imageUrl, isActive, duration, hasCertificate } = req.body;
     
     await db.update(tracksTable).set({
@@ -221,7 +221,7 @@ adminRouter.patch("/tracks/:id", async (req, res) => {
 adminRouter.delete("/tracks/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     // Delete modules first if needed (cascade depends on DB setup, but safe to do here)
     await db.delete(tracksTable).where(eq(tracksTable.id, id));
     return res.json({ success: true });
@@ -235,7 +235,7 @@ adminRouter.get("/tracks/:trackId/modules", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const list = await db.select().from(modulesTable)
-      .where(eq(modulesTable.trackId, parseInt(req.params.trackId)))
+      .where(eq(modulesTable.trackId, parseInt(req.params.trackId as string)))
       .orderBy(asc(modulesTable.order));
     return res.json(list);
   } catch (err) {
@@ -260,7 +260,7 @@ adminRouter.post("/modules", async (req, res) => {
 adminRouter.patch("/modules/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const { title, order } = req.body;
     await db.update(modulesTable).set({ title, order }).where(eq(modulesTable.id, id));
     return res.json({ success: true });
@@ -273,7 +273,7 @@ adminRouter.get("/modules/:moduleId/videos", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const list = await db.select().from(videosTable)
-      .where(eq(videosTable.moduleId, parseInt(req.params.moduleId)))
+      .where(eq(videosTable.moduleId, parseInt(req.params.moduleId as string)))
       .orderBy(asc(videosTable.order));
     return res.json(list);
   } catch (err) {
@@ -304,7 +304,7 @@ adminRouter.post("/videos", async (req, res) => {
 adminRouter.patch("/videos/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const { title, url, description, xpPoints, order } = req.body;
     await db.update(videosTable).set({ title, url, description, xpPoints, order }).where(eq(videosTable.id, id));
     return res.json({ success: true });
@@ -316,7 +316,7 @@ adminRouter.patch("/videos/:id", async (req, res) => {
 adminRouter.delete("/videos/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     await db.delete(videosTable).where(eq(videosTable.id, id));
     return res.json({ success: true });
   } catch (err) {
@@ -352,7 +352,7 @@ adminRouter.patch("/mentors/:id", async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: "Database not configured" });
     const { status } = req.body; // 'ativo' ou 'inativo'
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
 
     await db.update(mentorsTable).set({ status }).where(eq(mentorsTable.id, id));
     return res.json({ success: true });
