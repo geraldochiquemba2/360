@@ -548,9 +548,7 @@ export default function Home() {
             <h2 className="text-[10vw] md:text-[6rem] font-display uppercase leading-[0.8] mb-6 tracking-tighter">
               O MOMENTO <br/><span className="text-[#0EA5E9]">É AGORA.</span>
             </h2>
-            <p className="text-xl font-sans text-white/60 mb-8">
-              Apenas candidatos com perfil ajustado serão contactados. Preenche com rigor.
-            </p>
+
           </div>
 
           <div className="bg-transparent border-4 border-[#0EA5E9] p-8 md:p-12 relative shadow-[16px_16px_0px_0px_rgba(249,115,22,1)]">

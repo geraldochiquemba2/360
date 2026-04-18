@@ -28,7 +28,9 @@ function Router() {
       <Route path="/profile" component={ProfileSettingsPage} />
       <Route path="/dashboard" component={CandidateDashboard} />
       <Route path="/" component={Home} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route path="/auth/login" component={LoginPage} />
+      <Route path="/auth/register" component={RegisterPage} />
       <Route path="/opportunities" component={OpportunitiesPage} />
       <Route path="/career-tracks" component={TracksListPage} />
       <Route path="/career-tracks/viewer/:id" component={TrackViewerPage} />
