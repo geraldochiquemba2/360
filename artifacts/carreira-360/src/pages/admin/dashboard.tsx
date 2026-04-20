@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
-import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar, Film, Layers, UserCheck, Pencil, MessageSquare, MessageCircle, X, Search, Check } from "lucide-react";
+import { Users, BookOpen, Briefcase, Settings, LogOut, LayoutDashboard, Menu, Plus, Trash2, ExternalLink, MapPin, Building2, Calendar, Film, Layers, UserCheck, Pencil, MessageSquare, MessageCircle, X, Search, Check, Sparkles, Wand2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
@@ -69,6 +69,9 @@ export default function AdminDashboard() {
   const [isAddingModule, setIsAddingModule] = useState(false);
   const [isAddingVideo, setIsAddingVideo] = useState(false);
   const [isAddingTopic, setIsAddingTopic] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiProfession, setAiProfession] = useState("");
+  const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [videos, setVideos] = useState<any[]>([]);
 
   // Estados de Edição e Visualização
@@ -477,6 +480,37 @@ export default function AdminDashboard() {
     } catch (err) { toast({ title: "Erro ao eliminar tópico" }); }
   };
 
+  const handleGenerateAI = async () => {
+    if (!aiProfession.trim()) {
+      toast({ variant: "destructive", title: "Erro", description: "Introduza uma profissão." });
+      return;
+    }
+    
+    setIsAiProcessing(true);
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/admin/generate-track-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ profession: aiProfession })
+      });
+      
+      if (response.ok) {
+        toast({ title: "Trilha Gerada!", description: "A IA estruturou a jornada com sucesso." });
+        setIsGeneratingAI(false);
+        setAiProfession("");
+        fetchTracks();
+      } else {
+        const error = await response.json();
+        toast({ variant: "destructive", title: "Falha na IA", description: error.message || "Tente novamente." });
+      }
+    } catch (err) {
+      toast({ variant: "destructive", title: "Erro de Rede" });
+    } finally {
+      setIsAiProcessing(false);
+    }
+  };
+
   const fetchTracks = async () => {
     setLoadingTracks(true);
     const token = localStorage.getItem("token");
@@ -754,9 +788,17 @@ export default function AdminDashboard() {
             </Button>
           )}
           {currentTab === 'content' && !selectedTrack && (
-            <Button onClick={() => { setEditingTrack(null); setIsAddingTrack(true); }} className="bg-[#0EA5E9] text-white uppercase font-bold text-[10px] sm:text-xs px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
-              <Plus className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Nova Trilha</span>
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => setIsGeneratingAI(true)} 
+                className="bg-gradient-to-r from-[#F97316] to-[#FACC15] text-[#001F33] uppercase font-black text-[10px] sm:text-xs px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              >
+                <Sparkles size={16} /> <span className="hidden sm:inline">Gerar via IA</span>
+              </Button>
+              <Button onClick={() => { setEditingTrack(null); setIsAddingTrack(true); }} className="bg-[#0EA5E9] text-white uppercase font-bold text-[10px] sm:text-xs px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all">
+                <Plus className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Nova Trilha</span>
+              </Button>
+            </div>
           )}
           {currentTab === 'forum' && (
             <Button onClick={() => { setNewTopic({title: "", content: "", category: "Geral", imageUrl: "", videoUrl: ""}); setIsAddingTopic(true); }} className="bg-[#0EA5E9] text-white uppercase font-bold text-[9px] sm:text-[10px] px-4 sm:px-6 h-10 sm:h-11 rounded-full shadow-lg shadow-[#0EA5E9]/20 hover:scale-105 active:scale-95 transition-all flex items-center">

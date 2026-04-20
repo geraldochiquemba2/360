@@ -431,4 +431,100 @@ adminRouter.post("/notifications/bulk", async (req, res) => {
   }
 });
 
+// GERADOR DE TRILHAS VIA IA (GROQ)
+adminRouter.post("/generate-track-ai", async (req, res) => {
+  const { profession } = req.body;
+  const apiKey = process.env.GROQ_API_KEY;
+
+  if (!apiKey) {
+    return res.status(500).json({ error: "GROQ_API_KEY não configurada no servidor." });
+  }
+
+  try {
+    logger.info(`Gerando trilha para: ${profession}`);
+
+    const prompt = `Você é um especialista em engenharia de carreiras e mercado de trabalho em Angola.
+Gere uma trilha profissional completa e premium para a profissão: "${profession}".
+A trilha DEVE ter exatamente 6 fases, evoluindo de "Aprendiz" até "Pronto para o Mercado".
+
+Formato esperado (RETORNE APENAS O JSON, SEM TEXTO ADICIONAL):
+{
+  "title": "Trilha Profissional: ${profession}",
+  "description": "Uma jornada completa para dominar as competências de ${profession} do zero ao mercado.",
+  "category": "Engenharia",
+  "modules": [
+    {
+      "title": "FASE 1 — Fundamentos",
+      "items": [
+        { "title": "Vídeo: Introdução à Área", "type": "video", "description": "Conceitos básicos", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "xp": 100 },
+        { "title": "Quiz: Conceitos Iniciais", "type": "quiz", "description": "Teste seus conhecimentos", "xp": 150 }
+      ]
+    },
+    ... (total de 6 módulos)
+  ]
+}
+
+REGRAS:
+1. A Fase 4 deve focar em "Experiência Simulada" (type: "simulation").
+2. A Fase 5 deve focar em "Preparação para o Mercado" (type: "activity" ou "quiz" de entrevista).
+3. Use nomes de fases atraentes e profissionais.
+4. Adicione descrições ricas em cada item.`;
+
+    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+        response_format: { type: "json_object" }
+      })
+    });
+
+    const completion = await groqResponse.json();
+    const aiData = JSON.parse(completion.choices[0].message.content);
+
+    // Inserir no Banco de Dados
+    const [track] = await db.insert(tracksTable).values({
+      title: aiData.title,
+      description: aiData.description,
+      category: aiData.category || "Geral",
+      imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=80",
+      duration: "12 Meses",
+      hasCertificate: true
+    }).returning();
+
+    for (let i = 0; i < aiData.modules.length; i++) {
+      const modData = aiData.modules[i];
+      const [module] = await db.insert(modulesTable).values({
+        trackId: track.id,
+        title: modData.title,
+        order: i
+      }).returning();
+
+      for (let j = 0; j < modData.items.length; j++) {
+        const item = modData.items[j];
+        await db.insert(videosTable).values({
+          trackId: track.id,
+          moduleId: module.id,
+          title: item.title,
+          description: item.description,
+          type: item.type || "video",
+          url: item.url || "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          xpPoints: item.xp || 100,
+          order: j
+        });
+      }
+    }
+
+    return res.json({ success: true, trackId: track.id });
+  } catch (err) {
+    console.error("Erro na geração IA:", err);
+    return res.status(500).json({ error: "Falha ao gerar trilha com IA." });
+  }
+});
+
 export default adminRouter;

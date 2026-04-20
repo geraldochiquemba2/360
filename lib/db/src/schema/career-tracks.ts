@@ -5,6 +5,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 // 1. TRILHAS (Cursos)
 export const tracksTable = pgTable("tracks", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => usersTable.id, { onDelete: 'cascade' }), // NULL for official tracks
   title: text("title").notNull(),
   description: text("description").notNull(),
   imageUrl: text("image_url"),
@@ -31,6 +32,8 @@ export const videosTable = pgTable("videos", {
   title: text("title").notNull(),
   url: text("url").notNull(), // YouTube/Vimeo
   description: text("description"),
+  type: text("type").default("video"), // 'video', 'activity', 'simulation', 'quiz', 'evaluation'
+  activityData: text("activity_data"), // JSON content for activities/quizzes
   duration: integer("duration"), // em segundos
   xpPoints: integer("xp_points").notNull().default(100),
   order: integer("order").notNull().default(0),

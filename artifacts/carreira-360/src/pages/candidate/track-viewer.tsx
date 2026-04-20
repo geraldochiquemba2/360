@@ -13,7 +13,10 @@ import {
   Layout,
   Star,
   PanelRightClose,
-  PanelRightOpen
+  PanelRightOpen,
+  FileText,
+  Terminal,
+  HelpCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -170,7 +173,16 @@ export default function TrackViewer() {
                <div className="flex items-center gap-2 sm:gap-4 bg-white/40 px-4 sm:px-6 py-2 rounded-full border border-white/20">
                   <div className="flex items-center gap-2">
                     <Star size={14} className="text-[#F97316]" fill="currentColor" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#001F33]">Nível {stats.level}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#001F33]">
+                      {data?.track?.title?.includes("PETRÓLEOS") ? (
+                        activeVideo?.moduleId === data.modules[0]?.id ? "Nível: Aprendiz" :
+                        activeVideo?.moduleId === data.modules[1]?.id ? "Nível: Técnico em Formação" :
+                        activeVideo?.moduleId === data.modules[2]?.id ? "Nível: Praticante" :
+                        activeVideo?.moduleId === data.modules[3]?.id ? "Nível: Júnior Preparado" :
+                        activeVideo?.moduleId === data.modules[4]?.id ? "Nível: Pronto para o Mercado" :
+                        "Nível: Inserção Profissional"
+                      ) : `Nível ${stats.level}`}
+                    </span>
                   </div>
                   <div className="hidden xs:block h-1.5 w-16 sm:w-24 bg-[#001F33]/20 rounded-full overflow-hidden">
                     <div 
@@ -185,19 +197,47 @@ export default function TrackViewer() {
 
           <div className="bg-[#001F33] rounded-3xl md:rounded-[40px] overflow-hidden shadow-2xl relative group border-4 md:border-8 border-white/10">
             {activeVideo ? (
-              <div className="aspect-video w-full bg-black">
-                <iframe 
-                  className="w-full h-full"
-                  src={`https://www.youtube.com/embed/${getYouTubeId(activeVideo.url)}?autoplay=0&rel=0`}
-                  title={activeVideo.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
+              activeVideo.type === 'video' || !activeVideo.type ? (
+                <div className="aspect-video w-full bg-black">
+                  <iframe 
+                    className="w-full h-full"
+                    src={`https://www.youtube.com/embed/${getYouTubeId(activeVideo.url)}?autoplay=0&rel=0`}
+                    title={activeVideo.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              ) : (
+                <div className="aspect-video w-full bg-gradient-to-br from-[#001F33] to-[#0EA5E9]/20 flex flex-col items-center justify-center p-8 sm:p-12 text-center">
+                   <motion.div
+                     initial={{ scale: 0.8, opacity: 0 }}
+                     animate={{ scale: 1, opacity: 1 }}
+                     key={activeVideo.id}
+                     className="flex flex-col items-center"
+                   >
+                     {activeVideo.type === 'activity' && <FileText size={64} className="text-[#0EA5E9] mb-6" />}
+                     {activeVideo.type === 'simulation' && <Terminal size={64} className="text-[#F97316] mb-6" />}
+                     {activeVideo.type === 'quiz' && <HelpCircle size={64} className="text-[#0EA5E9] mb-6" />}
+                     {activeVideo.type === 'evaluation' && <Award size={64} className="text-[#F97316] mb-6" />}
+                     
+                     <h2 className="text-2xl sm:text-3xl font-display uppercase text-white mb-4 line-clamp-2">{activeVideo.title}</h2>
+                     <p className="text-white/60 max-w-lg mb-8 text-xs sm:text-sm line-clamp-3">{activeVideo.description}</p>
+                     
+                     <Button 
+                       onClick={() => handleComplete(activeVideo.id)}
+                       className="bg-[#0EA5E9] hover:bg-white hover:text-[#001F33] text-white uppercase font-black tracking-widest px-10 h-14 rounded-xl transition-all"
+                     >
+                        {activeVideo.type === 'simulation' ? 'Iniciar Simulação' : 
+                         activeVideo.type === 'evaluation' ? 'Começar Avaliação' : 
+                         activeVideo.type === 'quiz' ? 'Fazer Quiz' : 'Concluir Actividade'}
+                     </Button>
+                   </motion.div>
+                </div>
+              )
             ) : (
               <div className="aspect-video flex items-center justify-center text-white/50 font-display uppercase tracking-widest">
-                Nenhum vídeo disponível neste módulo.
+                Nenhum conteúdo disponível neste módulo.
               </div>
             )}
           </div>
@@ -268,7 +308,12 @@ export default function TrackViewer() {
                           ? 'bg-[#22C55E]/10 text-[#22C55E]' 
                           : activeVideo?.id === vid.id ? 'bg-[#0EA5E9] text-white' : 'bg-[#001F33]/5 text-[#001F33]/70 group-hover:bg-[#001F33]/10'
                         }`}>
-                          {vid.isCompleted ? <CheckCircle2 size={20} /> : <Play size={20} />}
+                          {vid.isCompleted ? <CheckCircle2 size={20} /> : 
+                           vid.type === 'activity' ? <FileText size={20} /> :
+                           vid.type === 'simulation' ? <Terminal size={20} /> :
+                           vid.type === 'quiz' ? <HelpCircle size={20} /> :
+                           vid.type === 'evaluation' ? <Award size={20} /> :
+                           <Play size={20} />}
                         </div>
                         <div className="flex-1">
                           <p className={`text-xs font-bold leading-tight ${activeVideo?.id === vid.id ? 'text-[#001F33]' : 'text-[#001F33]/70'}`}>{vid.title}</p>
@@ -287,17 +332,43 @@ export default function TrackViewer() {
 
           {/* Progress Summary Bottom Bar */}
           {user?.role !== 'mentor' && (
-            <div className="p-6 bg-white border-t border-[#001F33]/10">
-               <div className="flex justify-between items-center mb-3">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-[#001F33]">Teu Progresso</span>
-                  <span className="text-[10px] font-black text-[#0EA5E9]">{Math.round((data.videos.filter((v:any)=>v.isCompleted).length / data.videos.length) * 100)}%</span>
-               </div>
-               <div className="h-2 bg-[#001F33]/5 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(data.videos.filter((v:any)=>v.isCompleted).length / data.videos.length) * 100}%` }}
-                    className="h-full bg-[#0EA5E9] shadow-[0_0_10px_rgba(14,165,233,0.5)]"
-                  />
+            <div className="p-6 bg-white border-t border-[#001F33]/10 space-y-6">
+               {/* Reward / Badge Preview */}
+               {data.track.title.includes("PETRÓLEOS") && (
+                 <motion.div 
+                   initial={{ opacity: 0, y: 10 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   className="p-4 bg-[#001F33] text-white rounded-2xl border border-[#0EA5E9]/20 shadow-xl mb-4"
+                 >
+                    <div className="flex items-center gap-3 mb-2">
+                       <div className="h-10 w-10 bg-[#F97316]/20 rounded-xl flex items-center justify-center text-[#F97316]">
+                          <Award size={20} />
+                       </div>
+                       <div>
+                          <p className="text-[7px] font-black uppercase tracking-[0.2em] text-[#F97316]">Badge em Progresso</p>
+                          <h4 className="text-[10px] font-display uppercase tracking-widest">
+                            {data.videos.filter((v:any)=>v.isCompleted).length > 15 ? '"Engenheiro Certificado"' : '"Analista de Produção"'}
+                          </h4>
+                       </div>
+                    </div>
+                    <div className="text-[7px] font-black uppercase tracking-widest text-white/40">
+                       Próximo Badge: {Math.round((data.videos.filter((v:any)=>v.isCompleted).length / data.videos.length) * 100)}% concluído
+                    </div>
+                 </motion.div>
+               )}
+
+               <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                     <span className="text-[10px] font-black uppercase tracking-widest text-[#001F33]">Teu Progresso</span>
+                     <span className="text-[10px] font-black text-[#0EA5E9]">{Math.round((data.videos.filter((v:any)=>v.isCompleted).length / data.videos.length) * 100)}%</span>
+                  </div>
+                  <div className="h-2 bg-[#001F33]/5 rounded-full overflow-hidden">
+                     <motion.div 
+                       initial={{ width: 0 }}
+                       animate={{ width: `${(data.videos.filter((v:any)=>v.isCompleted).length / data.videos.length) * 100}%` }}
+                       className="h-full bg-[#0EA5E9] shadow-[0_0_10px_rgba(14,165,233,0.5)]"
+                     />
+                  </div>
                </div>
             </div>
           )}

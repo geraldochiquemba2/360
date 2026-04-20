@@ -39,6 +39,9 @@ export default function CandidateDashboard() {
   const [tracks, setTracks] = useState<any[]>([]);
   const [stats, setStats] = useState({ xp: 0, level: 1 });
   const [loading, setLoading] = useState(true);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiCommand, setAiCommand] = useState("");
+  const [isAiProcessing, setIsAiProcessing] = useState(false);
 
   const fetchStats = async () => {
     const token = localStorage.getItem("token");
@@ -52,6 +55,36 @@ export default function CandidateDashboard() {
       }
     } catch (err) {
       console.error("Erro ao buscar stats", err);
+    }
+  };
+
+  const handleGeneratePersonalAI = async () => {
+    if (!aiCommand.trim()) {
+      toast({ variant: "destructive", title: "Erro", description: "Diz à IA o que queres aprender." });
+      return;
+    }
+    
+    setIsAiProcessing(true);
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch("/api/tracks/generate-personal-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ command: aiCommand })
+      });
+      
+      if (response.ok) {
+        toast({ title: "Trilha Personalizada Criada!", description: "A IA estruturou o teu plano de estudo." });
+        setIsGeneratingAI(false);
+        setAiCommand("");
+        fetchTracks();
+      } else {
+        toast({ variant: "destructive", title: "Falha na IA", description: "Tenta simplificar o teu pedido." });
+      }
+    } catch (err) {
+      toast({ variant: "destructive", title: "Erro de Rede" });
+    } finally {
+      setIsAiProcessing(false);
     }
   };
 
@@ -264,52 +297,66 @@ export default function CandidateDashboard() {
               )}
 
               {/* Career Tracks Section */}
-              <div className="pt-12">
-                <h2 className="text-lg font-display uppercase text-[#F97316] tracking-widest mb-8">Trilhas de Aprendizagem</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {tracks.length === 0 ? (
-                    <div className="col-span-2 bg-white/40 p-12 rounded-[30px] border border-dashed border-[#001F33]/10 text-center">
-                      <p className="text-[#001F33]/30 font-bold uppercase text-[11px] tracking-widest">Brevemente: Novas Trilhas Personalizadas</p>
-                    </div>
-                  ) : (
-                    <>
-                      {tracks.slice(0, 2).map((track) => (
-                        <motion.div 
-                          key={track.id}
-                          whileHover={{ y: -6 }}
-                          className="bg-white rounded-[40px] overflow-hidden shadow-lg border border-[#001F33]/5 group hover:border-[#F97316]/30 transition-all duration-300"
-                        >
-                          <div className="h-36 relative">
-                            {track.imageUrl ? (
-                              <img src={getFileUrl(track.imageUrl)} alt={track.title} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
-                            ) : (
-                              <div className="w-full h-full bg-[#001F33]/5 flex items-center justify-center">
-                                 <GraduationCap size={48} className="text-[#001F33]/20" />
-                              </div>
-                            )}
-                            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/20 to-transparent" />
-                          </div>
-                          <div className="p-8">
-                            <h3 className="text-lg font-display uppercase text-[#001F33] mb-3 line-clamp-1">{track.title}</h3>
-                            <div className="flex items-center gap-5 mb-6 text-[11px] font-black uppercase tracking-widest text-[#0EA5E9]">
-                               <span className="flex items-center"><Clock size={14} className="mr-2" /> {track.duration || 'Flexível'}</span>
-                               {track.hasCertificate !== false && (
-                                 <span className="flex items-center text-[#F97316]"><Award size={14} className="mr-2" /> Certificado</span>
-                               )}
-                            </div>
-                            <Button 
-                              onClick={() => handleStartTrack(track.id)}
-                              className="w-full bg-[#F97316]/10 hover:bg-[#F97316] text-[#F97316] hover:text-white uppercase font-black text-xs tracking-[0.2em] h-14 rounded-2xl transition-all"
-                            >
-                              Começar Trilhar
-                            </Button>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </>
-                  )}
-                </div>
+              {/* career tracks header with AI button */}
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-lg font-display uppercase text-[#F97316] tracking-widest">Trilhas de Aprendizagem</h2>
+                <Button 
+                  onClick={() => setIsGeneratingAI(true)}
+                  className="bg-gradient-to-r from-[#0EA5E9] to-[#001F33] text-white text-[10px] font-black uppercase tracking-widest h-10 px-6 rounded-full shadow-lg shadow-[#0EA5E9]/20 flex items-center gap-2 hover:scale-105 transition-all"
+                >
+                  <Sparkles size={14} /> Gerar com IA
+                </Button>
               </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {tracks.length === 0 ? (
+                  <div className="col-span-2 bg-white/40 p-12 rounded-[30px] border border-dashed border-[#001F33]/10 text-center">
+                    <p className="text-[#001F33]/30 font-bold uppercase text-[11px] tracking-widest">Cria a tua primeira trilha personalizada acima!</p>
+                  </div>
+                ) : (
+                  <>
+                    {tracks.map((track) => (
+                      <motion.div 
+                        key={track.id}
+                        whileHover={{ y: -6 }}
+                        className={`bg-white rounded-[40px] overflow-hidden shadow-lg border-2 ${track.userId ? 'border-[#0EA5E9]/30 bg-blue-50/20' : 'border-[#001F33]/5'} group hover:shadow-2xl transition-all duration-300`}
+                      >
+                        <div className="h-36 relative">
+                          {track.imageUrl ? (
+                            <img src={getFileUrl(track.imageUrl)} alt={track.title} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
+                          ) : (
+                            <div className="w-full h-full bg-[#001F33]/5 flex items-center justify-center">
+                               <GraduationCap size={48} className="text-[#001F33]/20" />
+                            </div>
+                          )}
+                          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/20 to-transparent" />
+                          {track.userId && (
+                            <div className="absolute top-4 right-4 bg-[#0EA5E9] text-white text-[8px] font-black uppercase px-2 py-1 rounded-md shadow-lg flex items-center gap-1">
+                              <Sparkles size={10} /> IA Personalizada
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-8">
+                          <h3 className="text-lg font-display uppercase text-[#001F33] mb-3 line-clamp-1">{track.title}</h3>
+                          <div className="flex items-center gap-5 mb-6 text-[11px] font-black uppercase tracking-widest text-[#0EA5E9]">
+                             <span className="flex items-center"><Clock size={14} className="mr-2" /> {track.duration || 'Flexível'}</span>
+                             {track.hasCertificate !== false && !track.userId && (
+                               <span className="flex items-center text-[#F97316]"><Award size={14} className="mr-2" /> Certificado</span>
+                             )}
+                          </div>
+                          <Button 
+                            onClick={() => handleStartTrack(track.id)}
+                            className={`w-full ${track.userId ? 'bg-[#0EA5E9] text-white' : 'bg-[#F97316]/10 text-[#F97316]'} hover:opacity-90 uppercase font-black text-xs tracking-[0.2em] h-14 rounded-2xl transition-all`}
+                          >
+                            {track.userId ? 'Continuar Aprendizado' : 'Começar Trilhar'}
+                          </Button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </>
+                )}
+              </div>
+            </div>
             </div>
 
             {/* Right Column: AI Pulse */}
@@ -349,12 +396,64 @@ export default function CandidateDashboard() {
             </div>
           </div>
         </div>
+        {/* AI Tutor Dialog */}
+        <Dialog open={isGeneratingAI} onOpenChange={setIsGeneratingAI}>
+          <DialogContent className="max-w-md bg-white border-none shadow-2xl rounded-[40px] p-10 overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0EA5E9]/20 to-[#001F33]/20 rounded-bl-full pointer-events-none"></div>
+            
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-display uppercase text-[#001F33] tracking-tighter flex items-center gap-3">
+                <Sparkles className="text-[#0EA5E9]" /> Tutor IA Pessoal
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="py-8 space-y-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#001F33]/60 leading-relaxed">
+                Diz à IA o que queres aprender hoje. Ela irá criar uma trilha única só para ti.
+              </p>
+              
+              <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0EA5E9] ml-2">O teu comando para a IA</label>
+                <div className="relative group">
+                  <MessageSquare className="absolute left-5 top-6 text-[#001F33]/30 group-focus-within:text-[#0EA5E9] transition-colors" size={20} />
+                  <textarea 
+                    disabled={isAiProcessing}
+                    className="w-full pl-14 pr-6 py-6 bg-[#EBDCC6] border-2 border-[#8B4513]/20 rounded-2xl font-bold text-[#001F33] text-sm focus:border-[#0EA5E9] focus:ring-0 placeholder:text-[#001F33]/30 min-h-[120px] resize-none" 
+                    placeholder="Ex: Quero aprender a usar Python para analisar dados de vendas em 3 fases rápidas."
+                    value={aiCommand}
+                    onChange={(e) => setAiCommand(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button 
+                onClick={handleGeneratePersonalAI}
+                disabled={isAiProcessing}
+                className="w-full h-16 bg-[#001F33] text-white uppercase font-black tracking-[0.2em] rounded-2xl shadow-xl shadow-black/20 hover:bg-[#0EA5E9] transition-all flex items-center justify-center gap-3"
+              >
+                {isAiProcessing ? (
+                  <>
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                      <Sparkles size={20} />
+                    </motion.div>
+                    A Criar a tua Trilha...
+                  </>
+                ) : (
+                  <>Criar Plano de Estudo</>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
 }
 
 function GradientPulse() {
+// ... (rest of file)
   return (
     <div className="flex gap-1.5 mb-8">
       {[1, 2, 3].map((i) => (
