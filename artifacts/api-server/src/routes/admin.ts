@@ -484,14 +484,16 @@ REGRAS:
       })
     });
 
-    const completion = await groqResponse.json();
+    const completion = await groqResponse.json() as any;
     const aiData = JSON.parse(completion.choices[0].message.content);
+
+    if (!db) return res.status(500).json({ error: "Banco de dados não configurado" });
 
     // Inserir no Banco de Dados
     const [track] = await db.insert(tracksTable).values({
       title: aiData.title,
       description: aiData.description,
-      category: aiData.category || "Geral",
+      category: aiData.category || "Engenharia",
       imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=80",
       duration: "12 Meses",
       hasCertificate: true

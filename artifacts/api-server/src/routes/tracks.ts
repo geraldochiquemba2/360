@@ -110,8 +110,10 @@ Use URLs de exemplo do YouTube se necessário.`;
       })
     });
 
-    const completion = await groqResponse.json();
+    const completion = await groqResponse.json() as any;
     const aiData = JSON.parse(completion.choices[0].message.content);
+
+    if (!db) return res.status(500).json({ error: "Serviço de banco de dados indisponível." });
 
     // Inserir no Banco de Dados marcada como pessoal
     const [track] = await db.insert(tracksTable).values({

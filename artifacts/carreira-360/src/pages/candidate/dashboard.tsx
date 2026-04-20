@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, Building2, Calendar, ExternalLink, GraduationCap, Award, LayoutDashboard, LogOut, Users, MessageSquare, Menu, X, Sparkles, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter
+} from "@/components/ui/dialog";
 
 const getFileUrl = (url: string) => {
   if (!url) return "";
@@ -357,7 +364,6 @@ export default function CandidateDashboard() {
                 )}
               </div>
             </div>
-            </div>
 
             {/* Right Column: AI Pulse */}
             <div className="space-y-8">
@@ -453,7 +459,6 @@ export default function CandidateDashboard() {
 }
 
 function GradientPulse() {
-// ... (rest of file)
   return (
     <div className="flex gap-1.5 mb-8">
       {[1, 2, 3].map((i) => (
